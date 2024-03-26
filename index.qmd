@@ -1,6 +1,7 @@
 ---
-title: "Title of your work"
-author: "Your Name"
+title: "US TWI Effects on Economic Stability in Australia"
+
+author: "Ben Gussen"
 
 execute:
   echo: false
@@ -8,73 +9,499 @@ execute:
 bibliography: references.bib
 ---
 
-> **Abstract.** This is a suggested formatting for your abstract. This **quarto** document is a template for your report. It includes some basic ways of working with such documents. You are invited to learn more about developing online reports with this technology. 
+> **Abstract.** This is research project to investigate the dynamic effects of a weaker United States Dollar (USD) on the Australian economy, with a focus on economic stability. By employing Bayesian Structural Vector Autoregression (SVAR) analysis, this study aims to elucidate the transmission mechanisms of USD fluctuations through through three channels: GDP growth, inflation, and unemployment. The findings are expected to provide nuanced insights into the macroeconomic interdependencies between the USD and the Australian economy, offering valuable perspectives for policymakers and economic analysts.
 >
-> **Keywords.** bsvars, impulse responses, quarto, R, tax shocks
+> **Keywords.** Bayesian SVAR, USD, Australian economy, inflation, economic stability
 
 # Introduction
 
-This is a template repository for the Research Report for **Macroeconometrics**. Learn more about about developing online reports with **quarto** at [quarto.org](https://quarto.org/).
+This document presents the design and implementation of a Bayesian Structural Vector Autoregression (SVAR) model. Our focus is on understanding the impact of the Trade Weighted Index (TWI) of the USD on Australian economic indicators: unemployment, inflation, and GDP rate.
 
-## A Simple Example
+# Research Proposal Structure
 
-This is a Quarto document in which we can cite the **bsvars** package by @wozniakBsvarsBayesianEstimation2022. Look for more info at [package CRAN website](https://cran.r-project.org/package=bsvars).
+## The Question, Objective, and Motivation
 
-Simply load the package by running
-```{r package load}
-library(bsvars)
-```
+**Objective:** To examine the dynamic effects of a weakening USD on the Australian economy, focusing on changes to the GDP, inflation and unemployment.
 
-The code below performs simple computations for sampling posterior draws of the impulse responses. The first line uploads the data from the package,another sets the seed for reproducible computations, and then the pipe `|>` is used to streamline the model specification, estimation including the first burn-in run to obtain convergence and finally, the computed impulse responses are saved in object `irf`.
-```{r estimate irf}
+**Research Question:** How does a weakening United States Dollar (USD) influence overall economic stability in Australia?
+
+**Motivation:** The relationship between the USD and the Australian economy is crucial, given the extensive trade links and financial interactions between the two nations. In light of recent global financial uncertainties, understanding this interplay is essential for crafting informed economic policies and strategies. This research endeavors to dissect the complexities of this economic relationship, aiming to provide insights that could inform both policymakers and market participants.
+
+#### The US dollar trade weighted index or the USD/AUD exchange rate?
+
+The US Trade Weighted Index (USD TWI) and the USD/AUD exchange rate are both measures related to the value of the US dollar, but they provide different information. The USD TWI is a broad measure of the value of the US dollar relative to a basket of currencies of its major trading partners. It is a weighted average, where currencies of more important trading partners have a greater influence on the index value. The weights are adjusted periodically to reflect changes in trading patterns. The USD TWI focuses on the competitiveness of US goods and services in international trade. A higher USD TWI indicates a stronger US dollar compared to the basket of currencies. 
+
+On the other hand, the USD/AUD exchange rate is the price of one US dollar in terms of Australian dollars. This rate forcuses on Tte direct exchange value between the US dollar and the Australian dollar. A higher USD/AUD rate means it takes more Australian dollars to buy one US dollar (stronger USD).
+
+In terms of the differences between the USD TWI and the USD/AUD rate, the scope of the former is much larger than the scope of the latter, thus giving a better picture of the overall strength or weakness of the US dollar. USD TWI considers a basket of currencies, while USD/AUD is just one currency pair. The USD TWI focus reflects overall trade competitiveness, while USD/AUD is a specific exchange rate. The USD TWI provides a broader picture, while USD/AUD is a more granular data point. Imagine the USD TWI as a stock market index for the US dollar, reflecting its performance against a group of major currencies. The USD/AUD exchange rate is like the price of a single stock in that index.
+
+In order to ensure capturing an international perspective of the US dollar position, it is more appropriate to use the USD TWI instead of the USD/AUD exchage rate. 
+
+#### What is economic stability?
+
+Economic stability describes a healthy condition of a nation's economy, characterized by:
+
+* **Low and stable inflation:** Prices rise slowly and predictably, allowing people to plan for the future without fearing excessive erosion of purchasing power.
+* **Moderate unemployment rate:** Enough jobs are available to employ most people seeking work, but not so few that wages become inflated due to a limited labor pool. 
+* **Minimal fluctuations:** The economy experiences steady growth with minimal booms and busts. This translates to small variations in output growth.
+
+Governments and central banks use various tools like fiscal policy (taxation and spending) and monetary policy (interest rates) to try and achieve this economic stability. It is a delicate balancing act, and achieving all these goals simultaneously can be challenging.
+
+In simpler terms, economic stability reflects a predictable and healthy economic environment.  This stability fosters business confidence, consumer spending, and overall economic well-being. Measuring inflation, unemployment rate, and GDP growth is a proxy for measuring economic stability.
+
+#### Effect of a weak US dollar on Australian inflation
+
+The effect of a weaker US dollar on inflation in Australia involves several mechanisms, primarily through trade and investment channels. A weaker US dollar makes US imports cheaper in Australian terms. This can reduce the price of goods and services Australia imports from the US, potentially lowering the inflation rate, especially for products directly imported from the US or priced in US dollars. Also, since Australia is a significant exporter, a weaker US dollar can increase the local currency value of its US dollar-denominated exports. This leads to higher income for Australian exporters and can boost the economy. However, this can also contribute to cost-push inflation if the increased demand raises domestic prices. A weaker US dollar can enhance the competitiveness of Australian exports by making them more affordable internationally. This could increase export revenues, boost economic activity, and potentially lead to higher demand-pull inflation in Australia. As to investment Flows, a depreciating US dollar might redirect investment flows away from the US and towards other economies, including Australia. Increased investment can stimulate the Australian economy but also contribute to inflationary pressures if it leads to increased spending. In summary, a weaker US dollar can have inflationary effects by making imports cheaper, increasing the local currency earnings from exports, and improving the competitiveness of Australian goods in the global market. However, the actual impact on Australian inflation will depend on a variety of factors, including the overall trade balance, the elasticity of demand for imports and exports, monetary policy responses, and the state of the global and domestic economies. Notwithstanding, by measuring the historcial effect of the US Trade Weighted Index on domestic inflation, one can ascertain the aggregate effect of these other factors, and potentially, predict the future effect of a weakening of the US dollar on the Australian CPI rate. 
+
+#### Effect of a weak US dollar on Australian unemployment 
+
+A weaker US dollar generally translates to a stronger Australian dollar (AUD). With a stronger AUD, Australian goods and services become relatively cheaper on the global market. This can lead to increased demand for Australian exports, potentially boosting production and requiring more workers, which could lead to a decrease in unemployment. However, a stronger AUD can also make imports cheaper for Australian businesses. This can reduce production costs and potentially improve profit margins. However, it can also make domestically produced goods less competitive compared to cheaper imports, potentially leading to job losses in some sectors. The net effect on unemployment depends on the relative strengths of these two forces. If the export boost outweighs the import competition, the unemployment rate might decrease. However, the impact can be complex and depend on other economic factors. 
+
+#### Effect of a weak US dollar on Australian GDP growth 
+
+Similarly, A weaker US dollar can have both positive and negative effects on the Australian GDP growth rate. A weaker US dollar can make Australian exports relatively cheaper for US buyers, potentially boosting demand for Australian goods and services in the US market. This increase in exports could lead to higher GDP growth as Australian businesses expand to meet this demand. On the flip side, a weaker US dollar can make imports into Australia more expensive, which could lead to higher costs for businesses and consumers. If the increase in import prices outweighs the benefits from increased exports, it could dampen overall economic growth. In addition, Australia is a major exporter of commodities such as iron ore, coal, and natural gas. Commodity prices are often denominated in US dollars, so a weaker US dollar can lead to higher commodity prices in US dollar terms. This can be beneficial for Australian exporters and government revenues, contributing positively to GDP growth. Also, changes in currency values can influence investment flows between countries. A weaker US dollar might make Australian assets relatively more attractive to investors, leading to increased foreign investment inflows into Australia. This can stimulate economic activity and contribute to GDP growth. Overall, the net effect of a weaker US dollar on Australian GDP growth rate will depend on various factors including the responsiveness of exports and imports to changes in currency values, commodity price movements, and the dynamics of investment flows.
+
+
+
+
+## Data and Their Properties
+
+In order to conduct a thorough analysis of the impact of USD fluctuations on the Australian economy, this study will utilize a set of time-series data that encapsulates three economic indicators:
+
+- **Growth Rate in the Australian Gross Domestic Product:** Quarterly GDP figures representing the overall economic activity within Australia.
+
+- **Unemployment Rate:** The benchmark interest rates set by the Reserve Bank of Australia, indicative of the cost of borrowing in the economy.
+
+- **Inflation Rate:** Measured by the change in the Consumer Price Index (CPI), reflecting the changes in prices for goods and services.
+
+These indicators will be analyzed against one proxy for the strength of the USD dollar as an interantional currency. 
+
+- **USD Trade Weighted Index:** monthly index of US dollar major currency trade-weighted index. 
+
+
+### Motivation for Data Choice:
+
+The chosen variables provide a comprehensive view of the economic landscape necessary for understanding the dynamics between the USD and the Australian economy. Trade weighted indices directly influence the competitiveness of a country's goods and services abroad, impacting trade balances and, subsequently, GDP levels. Given that the United States is one of Australia's major trading partners, changes in the strength of the USD would be likely to impact the growth rate in Australia's GDP. Similarly, changes to the same index are likely to influence the inflation and unemployment rates, which are critical indicators of economic health, influencing purchasing power and consumer spending. Together, these data series allow for an in-depth analysis of international economic interactions and the stability of the Australian economy.
+
+### Data Acquisition and Transformation:
+
+The required data will be sourced from official Australian government databases, in particular the Reserve Bank of Australia. An initial look at the data indicates that they have different frequencies.
+
+It is apposite to point out here that the project will use conduct the analysis on data in the time window between 1980 and 2019. Data older than the first quarter of 1980 is likely to be too remote to be relevant to the current trade relations impacting on the USD and the Australain economy. Data points after the fourth quarter in 2019 were impacted by the COVID-19 crisis, and this is likely to distort  the analysis. 
+
+Dealing with time series data at different frequencies within a Bayesian Structural Vector Autoregression (SVAR) model requires careful preprocessing. Mixed frequency data complicates modeling because the SVAR model requires observations at regular intervals. 
+
+To decide on a common frequency for the  model, one needs to consider the research question and the nature of the data. If short-term dynamics are crucial, one should consider daily or monthly frequencies. For longer-term analysis, quarterly data might suffice. Given that the project is interested in identifying the effects of a weakening USD on the Australian economy, and given the time it would take for shocks to propagate through international trade, it would be reasonable to choose a longer frequency, such as a quarterly or an annual one, to allow for capturing the effct of a weakening USD on the Australian economy. However, because the window of analysis is reduced to between the years of 1980 and 2019, and to ensure there is enough datapoints to conduct a meaningful analysis, all four series will need to be converted into quarterly frequency, if they are not already in that format. 
+
+For the purposes of this project, a daily series will be converted to a quarterly series by choosing the last day in the relevant month for each quarter.For example, for the first quarter, we use the last data point from March. For monthly series we use the data for the month corresponding to the end of each quarter (March, June, Sept, Dec).
+
+Note, however, that one can also choose to handling mixed frequencies in the analysis. Potentially, this is a more robust approach in terms of being faithful to the actual observed data. Techniques that are helpful here include: 
+
+-	**Mixed Data Sampling (MIDAS)**: MIDAS regressions or other mixed-frequency approaches can be employed to incorporate variables of different frequencies directly into your analysis without needing to aggregate or interpolate all series to the same frequency.
+
+-	**Temporal Hierarchy**: If using Bayesian methods, one might construct models separately for different frequencies and then combine insights hierarchically, acknowledging different data granularities.
+
+After aligning frequencies, one has to ensure that all series are stationary before including them in the SVAR model. Differencing, logging, or detrending might be necessary depending on the variable characteristics.
+
+-	In a Bayesian framework, one has to incorporate prior knowledge about how different frequency data relates and affects each other.
+
+-	One has to use Bayesian techniques to estimate the model parameters, acknowledging the frequency differences either in the data preparation stage or model structure, depending on your approach.
+
+For our purposes in this initial proposal, the required data will be sourced from official Australian government databases using the `readrba` R packages. Based on the preliminary results from the project, it might become necessary to entertain a mixed frequency approach. 
+
+The first series is from the Reserve Bank of Australia (RBA) output and labour statistical tables [@RBA2024a]. This is a quarterly series. Note that the augmented DF test suggests that the series is stationary at the 95% level. There was no need to modify the series.
+
+```{r GDP growth rate}
+#| echo: false
 #| message: false
-#| echo: true
+#| warning: false
+library(readrba)
+library(dplyr)
+library(zoo)
+library(lubridate)
+library(tseries)
+library(ggplot2)
+library(urca)  # For conducting the ADF test
+library(forecast) # For ACF and PACF plots 
+library(gridExtra)
+library(kableExtra)
 
-data(us_fiscal_lsuw)
-set.seed(123)
-us_fiscal_lsuw |>
-  specify_bsvar$new(p = 1) |>
-  estimate(S = 1000, show_progress = FALSE) |> 
-  estimate(S = 2000, show_progress = FALSE) |> 
-  compute_impulse_responses(horizon = 20) -> irf
+# Downloading data from the internet
+series <- read_rba(series_id = "GGDPCVGDPY")
+
+#clean the series by removing missing values
+series <- na.omit(series)
+
+# Ensuring the date format is appropriate for quarterly data
+series <- series %>% 
+  mutate(date = as.yearqtr(date, format = "%Y-%q"))
+
+# Filtering the dataset for the desired date range
+GDP_rate <- series %>%
+  filter(date >= as.yearqtr("1980 Q1") & date <= as.yearqtr("2019 Q4"))
+
+# Set up the plotting area
+
+par(mfrow=c(1,2))
+
+# Plot ACF with lags limited to 10
+acf(GDP_rate$value, main = "ACF for GDP Rate", lag.max = 10)
+# Plot PACF with lags limited to 10
+pacf(GDP_rate$value, main = "PACF for GDP Rate", lag.max = 10)
+# Reset the plotting area back to default
+par(mfrow=c(1, 1))
 ```
 
-The code above is visible as the **R** chunk contains the setting `#| echo: true`.
+As seen from the PACF above, the optimal lag for conducting the augmented Dicky-Fuller (DF) test is 4. A summary of the results of this test can be found in the appendix.
 
-@tbl-irf reports the posterior means of the gross domestic product response to an unanticipated tax increase by 1 pp.
 ```{r}
-#| label: tbl-irf
-#| tbl-cap: Impulse response of gdp to unanticipated tax increase by 1 pp. within two years
+#| echo: false
+#| message: false
+#| warning: false
 
-irf_gdp_tax = matrix(apply(irf[3,1,1:9,],1, mean), nrow = 1)
-rownames(irf_gdp_tax) = "change in gdp [%]"
-colnames(irf_gdp_tax) = 0:8
-knitr::kable(irf_gdp_tax, digits = 3)
+# Conduct the ADF test to check for stationarity
+adf_test_result <- ur.df(GDP_rate$value, type = "drift", lags = 4, selectlags = "AIC")
 ```
 
-@fig-irf presents the same reaction over the horizon of five years.
+From the DF test results, its is safe to conclude that the GDP_rate series is stationary. 
+
 ```{r}
-#| label: fig-irf
-#| fig-cap: Impulse response of gdp to unanticipated tax increase by 1 pp. within five years
+#| echo: false
+#| message: false
+#| warning: false
 
-irf_median    = apply(irf[3,1,,],1, median)
-irf_hdi       = apply(irf[3,1,,],1, HDInterval::hdi, credMass = .68)
-plot(x = 0:20, y = irf_median, type = "l", bty = "n", 
-     xlab = "horizon", ylab = "change in gdp [%]",
-     ylim = range(irf_hdi))
-polygon(x = c(0:20, 20:0), y = c(irf_hdi[1,], irf_hdi[2,21:1]), col = "deepskyblue1", border = "deepskyblue1")
-lines(x = 0:20, y = irf_median, lwd = 2, col = "deepskyblue3")
+# If the series is non-stationary, take the first difference and adjust dates
+if (adf_test_result@teststat[1] > adf_test_result@cval[1]) {  # Check if non-stationary
+  GDP_rate$value <- diff(GDP_rate$value)
+  # Adjust dates accordingly
+  GDP_rate$date <- GDP_rate$date[-1]
+}
+
+# Determine plot title based on whether the series has been differenced
+if (is.null(attr(GDP_rate$value, "diff"))) {  # Check if series has been differenced
+  plot_title <- "Quarterly GDP Rate (1980-2019)"
+} else {
+  plot_title <- "Differenced Quarterly GDP Rate (1980-2019)"
+}
+
 ```
 
-## Some Hints
+The second series is from the Reserve Bank of Australia (RBA) inflation and inflation expectations statistical tables [@RBA2024b]. This series has been converted the monthly series into a quarterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December. Note also that the augmented DF test (see appendix) suggests that the series is not stationary at the 95% confidence level. There was a need to take the difference of the series.
 
-Have a look at how to work with **RStudio** and **GitHub** at: [How to use git and GitHub with R](https://rfortherestofus.com/2021/02/how-to-use-git-github-with-r/). 
+```{r CPI rate}
+#| echo: false 
+#| message: false
+#| warning: false
 
-These are many different ways of how to work with references in **RStudio**: [Preview Citations](https://posit.co/blog/rstudio-1-4-preview-citations/).
+library(ggplot2)
+library(dplyr)
+library(readrba)
+library(urca)  # For conducting the ADF test
 
-To make all the **R** code visible on the website change the settings in the preabmble of this document to:
+## Downloading CPI data from the internet
+series <- read_rba(series_id = "GCPIAGYP") 
+
+#clean the series by removing missing values
+series <- na.omit(series)
+
+# Ensuring the date format is appropriate for quarterly data
+series <- series %>% 
+  mutate(date = as.yearqtr(date, format = "%Y-%q"))
+
+# Ensuring that date is recognized as a quarterly object and summarizing to quarterly values
+series_quarterly <- series %>% 
+  mutate(quarter = as.yearqtr(date)) %>%
+  group_by(quarter) %>%
+  summarize(value = mean(value, na.rm = TRUE)) %>%
+  ungroup()
+
+# Filter for the correct range from Q1 1980 to Q4 2019
+CPI_rate <- series_quarterly %>%
+  filter(quarter >= as.yearqtr("1980 Q1") & quarter <= as.yearqtr("2019 Q4"))
+
+# Set up the plotting area
+par(mfrow=c(1, 2))
+
+# Plot ACF with lags limited to 10
+acf(CPI_rate$value, main = "ACF for CPI Rate", lag.max = 10)
+
+# Plot PACF with lags limited to 10
+pacf(CPI_rate$value, main = "PACF for CPI Rate", lag.max = 10)
+
+# Reset the plotting area back to default
+par(mfrow=c(1,1))
+
+# Conduct the ADF test to check for stationarity
+adf_test_result <- ur.df(CPI_rate$value, type = "drift", lags = 4, selectlags = "AIC")
+
+
+# Difference the series if necessary
+if (adf_test_result@teststat[1] > adf_test_result@cval[1, "5pct"]) {  
+  CPI_rate <- CPI_rate %>%
+    mutate(diff_value = c(NA, diff(value)))  # Prepend NA to maintain the length
+} else {
+  message("The series is already stationary.")
+}
+
+# Remove NA values from the differenced series
+CPI_rate <- na.omit(CPI_rate)
+
+
 ```
-execute:
-  echo: true
+
+The third series is from the Reserve Bank of Australia (RBA) output and labour Statistical tables [@RBA2024c]. This is  a montly series. The series was converted into a quaterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December. Note that the augmented DF test (see Appendix) suggests that the series is not stationary at the 95% confidence level. We therefore use the differenced series.
+
+```{r unemp_rate}
+#| echo: false 
+#| message: false
+#| warning: false
+
+library(ggplot2)
+library(dplyr)
+library(readrba)
+library(zoo)  # For as.yearqtr and aggregation to quarters
+library(urca)  # For conducting the ADF test
+
+## Downloading unemployment data from the internet
+series <- read_rba(series_id = "GLFSURSA") 
+
+#clean the series by removing missing values
+series <- na.omit(series)
+
+# Convert the date format from dd/mm/yyyy to Date object
+series <- series %>% 
+  mutate(date = as.Date(as.character(date), format = "%Y-%m-%d")) 
+
+# Ensuring that date is recognized as a quarterly object and summarizing to quarterly values
+series_quarterly <- series %>% 
+  mutate(quarter = as.yearqtr(date)) %>%
+  group_by(quarter) %>%
+  summarize(value = mean(value, na.rm = TRUE)) %>%
+  ungroup()
+
+# Filter the series to start from the first quarter of 1980 and end in the last quarter of 2019
+unemp_rate <- series_quarterly %>%
+  filter(quarter >= as.yearqtr("1980 Q1") & quarter <= as.yearqtr("2019 Q4"))
+
+# Set up the plotting area
+par(mfrow=c(1, 2))
+
+# Plot ACF with lags limited to 10
+acf(unemp_rate$value, main = "ACF for Unemployment Rate", lag.max = 10)
+
+# Plot PACF with lags limited to 10
+pacf(unemp_rate$value, main = "PACF for Unemployment Rate", lag.max = 10)
+
+# Reset the plotting area back to default
+par(mfrow=c(1, 1))
+
+# Conduct the ADF test to check for stationarity
+adf_test_result <- ur.df(unemp_rate$value, type = "drift", lags = 4, selectlags = "AIC")
+
+
+# Check stationarity and apply differencing if necessary
+if(adf_test_result@teststat[1] <= adf_test_result@cval[1, "5pct"]) {  # Adjust based on desired significance level
+  # Plotting the data without differencing
+  ggplot(unemp_rate, aes(x = quarter, y = value)) +
+    geom_line() +
+    theme_minimal() +
+    labs(title = "Quarterly Unemployment Rate (1980-2019)", x = "Quarter", y = "Unemployment Rate (%)")
+} else {
+  # Plotting the differenced data
+  unemp_rate <- unemp_rate %>%
+    mutate(diff_value = c(NA, diff(value)))  # Prepend NA to maintain the length
+}
 ```
-## References {.unnumbered}
+
+The fourth series is from the Reserve Bank of Australia (RBA) exchange rates statistical tables [@RBA2024d]. This is  a montly series. The series was converted into a quaterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December. Note that the augmented DF test suggests that the series is not stationary at the 95% confidence level. We therefore use the differenced series.
+
+```{r USD Index}
+#| echo: false
+#| message: false
+#| warning: false
+library(ggplot2)
+library(dplyr)
+library(readrba)
+library(urca)  # For conducting the ADF test
+library(zoo)  # For as.yearqtr
+
+# Downloading USD Trade Weighted Index data from the internet (March 1973 = 100)
+
+# Reading and preparing the USD TWI data
+series <- read_rba(series_id = "FUSXRTWI") 
+
+#clean the series by removing missing values
+series <- na.omit(series)
+
+# Convert the date format from dd/mm/yyyy to Date object
+series <- series %>% 
+  mutate(date = as.Date(as.character(date), format = "%Y-%m-%d")) 
+
+# Ensuring that date is recognized as a quarterly object and summarizing to quarterly values
+series_quarterly <- series %>% 
+  mutate(quarter = as.yearqtr(date)) %>%
+  group_by(quarter) %>%
+  summarize(value = mean(value, na.rm = TRUE)) %>%
+  ungroup()
+
+# Filter the series to start from the first quarter of 1980 and end in the last quarter of 2019
+USD_Index <- series_quarterly %>%
+  filter(quarter >= as.yearqtr("1980 Q1") & quarter <= as.yearqtr("2019 Q4"))
+
+# Set up the plotting area
+par(mfrow=c(1, 2))
+
+# Plot ACF with lags limited to 10
+acf(unemp_rate$value, main = "ACF for USD Index", lag.max = 10)
+
+# Plot PACF with lags limited to 10
+pacf(unemp_rate$value, main = "PACF for USD Index", lag.max = 10)
+
+# Reset the plotting area back to default
+par(mfrow=c(1, 1))
+
+# Augmented Dickey-Fuller test to check for stationarity
+adf_test_result <- ur.df(USD_Index$value, type = "drift", lags = 4, selectlags = "AIC")
+
+# Difference the series if necessary
+if (adf_test_result@teststat[1] > adf_test_result@cval[1, "5pct"]) {  
+  USD_Index <- USD_Index %>%
+    mutate(diff_value = c(NA, diff(value)))  # Prepend NA to maintain the length
+} else {
+  message("The series is already stationary.")
+}
+
+# Since the first value is now NA after differencing, you may want to remove it for plotting
+# This step is optional and depends on whether you want to include the first NA in your plot
+USD_Index <- na.omit(USD_Index)
+
+```
+
+The four treated series for the proposed model are shown below. All these series are now reflecting change in the underlying economic indicator. 
+
+```{r plotting the four series}
+#| echo: false
+#| message: false
+#| warning: false
+library(ggplot2)
+library(gridExtra)
+
+# GDP_rate, CPI_rate, unemp_rate, and USD_Index are already prepared and available
+
+p1 <- ggplot(GDP_rate, aes(x = date, y = value)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Quarterly GDP Rate (1980-2019)", x = "Quarter", y = "GDP Growth Rate (%)")
+
+p2 <- ggplot(CPI_rate, aes(x = quarter, y = diff_value)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Differenced Quarterly CPI Rate (1980-2019)", x = "Quarter", y = "CPI Rate (%)")
+
+p3 <- ggplot(unemp_rate, aes(x = quarter, y = diff_value)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Differenced Quarterly Unemployment Rate (1980-2019)", x = "Quarter", y = "Differenced Unemployment Rate (%)")
+
+p4 <- ggplot(USD_Index, aes(x = quarter, y = diff_value)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Differenced Quarterly USD Index (1980-2019)", x = "Quarter", y = "USD Trade Weighted Index (%)")
+
+# Adjust the title size using theme() function
+p1 <- p1 + theme(plot.title = element_text(size = 9))
+p2 <- p2 + theme(plot.title = element_text(size = 9))
+p3 <- p3 + theme(plot.title = element_text(size = 9))
+p4 <- p4 + theme(plot.title = element_text(size = 9))
+
+# Combine the plots
+grid.arrange(p1, p2, p3, p4, ncol = 2)
+
+```
+
+Next, we employ a Baesian Structural Vector Autoregression (SVAR) model to understand the dynamic relationships among various economic indicators influenced by fluctuations in the United States Dollar (USD) against the Australian Dollar (AUD) [@wozniakBsvarsBayesianEstimation2022]. The model incorporates five key variables:
+
+
+# Model Specification
+
+This is a 4x1 vector of endogenous variables at time t, where:
+
+- $TWI\_USD$ is the Trade Weighted Index of the US Dollar.
+- $Unemployment$ is the unemployment rate.
+- $Inflation$ is the inflation rate.
+- $GDP\_growth$ is the growth rate of GDP.
+
+Next, specify the SVAR model structure:
+
+- $A$ is a 4X4 matrix representing the contemporaneous relationships between the variables.
+- $B_i$ (for i = 0,1,...,p) are 4x4 matrices representing the lagged effects (where p is the lag order).
+- $\epsilon_t$ is a 4x1 vector of errors.
+
+$$ 
+Y_t =
+\begin{bmatrix}
+    TWI\_USD \\
+    Unemployment \\
+    Inflation \\
+    GDP\_growth
+\end{bmatrix}
+$$
+
+The Bayesian Structural VAR model can then be written as: 
+
+$$
+AY_t = 
+B_0 + B_1Y_{t-1} + ... + B_pY_{t-p} + \epsilon_t
+$$
+
+## Appendix
+
+### Augmented Dicky-Fuller Test Results for GDP growth 
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+# Conduct the ADF test to check for stationarity
+adf_test_result <- ur.df(GDP_rate$value, type = "drift", lags = 4, selectlags = "AIC")
+
+summary(adf_test_result)  # Outputs the result of the test
+```
+
+### Augmented Dicky-Fuller Test Results for CPI rate
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+# Conduct the ADF test to check for stationarity
+adf_test_result <- ur.df(CPI_rate$value, type = "drift", lags = 4, selectlags = "AIC")
+summary(adf_test_result)  # Outputs the result of the test
+```
+
+### Augmented Dicky-Fuller Test Results for the unemployment rate
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+# Conduct the ADF test to check for stationarity
+adf_test_result <- ur.df(unemp_rate$value, type = "drift", lags = 4, selectlags = "AIC")
+summary(adf_test_result)  # Outputs the result of the test
+```
+
+### Augmented Dicky-Fuller Test Results for the USD Index
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+# Augmented Dickey-Fuller test to check for stationarity
+adf_test_result <- ur.df(USD_Index$value, type = "drift", lags = 4, selectlags = "AIC")
+summary(adf_test_result)  # Outputs the result of the test
+```
+
+
+
+
+# References {.unnumbered}
