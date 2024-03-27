@@ -9,7 +9,7 @@ execute:
 bibliography: references.bib
 ---
 
-> **Abstract.** This is research project to investigate the dynamic effects of a weaker United States Dollar (USD) on the Australian economy, with a focus on economic stability. By employing Bayesian Structural Vector Autoregression (SVAR) analysis, this study aims to elucidate the transmission mechanisms of USD fluctuations through through three channels: GDP growth, inflation, and unemployment. The findings are expected to provide nuanced insights into the macroeconomic interdependencies between the USD and the Australian economy, offering valuable perspectives for policymakers and economic analysts.
+> **Abstract.** This research project investigates the dynamic effects of a weaker United States Dollar (USD) on the Australian economy, with a focus on economic stability. By employing Bayesian Structural Vector Autoregression (SVAR) analysis, this study aims to elucidate the transmission mechanisms of USD fluctuations through three channels: GDP growth, inflation, and unemployment. The findings are expected to provide nuanced insights into the macroeconomic interdependencies between the USD and the Australian economy, offering valuable perspectives for policymakers and economic analysts.
 >
 > **Keywords.** Bayesian SVAR, USD, Australian economy, inflation, economic stability
 
@@ -60,8 +60,6 @@ A weaker US dollar generally translates to a stronger Australian dollar (AUD). W
 #### Effect of a weak US dollar on Australian GDP growth 
 
 Similarly, A weaker US dollar can have both positive and negative effects on the Australian GDP growth rate. A weaker US dollar can make Australian exports relatively cheaper for US buyers, potentially boosting demand for Australian goods and services in the US market. This increase in exports could lead to higher GDP growth as Australian businesses expand to meet this demand. On the flip side, a weaker US dollar can make imports into Australia more expensive, which could lead to higher costs for businesses and consumers. If the increase in import prices outweighs the benefits from increased exports, it could dampen overall economic growth. In addition, Australia is a major exporter of commodities such as iron ore, coal, and natural gas. Commodity prices are often denominated in US dollars, so a weaker US dollar can lead to higher commodity prices in US dollar terms. This can be beneficial for Australian exporters and government revenues, contributing positively to GDP growth. Also, changes in currency values can influence investment flows between countries. A weaker US dollar might make Australian assets relatively more attractive to investors, leading to increased foreign investment inflows into Australia. This can stimulate economic activity and contribute to GDP growth. Overall, the net effect of a weaker US dollar on Australian GDP growth rate will depend on various factors including the responsiveness of exports and imports to changes in currency values, commodity price movements, and the dynamics of investment flows.
-
-
 
 
 ## Data and Their Properties
@@ -115,6 +113,8 @@ The first series is from the Reserve Bank of Australia (RBA) output and labour s
 #| echo: false
 #| message: false
 #| warning: false
+#| label: fig-GDP
+#| fig-cap: "ACF and PACF functions for the GDP growth rate"
 library(readrba)
 library(dplyr)
 library(zoo)
@@ -152,7 +152,7 @@ pacf(GDP_rate$value, main = "PACF for GDP Rate", lag.max = 10)
 par(mfrow=c(1, 1))
 ```
 
-As seen from the PACF above, the optimal lag for conducting the augmented Dicky-Fuller (DF) test is 4. A summary of the results of this test can be found in the appendix.
+As seen in @fig-GDP, the PACF above, the optimal lag for conducting the augmented Dicky-Fuller (DF) test is 4. A summary of the results of this test can be found in the appendix.
 
 ```{r}
 #| echo: false
@@ -186,13 +186,14 @@ if (is.null(attr(GDP_rate$value, "diff"))) {  # Check if series has been differe
 
 ```
 
-The second series is from the Reserve Bank of Australia (RBA) inflation and inflation expectations statistical tables [@RBA2024b]. This series has been converted the monthly series into a quarterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December. Note also that the augmented DF test (see appendix) suggests that the series is not stationary at the 95% confidence level. There was a need to take the difference of the series.
+The second series is from the Reserve Bank of Australia (RBA) inflation and inflation expectations statistical tables (@RBA2024b). This series has been converted the monthly series into a quarterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December. 
 
 ```{r CPI rate}
 #| echo: false 
 #| message: false
 #| warning: false
-
+#| label: fig-CPI
+#| fig-cap: "ACF and PACF functions for the CPI rate"
 library(ggplot2)
 library(dplyr)
 library(readrba)
@@ -249,13 +250,16 @@ CPI_rate <- na.omit(CPI_rate)
 
 ```
 
-The third series is from the Reserve Bank of Australia (RBA) output and labour Statistical tables [@RBA2024c]. This is  a montly series. The series was converted into a quaterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December. Note that the augmented DF test (see Appendix) suggests that the series is not stationary at the 95% confidence level. We therefore use the differenced series.
+From @fig-CPI, an augmented DF test was conducted with 3 lags. Note that the augmented DF test (see appendix) suggests that the series is not stationary at the 95% confidence level. There was a need to take the difference of the series.
+
+The third series is from the Reserve Bank of Australia (RBA) output and labour Statistical tables [@RBA2024c]. This is  a montly series. The series was converted into a quaterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December. 
 
 ```{r unemp_rate}
 #| echo: false 
 #| message: false
 #| warning: false
-
+#| label: fig-unemp
+#| fig-cap: "ACF and PACF functions for the unemployment rate"
 library(ggplot2)
 library(dplyr)
 library(readrba)
@@ -313,12 +317,16 @@ if(adf_test_result@teststat[1] <= adf_test_result@cval[1, "5pct"]) {  # Adjust b
 }
 ```
 
-The fourth series is from the Reserve Bank of Australia (RBA) exchange rates statistical tables [@RBA2024d]. This is  a montly series. The series was converted into a quaterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December. Note that the augmented DF test suggests that the series is not stationary at the 95% confidence level. We therefore use the differenced series.
+@fig-unemp above explains that a lag 4 should be used for the augmented DF test. Note that this test (see Appendix) suggests that the series is not stationary at the 95% confidence level. We therefore use the differenced series.
+
+The fourth series is from the Reserve Bank of Australia (RBA) exchange rates statistical tables [@RBA2024d]. This is  a montly series. The series was converted into a quaterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December.
 
 ```{r USD Index}
 #| echo: false
 #| message: false
 #| warning: false
+#| label: fig-Index
+#| fig-cap: "ACF and PACF functions for the USD Trade Weighted Index"
 library(ggplot2)
 library(dplyr)
 library(readrba)
@@ -377,12 +385,16 @@ USD_Index <- na.omit(USD_Index)
 
 ```
 
-The four treated series for the proposed model are shown below. All these series are now reflecting change in the underlying economic indicator. 
+@fig-Index above indicates that a lag 4 should be used for the augmented DF test. The results suggest that the series is not stationary at the 95% confidence level. We therefore use the differenced series.
+
+The four treated series for the proposed model are in  @fig-combined below. All these series are now reflecting change in the underlying economic indicator. 
 
 ```{r plotting the four series}
 #| echo: false
 #| message: false
 #| warning: false
+#| label: fig-combined
+#| fig-cap: "Treated series plots"
 library(ggplot2)
 library(gridExtra)
 
@@ -419,6 +431,12 @@ grid.arrange(p1, p2, p3, p4, ncol = 2)
 
 ```
 
+The above selection and treatment of the data is pivotal to answering the research question: How does a weakening United States Dollar (USD) influence overall economic stability in Australia? By focusing on key economic indicators like the GDP growth rate, unemployment rate, and inflation rate, and comparing these against the USD Trade Weighted Index (TWI), the study strategically addresses the multifaceted impact of USD fluctuations on the Australian economy. The chosen data encapsulate the essential aspects of economic stability, allowing for a nuanced analysis of the interdependencies between the USD's value and Australian economic health.
+
+This approach is vital for constructing a comprehensive Bayesian Structural Vector Autoregression (SVAR) model. The SVAR model, designed to elucidate the transmission mechanisms of USD fluctuations, relies on accurate, time-aligned, and contextually relevant data to provide meaningful insights. By ensuring the data are stationary and appropriately preprocessed for the chosen analysis timeframe (1980-2019), excluding periods of atypical economic disruption like the COVID-19 crisis, the document ensures that the model's outputs are reflective of standard economic interactions, enhancing the reliability of the findings.
+
+Furthermore, the data treatment, including the conversion of series to quarterly frequencies and addressing stationarity, directly informs the model equations by ensuring that the inputs reflect genuine economic trends devoid of seasonal or non-stationary noise. This data preparation not only strengthens the study’s methodological framework but also ensures that the SVAR model's findings will offer actionable insights, enabling policymakers and analysts to base decisions on solid empirical evidence, thereby underlining the importance of investigating the specified problem.
+
 Next, we employ a Baesian Structural Vector Autoregression (SVAR) model to understand the dynamic relationships among various economic indicators influenced by fluctuations in the United States Dollar (USD) against the Australian Dollar (AUD) [@wozniakBsvarsBayesianEstimation2022]. The model incorporates five key variables:
 
 
@@ -426,10 +444,11 @@ Next, we employ a Baesian Structural Vector Autoregression (SVAR) model to under
 
 This is a 4x1 vector of endogenous variables at time t, where:
 
-- $TWI\_USD$ is the Trade Weighted Index of the US Dollar.
-- $Unemployment$ is the unemployment rate.
-- $Inflation$ is the inflation rate.
+- $USD\_Index$ is the Trade Weighted Index of the US Dollar.
+- $Unemployment\_rate$ is the unemployment rate.
+- $Inflation\_rate$ is the inflation rate.
 - $GDP\_growth$ is the growth rate of GDP.
+
 
 Next, specify the SVAR model structure:
 
@@ -440,9 +459,9 @@ Next, specify the SVAR model structure:
 $$ 
 Y_t =
 \begin{bmatrix}
-    TWI\_USD \\
-    Unemployment \\
-    Inflation \\
+    USD\_Index \\
+    Unemployment\_rate \\
+    Inflation\_rate \\
     GDP\_growth
 \end{bmatrix}
 $$
@@ -454,9 +473,38 @@ AY_t =
 B_0 + B_1Y_{t-1} + ... + B_pY_{t-p} + \epsilon_t
 $$
 
-## Appendix
+#### Model Notations:
 
-### Augmented Dicky-Fuller Test Results for GDP growth 
+$Yt$​: This represents the vector of endogenous variables at time tt. In this context, the vector consists of the Trade Weighted Index of the US Dollar (USD_Index), the unemployment rate, the inflation rate, and the GDP growth rate. These variables are chosen because they represent key indicators of economic stability.
+
+$A$: This is a matrix representing the contemporaneous relationships between the variables in $Yt$. In an SVAR model, this matrix helps to understand how shocks to one variable (e.g., USD_Index) can contemporaneously affect other variables (e.g., unemployment, inflation, GDP growth).
+
+$Bi$ (for i=0,1,...,pi=0,1,...,p): These are matrices representing the lagged effects of the variables on each other. The subscript ii represents the lag order, showing how past values (lags) of each variable in $Yt$​ influence the current values. In time series analysis, this captures dynamics such as how past economic conditions influence current outcomes.
+
+$ϵt$​: This is the vector of errors or shocks at time tt. In the SVAR framework, these are considered unobservable random shocks that affect the endogenous variables. In Bayesian SVAR models, these shocks are also subjected to prior distributions reflecting our beliefs or assumptions before observing the data.
+
+#### Using the Model to Answer the Research Question:
+
+The model will be used to analyze how fluctuations in the US Trade Weighted Index (representing a weakening or strengthening USD) impact the Australian economy's stability, specifically through GDP growth, inflation, and unemployment rates. By examining the contemporaneous and lagged relationships between these variables, we can understand the transmission mechanisms of US dollar fluctuations.
+
+To address the research objectives, we will assess the dynamic effects of the USD_Index on Australia's economic indicators. This involves looking at the impulse response functions (IRFs) and variance decompositions derived from the SVAR model. The IRFs will show how a shock to the US dollar index impacts Australian GDP growth, inflation, and unemployment over time. This directly speaks to the study's aim to elucidate the transmission mechanisms of such fluctuations.
+
+#### Estimation Outputs for Interpreting the Research Question:
+
+Posterior Distributions: These reflect the updated beliefs about the model's parameters after considering the data. We would examine the posterior distributions of the SVAR model parameters, particularly focusing on the coefficients that measure the impact of USD_Index changes on the economic indicators.
+
+Impulse Response Functions (IRFs): IRFs trace the effects of a one-time shock to one of the innovations on the current and future values of the endogenous variables. By analyzing the IRFs, we can interpret how an unexpected change in the US dollar's value affects Australian economic conditions over time.
+
+Variance Decompositions: These help us understand the proportion of the forecast variance of each endogenous variable that can be attributed to shocks to each variable in the model, including shocks to the USD_Index. This is crucial for assessing the significance of US dollar fluctuations compared to other domestic factors.
+
+Credibility Intervals: Unlike classical confidence intervals, credibility intervals in Bayesian analysis offer a probability statement about the parameter values. Examining these intervals for the effects of interest will provide insights into the certainty of our estimates.
+
+In terms of economic context, understanding the relationship between the US dollar index and Australian economic indicators is vital for policymakers and economic analysts, especially considering the significant trade and financial ties between the two countries. The model helps address the research objectives by providing a structured way to quantify these relationships, thereby informing decisions that could enhance economic stability in response to international currency movements.
+
+
+## Appendix: Augmented Dicky-Fuller Tests 
+
+### Augmented Dickey-Fuller test results for GDP growth 
 
 ```{r}
 #| echo: false
@@ -468,7 +516,7 @@ adf_test_result <- ur.df(GDP_rate$value, type = "drift", lags = 4, selectlags = 
 summary(adf_test_result)  # Outputs the result of the test
 ```
 
-### Augmented Dicky-Fuller Test Results for CPI rate
+### Augmented Dicky-Fuller test results for the CPI rate
 
 ```{r}
 #| echo: false
@@ -479,7 +527,7 @@ adf_test_result <- ur.df(CPI_rate$value, type = "drift", lags = 4, selectlags = 
 summary(adf_test_result)  # Outputs the result of the test
 ```
 
-### Augmented Dicky-Fuller Test Results for the unemployment rate
+### Augmented Dicky-Fuller test results for the unemployment rate
 
 ```{r}
 #| echo: false
@@ -490,7 +538,7 @@ adf_test_result <- ur.df(unemp_rate$value, type = "drift", lags = 4, selectlags 
 summary(adf_test_result)  # Outputs the result of the test
 ```
 
-### Augmented Dicky-Fuller Test Results for the USD Index
+### Augmented Dicky-Fuller test results for the USD Index
 
 ```{r}
 #| echo: false
@@ -501,7 +549,7 @@ adf_test_result <- ur.df(USD_Index$value, type = "drift", lags = 4, selectlags =
 summary(adf_test_result)  # Outputs the result of the test
 ```
 
+# References{.unnumbered}
 
 
 
-# References {.unnumbered}
