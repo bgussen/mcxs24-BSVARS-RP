@@ -8,7 +8,7 @@
 
 <meta name="author" content="Ben Gussen">
 
-<title>Macroeconometrics Research Report - US TWI Effects on Economic Stability in Australia</title>
+<title>US TWI Effects on Economic Stability in Australia</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -129,7 +129,7 @@ window.Quarto = {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">Macroeconometrics Research Report</span>
+    <span class="navbar-title">US TWI Effects on Economic Stability in Australia</span>
     </a>
   </div>
         <div class="quarto-navbar-tools tools-end">
@@ -159,12 +159,12 @@ window.Quarto = {
   </ul></li>
   <li><a href="#model-specification" id="toc-model-specification" class="nav-link" data-scroll-target="#model-specification">Model Specification</a>
   <ul class="collapse">
-  <li><a href="#appendix" id="toc-appendix" class="nav-link" data-scroll-target="#appendix">Appendix</a>
+  <li><a href="#appendix-augmented-dicky-fuller-tests" id="toc-appendix-augmented-dicky-fuller-tests" class="nav-link" data-scroll-target="#appendix-augmented-dicky-fuller-tests">Appendix: Augmented Dicky-Fuller Tests</a>
   <ul class="collapse">
-  <li><a href="#augmented-dicky-fuller-test-results-for-gdp-growth" id="toc-augmented-dicky-fuller-test-results-for-gdp-growth" class="nav-link" data-scroll-target="#augmented-dicky-fuller-test-results-for-gdp-growth">Augmented Dicky-Fuller Test Results for GDP growth</a></li>
-  <li><a href="#augmented-dicky-fuller-test-results-for-cpi-rate" id="toc-augmented-dicky-fuller-test-results-for-cpi-rate" class="nav-link" data-scroll-target="#augmented-dicky-fuller-test-results-for-cpi-rate">Augmented Dicky-Fuller Test Results for CPI rate</a></li>
-  <li><a href="#augmented-dicky-fuller-test-results-for-the-unemployment-rate" id="toc-augmented-dicky-fuller-test-results-for-the-unemployment-rate" class="nav-link" data-scroll-target="#augmented-dicky-fuller-test-results-for-the-unemployment-rate">Augmented Dicky-Fuller Test Results for the unemployment rate</a></li>
-  <li><a href="#augmented-dicky-fuller-test-results-for-the-usd-index" id="toc-augmented-dicky-fuller-test-results-for-the-usd-index" class="nav-link" data-scroll-target="#augmented-dicky-fuller-test-results-for-the-usd-index">Augmented Dicky-Fuller Test Results for the USD Index</a></li>
+  <li><a href="#augmented-dickey-fuller-test-results-for-gdp-growth" id="toc-augmented-dickey-fuller-test-results-for-gdp-growth" class="nav-link" data-scroll-target="#augmented-dickey-fuller-test-results-for-gdp-growth">Augmented Dickey-Fuller test results for GDP growth</a></li>
+  <li><a href="#augmented-dicky-fuller-test-results-for-the-cpi-rate" id="toc-augmented-dicky-fuller-test-results-for-the-cpi-rate" class="nav-link" data-scroll-target="#augmented-dicky-fuller-test-results-for-the-cpi-rate">Augmented Dicky-Fuller test results for the CPI rate</a></li>
+  <li><a href="#augmented-dicky-fuller-test-results-for-the-unemployment-rate" id="toc-augmented-dicky-fuller-test-results-for-the-unemployment-rate" class="nav-link" data-scroll-target="#augmented-dicky-fuller-test-results-for-the-unemployment-rate">Augmented Dicky-Fuller test results for the unemployment rate</a></li>
+  <li><a href="#augmented-dicky-fuller-test-results-for-the-usd-index" id="toc-augmented-dicky-fuller-test-results-for-the-usd-index" class="nav-link" data-scroll-target="#augmented-dicky-fuller-test-results-for-the-usd-index">Augmented Dicky-Fuller test results for the USD Index</a></li>
   </ul></li>
   </ul></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
@@ -200,7 +200,7 @@ window.Quarto = {
 
 
 <blockquote class="blockquote">
-<p><strong>Abstract.</strong> This is research project to investigate the dynamic effects of a weaker United States Dollar (USD) on the Australian economy, with a focus on economic stability. By employing Bayesian Structural Vector Autoregression (SVAR) analysis, this study aims to elucidate the transmission mechanisms of USD fluctuations through through three channels: GDP growth, inflation, and unemployment. The findings are expected to provide nuanced insights into the macroeconomic interdependencies between the USD and the Australian economy, offering valuable perspectives for policymakers and economic analysts.</p>
+<p><strong>Abstract.</strong> This research project investigates the dynamic effects of a weaker United States Dollar (USD) on the Australian economy, with a focus on economic stability. By employing Bayesian Structural Vector Autoregression (SVAR) analysis, this study aims to elucidate the transmission mechanisms of USD fluctuations through three channels: GDP growth, inflation, and unemployment. The findings are expected to provide nuanced insights into the macroeconomic interdependencies between the USD and the Australian economy, offering valuable perspectives for policymakers and economic analysts.</p>
 <p><strong>Keywords.</strong> Bayesian SVAR, USD, Australian economy, inflation, economic stability</p>
 </blockquote>
 <section id="introduction" class="level1">
@@ -282,55 +282,86 @@ window.Quarto = {
 <p>The first series is from the Reserve Bank of Australia (RBA) output and labour statistical tables <span class="citation" data-cites="RBA2024a">(<a href="#ref-RBA2024a" role="doc-biblioref">Reserve Bank of Australia 2024c</a>)</span>. This is a quarterly series. Note that the augmented DF test suggests that the series is stationary at the 95% level. There was no need to modify the series.</p>
 <div class="cell">
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/GDP growth rate-1.png" class="img-fluid figure-img" width="672"></p>
+<div id="fig-GDP" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-GDP-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-GDP-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-GDP-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: ACF and PACF functions for the GDP growth rate
+</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>As seen from the PACF above, the optimal lag for conducting the augmented Dicky-Fuller (DF) test is 4. A summary of the results of this test can be found in the appendix.</p>
+<p>As seen in <a href="#fig-GDP" class="quarto-xref">Figure&nbsp;1</a>, the PACF above, the optimal lag for conducting the augmented Dicky-Fuller (DF) test is 4. A summary of the results of this test can be found in the appendix.</p>
 <p>From the DF test results, its is safe to conclude that the GDP_rate series is stationary.</p>
-<p>The second series is from the Reserve Bank of Australia (RBA) inflation and inflation expectations statistical tables <span class="citation" data-cites="RBA2024b">(<a href="#ref-RBA2024b" role="doc-biblioref">Reserve Bank of Australia 2024d</a>)</span>. This series has been converted the monthly series into a quarterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December. Note also that the augmented DF test (see appendix) suggests that the series is not stationary at the 95% confidence level. There was a need to take the difference of the series.</p>
+<p>The second series is from the Reserve Bank of Australia (RBA) inflation and inflation expectations statistical tables (<span class="citation" data-cites="RBA2024b">Reserve Bank of Australia (<a href="#ref-RBA2024b" role="doc-biblioref">2024d</a>)</span>). This series has been converted the monthly series into a quarterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December.</p>
 <div class="cell">
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/CPI rate-1.png" class="img-fluid figure-img" width="672"></p>
+<div id="fig-CPI" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-CPI-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-CPI-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-CPI-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: ACF and PACF functions for the CPI rate
+</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>The third series is from the Reserve Bank of Australia (RBA) output and labour Statistical tables <span class="citation" data-cites="RBA2024c">(<a href="#ref-RBA2024c" role="doc-biblioref">Reserve Bank of Australia 2024b</a>)</span>. This is a montly series. The series was converted into a quaterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December. Note that the augmented DF test (see Appendix) suggests that the series is not stationary at the 95% confidence level. We therefore use the differenced series.</p>
+<p>From <a href="#fig-CPI" class="quarto-xref">Figure&nbsp;2</a>, an augmented DF test was conducted with 3 lags. Note that the augmented DF test (see appendix) suggests that the series is not stationary at the 95% confidence level. There was a need to take the difference of the series.</p>
+<p>The third series is from the Reserve Bank of Australia (RBA) output and labour Statistical tables <span class="citation" data-cites="RBA2024c">(<a href="#ref-RBA2024c" role="doc-biblioref">Reserve Bank of Australia 2024b</a>)</span>. This is a montly series. The series was converted into a quaterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December.</p>
 <div class="cell">
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/unemp_rate-1.png" class="img-fluid figure-img" width="672"></p>
+<div id="fig-unemp" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-unemp-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-unemp-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-unemp-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: ACF and PACF functions for the unemployment rate
+</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>The fourth series is from the Reserve Bank of Australia (RBA) exchange rates statistical tables <span class="citation" data-cites="RBA2024d">(<a href="#ref-RBA2024d" role="doc-biblioref">Reserve Bank of Australia 2024a</a>)</span>. This is a montly series. The series was converted into a quaterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December. Note that the augmented DF test suggests that the series is not stationary at the 95% confidence level. We therefore use the differenced series.</p>
+<p><a href="#fig-unemp" class="quarto-xref">Figure&nbsp;3</a> above explains that a lag 4 should be used for the augmented DF test. Note that this test (see Appendix) suggests that the series is not stationary at the 95% confidence level. We therefore use the differenced series.</p>
+<p>The fourth series is from the Reserve Bank of Australia (RBA) exchange rates statistical tables <span class="citation" data-cites="RBA2024d">(<a href="#ref-RBA2024d" role="doc-biblioref">Reserve Bank of Australia 2024a</a>)</span>. This is a montly series. The series was converted into a quaterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December.</p>
 <div class="cell">
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/USD Index-1.png" class="img-fluid figure-img" width="672"></p>
+<div id="fig-Index" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-Index-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-Index-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-Index-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: ACF and PACF functions for the USD Trade Weighted Index
+</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>The four treated series for the proposed model are shown below. All these series are now reflecting change in the underlying economic indicator.</p>
+<p><a href="#fig-Index" class="quarto-xref">Figure&nbsp;4</a> above indicates that a lag 4 should be used for the augmented DF test. The results suggest that the series is not stationary at the 95% confidence level. We therefore use the differenced series.</p>
+<p>The four treated series for the proposed model are in <a href="#fig-combined" class="quarto-xref">Figure&nbsp;5</a> below. All these series are now reflecting change in the underlying economic indicator.</p>
 <div class="cell">
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/plotting the four series-1.png" class="img-fluid figure-img" width="672"></p>
+<div id="fig-combined" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-combined-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-combined-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-combined-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Treated series plots
+</figcaption>
 </figure>
 </div>
 </div>
 </div>
+<p>The above selection and treatment of the data is pivotal to answering the research question: How does a weakening United States Dollar (USD) influence overall economic stability in Australia? By focusing on key economic indicators like the GDP growth rate, unemployment rate, and inflation rate, and comparing these against the USD Trade Weighted Index (TWI), the study strategically addresses the multifaceted impact of USD fluctuations on the Australian economy. The chosen data encapsulate the essential aspects of economic stability, allowing for a nuanced analysis of the interdependencies between the USD’s value and Australian economic health.</p>
+<p>This approach is vital for constructing a comprehensive Bayesian Structural Vector Autoregression (SVAR) model. The SVAR model, designed to elucidate the transmission mechanisms of USD fluctuations, relies on accurate, time-aligned, and contextually relevant data to provide meaningful insights. By ensuring the data are stationary and appropriately preprocessed for the chosen analysis timeframe (1980-2019), excluding periods of atypical economic disruption like the COVID-19 crisis, the document ensures that the model’s outputs are reflective of standard economic interactions, enhancing the reliability of the findings.</p>
+<p>Furthermore, the data treatment, including the conversion of series to quarterly frequencies and addressing stationarity, directly informs the model equations by ensuring that the inputs reflect genuine economic trends devoid of seasonal or non-stationary noise. This data preparation not only strengthens the study’s methodological framework but also ensures that the SVAR model’s findings will offer actionable insights, enabling policymakers and analysts to base decisions on solid empirical evidence, thereby underlining the importance of investigating the specified problem.</p>
 <p>Next, we employ a Baesian Structural Vector Autoregression (SVAR) model to understand the dynamic relationships among various economic indicators influenced by fluctuations in the United States Dollar (USD) against the Australian Dollar (AUD) <span class="citation" data-cites="wozniakBsvarsBayesianEstimation2022">(<a href="#ref-wozniakBsvarsBayesianEstimation2022" role="doc-biblioref">Woźniak 2022</a>)</span>. The model incorporates five key variables:</p>
 </section>
 </section>
@@ -339,9 +370,9 @@ window.Quarto = {
 <h1>Model Specification</h1>
 <p>This is a 4x1 vector of endogenous variables at time t, where:</p>
 <ul>
-<li><span class="math inline">\(TWI\_USD\)</span> is the Trade Weighted Index of the US Dollar.</li>
-<li><span class="math inline">\(Unemployment\)</span> is the unemployment rate.</li>
-<li><span class="math inline">\(Inflation\)</span> is the inflation rate.</li>
+<li><span class="math inline">\(USD\_Index\)</span> is the Trade Weighted Index of the US Dollar.</li>
+<li><span class="math inline">\(Unemployment\_rate\)</span> is the unemployment rate.</li>
+<li><span class="math inline">\(Inflation\_rate\)</span> is the inflation rate.</li>
 <li><span class="math inline">\(GDP\_growth\)</span> is the growth rate of GDP.</li>
 </ul>
 <p>Next, specify the SVAR model structure:</p>
@@ -353,9 +384,9 @@ window.Quarto = {
 <p><span class="math display">\[
 Y_t =
 \begin{bmatrix}
-    TWI\_USD \\
-    Unemployment \\
-    Inflation \\
+    USD\_Index \\
+    Unemployment\_rate \\
+    Inflation\_rate \\
     GDP\_growth
 \end{bmatrix}
 \]</span></p>
@@ -364,10 +395,30 @@ Y_t =
 AY_t =
 B_0 + B_1Y_{t-1} + ... + B_pY_{t-p} + \epsilon_t
 \]</span></p>
-<section id="appendix" class="level2">
-<h2 class="anchored" data-anchor-id="appendix">Appendix</h2>
-<section id="augmented-dicky-fuller-test-results-for-gdp-growth" class="level3">
-<h3 class="anchored" data-anchor-id="augmented-dicky-fuller-test-results-for-gdp-growth">Augmented Dicky-Fuller Test Results for GDP growth</h3>
+<section id="model-notations" class="level4">
+<h4 class="anchored" data-anchor-id="model-notations">Model Notations:</h4>
+<p><span class="math inline">\(Yt\)</span>​: This represents the vector of endogenous variables at time tt. In this context, the vector consists of the Trade Weighted Index of the US Dollar (USD_Index), the unemployment rate, the inflation rate, and the GDP growth rate. These variables are chosen because they represent key indicators of economic stability.</p>
+<p><span class="math inline">\(A\)</span>: This is a matrix representing the contemporaneous relationships between the variables in <span class="math inline">\(Yt\)</span>. In an SVAR model, this matrix helps to understand how shocks to one variable (e.g., USD_Index) can contemporaneously affect other variables (e.g., unemployment, inflation, GDP growth).</p>
+<p><span class="math inline">\(Bi\)</span> (for i=0,1,…,pi=0,1,…,p): These are matrices representing the lagged effects of the variables on each other. The subscript ii represents the lag order, showing how past values (lags) of each variable in <span class="math inline">\(Yt\)</span>​ influence the current values. In time series analysis, this captures dynamics such as how past economic conditions influence current outcomes.</p>
+<p><span class="math inline">\(ϵt\)</span>​: This is the vector of errors or shocks at time tt. In the SVAR framework, these are considered unobservable random shocks that affect the endogenous variables. In Bayesian SVAR models, these shocks are also subjected to prior distributions reflecting our beliefs or assumptions before observing the data.</p>
+</section>
+<section id="using-the-model-to-answer-the-research-question" class="level4">
+<h4 class="anchored" data-anchor-id="using-the-model-to-answer-the-research-question">Using the Model to Answer the Research Question:</h4>
+<p>The model will be used to analyze how fluctuations in the US Trade Weighted Index (representing a weakening or strengthening USD) impact the Australian economy’s stability, specifically through GDP growth, inflation, and unemployment rates. By examining the contemporaneous and lagged relationships between these variables, we can understand the transmission mechanisms of US dollar fluctuations.</p>
+<p>To address the research objectives, we will assess the dynamic effects of the USD_Index on Australia’s economic indicators. This involves looking at the impulse response functions (IRFs) and variance decompositions derived from the SVAR model. The IRFs will show how a shock to the US dollar index impacts Australian GDP growth, inflation, and unemployment over time. This directly speaks to the study’s aim to elucidate the transmission mechanisms of such fluctuations.</p>
+</section>
+<section id="estimation-outputs-for-interpreting-the-research-question" class="level4">
+<h4 class="anchored" data-anchor-id="estimation-outputs-for-interpreting-the-research-question">Estimation Outputs for Interpreting the Research Question:</h4>
+<p>Posterior Distributions: These reflect the updated beliefs about the model’s parameters after considering the data. We would examine the posterior distributions of the SVAR model parameters, particularly focusing on the coefficients that measure the impact of USD_Index changes on the economic indicators.</p>
+<p>Impulse Response Functions (IRFs): IRFs trace the effects of a one-time shock to one of the innovations on the current and future values of the endogenous variables. By analyzing the IRFs, we can interpret how an unexpected change in the US dollar’s value affects Australian economic conditions over time.</p>
+<p>Variance Decompositions: These help us understand the proportion of the forecast variance of each endogenous variable that can be attributed to shocks to each variable in the model, including shocks to the USD_Index. This is crucial for assessing the significance of US dollar fluctuations compared to other domestic factors.</p>
+<p>Credibility Intervals: Unlike classical confidence intervals, credibility intervals in Bayesian analysis offer a probability statement about the parameter values. Examining these intervals for the effects of interest will provide insights into the certainty of our estimates.</p>
+<p>In terms of economic context, understanding the relationship between the US dollar index and Australian economic indicators is vital for policymakers and economic analysts, especially considering the significant trade and financial ties between the two countries. The model helps address the research objectives by providing a structured way to quantify these relationships, thereby informing decisions that could enhance economic stability in response to international currency movements.</p>
+</section>
+<section id="appendix-augmented-dicky-fuller-tests" class="level2">
+<h2 class="anchored" data-anchor-id="appendix-augmented-dicky-fuller-tests">Appendix: Augmented Dicky-Fuller Tests</h2>
+<section id="augmented-dickey-fuller-test-results-for-gdp-growth" class="level3">
+<h3 class="anchored" data-anchor-id="augmented-dickey-fuller-test-results-for-gdp-growth">Augmented Dickey-Fuller test results for GDP growth</h3>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -410,8 +461,8 @@ phi1  6.52  4.63  3.81</code></pre>
 </div>
 </div>
 </section>
-<section id="augmented-dicky-fuller-test-results-for-cpi-rate" class="level3">
-<h3 class="anchored" data-anchor-id="augmented-dicky-fuller-test-results-for-cpi-rate">Augmented Dicky-Fuller Test Results for CPI rate</h3>
+<section id="augmented-dicky-fuller-test-results-for-the-cpi-rate" class="level3">
+<h3 class="anchored" data-anchor-id="augmented-dicky-fuller-test-results-for-the-cpi-rate">Augmented Dicky-Fuller test results for the CPI rate</h3>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -455,7 +506,7 @@ phi1  6.52  4.63  3.81</code></pre>
 </div>
 </section>
 <section id="augmented-dicky-fuller-test-results-for-the-unemployment-rate" class="level3">
-<h3 class="anchored" data-anchor-id="augmented-dicky-fuller-test-results-for-the-unemployment-rate">Augmented Dicky-Fuller Test Results for the unemployment rate</h3>
+<h3 class="anchored" data-anchor-id="augmented-dicky-fuller-test-results-for-the-unemployment-rate">Augmented Dicky-Fuller test results for the unemployment rate</h3>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -497,7 +548,7 @@ phi1  6.52  4.63  3.81</code></pre>
 </div>
 </section>
 <section id="augmented-dicky-fuller-test-results-for-the-usd-index" class="level3">
-<h3 class="anchored" data-anchor-id="augmented-dicky-fuller-test-results-for-the-usd-index">Augmented Dicky-Fuller Test Results for the USD Index</h3>
+<h3 class="anchored" data-anchor-id="augmented-dicky-fuller-test-results-for-the-usd-index">Augmented Dicky-Fuller test results for the USD Index</h3>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>

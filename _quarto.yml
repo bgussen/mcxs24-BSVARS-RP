@@ -3,7 +3,7 @@ project:
   output-dir: docs
 
 website:
-  title: "Macroeconometrics Research Report"
+  title: "US TWI Effects on Economic Stability in Australia"
   navbar:
     background: "light"
 
