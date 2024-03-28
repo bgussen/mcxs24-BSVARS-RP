@@ -29,7 +29,7 @@ This document presents the design and implementation of a Bayesian Structural Ve
 
 #### The US dollar trade weighted index or the USD/AUD exchange rate?
 
-@Chen2004 offered insights into the dynamics of a small and open economy, discovering evidence from New Zealand that movements in exchange rates impact the value of firms. We argue that this impact could be wider, in partucluar, impacting macroeconomic indicators. The ability to ascertain the significance of such potential impact would need to look at the glboal relative strength of key currencies, in particular, in the case of Australia, in relation to the green back. 
+@Chen2004 offers insights into the dynamics of a small and open economy, discovering evidence from New Zealand that movements in exchange rates impact the value of firms. We argue that this impact could be wider, in partucluar, impacting macroeconomic indicators. The ability to ascertain the significance of such potential impact would rquire looking at the glboal relative strength of key currencies, in particular, in the case of Australia, in relation to the greenback. 
 
 The U.S. Dollar Index (USDX, DXY, DX, or informally, the "Dixie") is an index measuring the value of the United States dollar relative to a basket of foreign currencies, often those of major U.S. trade partners [@Chen2024]. This index increases when the U.S. dollar gains strength compared to other currencies. Managed by ICE (Intercontinental Exchange, Inc.), it's a geometric mean weighted by:
 
@@ -48,11 +48,11 @@ The index is a vital tool for traders, policymakers, and economists as it offers
 
 The US Trade Weighted Index and the USD/AUD exchange rate are both measures related to the value of the US dollar, but they provide different information. The USD Index is a broad measure of the value of the US dollar relative to a basket of currencies of its major trading partners. It is a weighted average, where currencies of more important trading partners have a greater influence on the index value. The weights are adjusted periodically to reflect changes in trading patterns. The USD Index focuses on the competitiveness of US goods and services in international trade. A higher USD Index indicates a stronger US dollar compared to the basket of currencies. 
 
-On the other hand, the USD/AUD exchange rate is the price of one US dollar in terms of Australian dollars. This rate forcuses on Tte direct exchange value between the US dollar and the Australian dollar. A higher USD/AUD rate means it takes more Australian dollars to buy one US dollar (stronger USD).
+On the other hand, the USD/AUD exchange rate is the price of one US dollar in terms of Australian dollars. This rate forcuses on the direct exchange value between the US dollar and the Australian dollar. A higher USD/AUD rate means it takes more Australian dollars to buy one US dollar (stronger USD).
 
 In terms of the differences between the USD Index and the USD/AUD rate, the scope of the former is much larger than the scope of the latter, thus giving a better picture of the overall strength or weakness of the US dollar. USD Index considers a basket of currencies, while USD/AUD is just one currency pair. The USD Index focus reflects overall trade competitiveness, while USD/AUD is a specific exchange rate. The USD Index provides a broader picture, while USD/AUD is a more granular data point. Imagine the USD Index as a stock market index for the US dollar, reflecting its performance against a group of major currencies. The USD/AUD exchange rate is like the price of a single stock in that index.
 
-In order to ensure capturing an international perspective of the US dollar position, it is more appropriate to use the USD Index instead of the USD/AUD exchage rate. 
+In order to ensure capturing an international perspective of the US dollar position, it is more appropriate to use the USD Index instead of the USD/AUD exchage rate. This research project will therefore opt to employ the Dixie to check its effect on the economic health of the Australian economy. 
 
 #### What is economic stability?
 
@@ -117,19 +117,21 @@ The chosen variables provide a comprehensive view of the economic landscape nece
 
 The required data will be sourced from official Australian government databases, in particular the Reserve Bank of Australia. An initial look at the data indicates that they have different frequencies.
 
-It is apposite to point out here that the project will use conduct the analysis on data in the time window between 1980 and 2019. Data older than the first quarter of 1980 is likely to be too remote to be relevant to the current trade relations impacting on the USD and the Australain economy. Data points after the fourth quarter in 2019 were impacted by the COVID-19 crisis, and this is likely to distort  the analysis. 
+It is apposite to point out here that the project will conduct the analysis on data in the time window between 1980 and 2019. Data older than the first quarter of 1980 is likely to be too remote to be relevant to the current trade relations impacting on the USD and the Australain economy. Data points after the fourth quarter in 2019 were impacted by the COVID-19 crisis, and this is likely to distort  the analysis. 
 
 Dealing with time series data at different frequencies within a Bayesian Structural Vector Autoregression (SVAR) model requires careful preprocessing. Mixed frequency data complicates modeling because the SVAR model requires observations at regular intervals. 
 
-To decide on a common frequency for the  model, one needs to consider the research question and the nature of the data. If short-term dynamics are crucial, one should consider daily or monthly frequencies. For longer-term analysis, quarterly data might suffice. Given that the project is interested in identifying the effects of a weakening USD on the Australian economy, and given the time it would take for shocks to propagate through international trade, it would be reasonable to choose a longer frequency, such as a quarterly or an annual one, to allow for capturing the effct of a weakening USD on the Australian economy. However, because the window of analysis is reduced to between the years of 1980 and 2019, and to ensure there is enough datapoints to conduct a meaningful analysis, all four series will need to be converted into quarterly frequency, if they are not already in that format. 
+To decide on a common frequency for the  model, one needs to consider the research question and the nature of the data. If short-term dynamics are crucial, one should consider daily or monthly frequencies. For longer-term analysis, quarterly data might suffice. Given that the project is interested in identifying the effects of a weakening USD on the Australian economy, and given the time it would take for shocks to propagate through international trade, it would be reasonable to choose a longer frequency, such as a quarterly or an annual one, to allow for capturing the effect of a weakening USD on the Australian economy. However, because the window of analysis is reduced to between the years of 1980 and 2019, and to ensure there is enough data points to conduct a meaningful analysis, all four series will need to be converted into quarterly frequency, if they are not already in that format. 
 
 For the purposes of this project, a daily series will be converted to a quarterly series by choosing the last day in the relevant month for each quarter.For example, for the first quarter, we use the last data point from March. For monthly series we use the data for the month corresponding to the end of each quarter (March, June, Sept, Dec).
 
-Note, however, that one can also choose to handling mixed frequencies in the analysis. Potentially, this is a more robust approach in terms of being faithful to the actual observed data. Techniques that are helpful here include: 
+Note, however, that one can also choose handling mixed frequencies in the analysis. Potentially, this is a more robust approach in terms of being faithful to the actual observed data. Techniques that are helpful here include: 
 
--	**Mixed Data Sampling (MIDAS)**: MIDAS regressions or other mixed-frequency approaches can be employed to incorporate variables of different frequencies directly into your analysis without needing to aggregate or interpolate all series to the same frequency.
+-	**Mixed Data Sampling (MIDAS)**: MIDAS regressions or other mixed-frequency approaches can be employed to incorporate variables of different frequencies directly into the analysis without needing to aggregate or interpolate all series to the same frequency.
 
 -	**Temporal Hierarchy**: If using Bayesian methods, one might construct models separately for different frequencies and then combine insights hierarchically, acknowledging different data granularities.
+
+For the initial stage of analysis, we will continue with the aligned quarterly data. Based on the outcomes, it could still be advantageous to re-assess the advantage of a mixed frequency approach. 
 
 After aligning frequencies, one has to ensure that all series are stationary before including them in the SVAR model. Differencing, logging, or detrending might be necessary depending on the variable characteristics.
 
