@@ -141,7 +141,7 @@ After aligning frequencies, one has to ensure that all series are stationary bef
 
 For our purposes in this initial proposal, the required data will be sourced from official Australian government databases using the `readrba` R packages. Based on the preliminary results from the project, it might become necessary to entertain a mixed frequency approach. 
 
-The first series is from the Reserve Bank of Australia (RBA) output and labour statistical tables [@RBA2024a]. This is a quarterly series. Note that the augmented DF test suggests that the series is stationary at the 95% level. There was no need to modify the series.
+The first series, the Australian GDP growth rate, is from the Reserve Bank of Australia (RBA) output and labour statistical tables [@RBA2024a]. This is a quarterly series, and will not need to be treated for frequency alignment. 
 
 ```{r GDP growth rate}
 #| echo: false
@@ -186,7 +186,7 @@ pacf(GDP_rate$value, main = "PACF for GDP Rate", lag.max = 10)
 par(mfrow=c(1, 1))
 ```
 
-As seen in @fig-GDP, the PACF above, the optimal lag for conducting the augmented Dicky-Fuller (DF) test is 4. A summary of the results of this test can be found in the appendix.
+As seen in @fig-GDP, the PACF above, the optimal lag for conducting the augmented Dicky-Fuller (DF) test is 4. A summary of the results of this test can be found in the appendix. 
 
 ```{r}
 #| echo: false
@@ -197,7 +197,7 @@ As seen in @fig-GDP, the PACF above, the optimal lag for conducting the augmente
 adf_test_result <- ur.df(GDP_rate$value, type = "drift", lags = 4, selectlags = "AIC")
 ```
 
-From the DF test results, its is safe to conclude that the GDP_rate series is stationary. 
+Note that the augmented DF test suggests that the series is stationary at the 95% level. There is no need to modify the series. From the DF test results, its is safe to conclude that the GDP_rate series is stationary. 
 
 ```{r}
 #| echo: false
@@ -220,7 +220,7 @@ if (is.null(attr(GDP_rate$value, "diff"))) {  # Check if series has been differe
 
 ```
 
-The second series is from the Reserve Bank of Australia (RBA) inflation and inflation expectations statistical tables (@RBA2024b). This series has been converted the monthly series into a quarterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December. 
+The second series, the Australian inflation rate, is from the Reserve Bank of Australia (RBA) inflation and inflation expectations statistical tables (@RBA2024b). This series has been converted from a monthly series into a quarterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December. 
 
 ```{r CPI rate}
 #| echo: false 
@@ -286,7 +286,7 @@ CPI_rate <- na.omit(CPI_rate)
 
 From @fig-CPI, an augmented DF test was conducted with 3 lags. Note that the augmented DF test (see appendix) suggests that the series is not stationary at the 95% confidence level. There was a need to take the difference of the series.
 
-The third series is from the Reserve Bank of Australia (RBA) output and labour Statistical tables [@RBA2024c]. This is  a montly series. The series was converted into a quaterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December. 
+The third series, the Australian unemployment rate, is from the Reserve Bank of Australia (RBA) output and labour Statistical tables [@RBA2024c]. This is  a montly series. The series was converted into a quaterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December. 
 
 ```{r unemp_rate}
 #| echo: false 
@@ -353,7 +353,7 @@ if(adf_test_result@teststat[1] <= adf_test_result@cval[1, "5pct"]) {  # Adjust b
 
 @fig-unemp above explains that a lag 4 should be used for the augmented DF test. Note that this test (see Appendix) suggests that the series is not stationary at the 95% confidence level. We therefore use the differenced series.
 
-The fourth series is from the Reserve Bank of Australia (RBA) exchange rates statistical tables [@RBA2024d]. This is  a montly series. The series was converted into a quaterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December.
+The fourth series, the USD Index, is also from the Reserve Bank of Australia (RBA) exchange rates statistical tables [@RBA2024d]. This is  a montly series. The series was converted into a quaterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December.
 
 ```{r USD Index}
 #| echo: false
@@ -413,15 +413,14 @@ if (adf_test_result@teststat[1] > adf_test_result@cval[1, "5pct"]) {
   message("The series is already stationary.")
 }
 
-# Since the first value is now NA after differencing, you may want to remove it for plotting
-# This step is optional and depends on whether you want to include the first NA in your plot
+# Since the first value is now NA after differencing, remove it for plotting
 USD_Index <- na.omit(USD_Index)
 
 ```
 
 @fig-Index above indicates that a lag 4 should be used for the augmented DF test. The results suggest that the series is not stationary at the 95% confidence level. We therefore use the differenced series.
 
-The four treated series for the proposed model are in  @fig-combined below. All these series are now reflecting change in the underlying economic indicator. 
+The four treated series for the proposed model are in  @fig-combined below. All these series are now reflecting change (rates) in the underlying economic indicator. 
 
 ```{r plotting the four series}
 #| echo: false
@@ -471,7 +470,7 @@ This approach is vital for constructing a comprehensive Bayesian Structural Vect
 
 Furthermore, the data treatment, including the conversion of series to quarterly frequencies and addressing stationarity, directly informs the model equations by ensuring that the inputs reflect genuine economic trends devoid of seasonal or non-stationary noise. This data preparation not only strengthens the study’s methodological framework but also ensures that the SVAR model's findings will offer actionable insights, enabling policymakers and analysts to base decisions on solid empirical evidence, thereby underlining the importance of investigating the specified problem.
 
-Next, we employ a Baesian Structural Vector Autoregression (SVAR) model to understand the dynamic relationships among various economic indicators influenced by fluctuations in the United States Dollar (USD) against the Australian Dollar (AUD) [@wozniakBsvarsBayesianEstimation2022]. In particular, we follow @Bhuiyan2012 who introduces a Bayesian structural VAR model tailored for Canada, focusing on evaluating the impact of monetary policy shocks, utilizing the overnight rate target as the main policy tool. However, our model differs in that it does not account for any fiscal and monetary policy directly, but rather evaluates the potential of using the US Index to predict the stability of the Australian economy. 
+Next, we employ a Baesian Structural Vector Autoregression (SVAR) model to understand the dynamic relationships among various economic indicators influenced by fluctuations in the United States Dollar (USD) against the Australian Dollar (AUD) [@wozniakBsvarsBayesianEstimation2022]. In particular, we follow @Bhuiyan2012 who introduces a Bayesian structural VAR model tailored for Canada, focusing on evaluating the impact of monetary policy shocks, utilizing the overnight rate target as the main policy tool. However, our model differs in that it does not directly account for any fiscal and monetary policy,  rather it evaluates the potential of using the US Index to predict the stability of the Australian economy. 
 
 # Model Specification
 
