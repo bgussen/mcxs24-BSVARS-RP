@@ -141,7 +141,7 @@ After aligning frequencies, one has to ensure that all series are stationary bef
 
 For our purposes in this initial proposal, the required data will be sourced from official Australian government databases using the `readrba` R packages. Based on the preliminary results from the project, it might become necessary to entertain a mixed frequency approach. 
 
-The first series, the Australian GDP growth rate, is from the Reserve Bank of Australia (RBA) output and labour statistical tables [@RBA2024a]. This is a quarterly series, and will not need to be treated for frequency alignment. 
+The first series, the year-end Australian real GDP growth rate, is from the Reserve Bank of Australia (RBA) output and labour statistical tables [@RBA2024a]. This is a quarterly series, and will not need to be treated for frequency alignment. 
 
 ```{r GDP growth rate}
 #| echo: false
@@ -220,7 +220,7 @@ if (is.null(attr(GDP_rate$value, "diff"))) {  # Check if series has been differe
 
 ```
 
-The second series, the Australian inflation rate, is from the Reserve Bank of Australia (RBA) inflation and inflation expectations statistical tables (@RBA2024b). This series has been converted from a monthly series into a quarterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December. 
+The second series, the year-end change in Australian inflation rate, is from the Reserve Bank of Australia (RBA) inflation and inflation expectations statistical tables (@RBA2024b). This series has been converted from a monthly series into a quarterly series by chosing the relevant months for the beginning of each quarter, starting from March and ending with December. 
 
 ```{r CPI rate}
 #| echo: false 
