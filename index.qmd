@@ -454,6 +454,9 @@ grid.arrange(p1, grobs = plot_list, ncol = 2)
 ```
 
 
+# Model Specification
+
+
 The above selection and treatment of the data is pivotal to answering the research question: How does a weakening United States Dollar (USD) influence overall economic stability in Australia? By focusing on key economic indicators like the GDP growth rate, unemployment rate, and inflation rate, and comparing these against the USD Trade Weighted Index (TWI), the study strategically addresses the multifaceted impact of USD fluctuations on the Australian economy. The chosen data encapsulate the essential aspects of economic stability, allowing for a nuanced analysis of the interdependencies between the USD's value and Australian economic health.
 
 This approach is vital for constructing a comprehensive Bayesian Structural Vector Autoregression (SVAR) model. The SVAR model, designed to elucidate the transmission mechanisms of USD fluctuations, relies on accurate, time-aligned, and contextually relevant data to provide meaningful insights. By ensuring the data are stationary and appropriately preprocessed for the chosen analysis timeframe (1980-2019), excluding periods of atypical economic disruption like the COVID-19 crisis, the document ensures that the model's outputs are reflective of standard economic interactions, enhancing the reliability of the findings.
@@ -462,7 +465,23 @@ Furthermore, the data treatment, including the conversion of series to quarterly
 
 Next, we employ a Bayesian Structural Vector Autoregression (SVAR) model to understand the dynamic relationships among various economic indicators influenced by fluctuations in the United States Dollar (USD) against the Australian Dollar (AUD) [@wozniakBsvarsBayesianEstimation2022]. In particular, we follow @Bhuiyan2012 who introduces a Bayesian structural VAR model tailored for Canada, focusing on evaluating the impact of monetary policy shocks, utilizing the overnight rate target as the main policy tool. However, our model differs in that it does not directly account for any fiscal and monetary policy,  rather it evaluates the potential of using the US Index to predict the stability of the Australian economy. 
 
-# Model Specification
+#### Justification for the Selection of the Bayesian SVAR Model
+
+In addressing the dynamics between the United States Dollar (USD) and the Australian economy, we opt for a Bayesian Structural Vector Autoregression (SVAR) model over alternative econometric methodologies for several reasons. Firstly, the SVAR model allows us to incorporate prior knowledge and uncertainties into our analysis, an advantage not readily available in traditional VAR models. This Bayesian approach is particularly beneficial in economic studies where historical data and expert judgment play crucial roles in shaping analysis and expectations.
+
+Furthermore, SVAR models enable us to decipher the structural impacts of economic shocks, such as fluctuations in the USD, on various indicators of economic stability within Australia, including GDP growth, inflation, and unemployment rates. Unlike standard VAR models that treat all innovations as endogenously generated within the system, SVAR models allow us to impose structural restrictions based on economic theory. This is critical for understanding the directionality and magnitude of relationships between variables, thereby offering a more nuanced analysis of economic interdependencies.
+
+#### Interpretation of the $A$ Matrix in the Bayesian SVAR Model
+
+In our Bayesian SVAR model, the matrix $A$ is pivotal as it encapsulates the contemporaneous relationships between the endogenous variables. Each entry $a_{ij}$​ in the $A$ matrix can be interpreted as the immediate impact of a one-unit shock in variable $j$ on variable $i$ within the same time period, holding all other factors constant. This interpretation allows us to understand the intricate web of interactions within the economic system, such as how a sudden change in the USD Index might immediately affect Australia's GDP growth, inflation, or unemployment rate.
+
+For instance, a positive entry in the row of the GDP growth and in the column of the USD Index would indicate that an instantaneous increase in the USD Index (reflecting a strengthening of the USD) has a positive impact on Australian GDP growth within the same period. Such insights are invaluable for policymakers and analysts seeking to anticipate and mitigate the effects of international monetary fluctuations on domestic economic stability.
+
+#### Granger Causality Tests within the Bayesian SVAR Framework
+
+Granger causality tests within the Bayesian SVAR model framework offer a methodological enhancement to our analysis by enabling us to test for predictive causality between variables. Specifically, these tests help determine whether historical fluctuations in the USD Index can predict future changes in Australia's economic indicators, beyond what the past values of these indicators themselves would predict.
+
+By integrating Granger causality tests into our Bayesian SVAR model, we can identify if movements in the USD Index precede changes in key metrics of economic stability, such as inflation, unemployment, and GDP growth. This not only adds depth to our analysis but also provides a more rigorous examination of the temporal and causal relationships among the studied variables. For policymakers and economic strategists, such insights are crucial for designing proactive measures that enhance economic resilience in the face of USD fluctuations.
 
 This is a 4x1 vector of endogenous variables at time t, where:
 
