@@ -87,6 +87,8 @@ div.csl-indent {
     "search-label": "Search"
   }
 }</script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
 
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -148,26 +150,11 @@ window.Quarto = {
    
   <ul>
   <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
-  <li><a href="#research-proposal-structure" id="toc-research-proposal-structure" class="nav-link" data-scroll-target="#research-proposal-structure">Research Proposal Structure</a>
-  <ul class="collapse">
-  <li><a href="#the-question-objective-and-motivation" id="toc-the-question-objective-and-motivation" class="nav-link" data-scroll-target="#the-question-objective-and-motivation">The Question, Objective, and Motivation</a></li>
-  <li><a href="#data-and-their-properties" id="toc-data-and-their-properties" class="nav-link" data-scroll-target="#data-and-their-properties">Data and Their Properties</a>
-  <ul class="collapse">
-  <li><a href="#motivation-for-data-choice" id="toc-motivation-for-data-choice" class="nav-link" data-scroll-target="#motivation-for-data-choice">Motivation for Data Choice:</a></li>
+  <li><a href="#research-proposal-structure" id="toc-research-proposal-structure" class="nav-link" data-scroll-target="#research-proposal-structure">Research Proposal Structure</a></li>
+  <li><a href="#data-and-their-properties" id="toc-data-and-their-properties" class="nav-link" data-scroll-target="#data-and-their-properties">Data and Their Properties</a></li>
   <li><a href="#data-acquisition-and-transformation" id="toc-data-acquisition-and-transformation" class="nav-link" data-scroll-target="#data-acquisition-and-transformation">Data Acquisition and Transformation:</a></li>
-  </ul></li>
-  </ul></li>
-  <li><a href="#model-specification" id="toc-model-specification" class="nav-link" data-scroll-target="#model-specification">Model Specification</a>
-  <ul class="collapse">
-  <li><a href="#appendix-augmented-dicky-fuller-tests" id="toc-appendix-augmented-dicky-fuller-tests" class="nav-link" data-scroll-target="#appendix-augmented-dicky-fuller-tests">Appendix: Augmented Dicky-Fuller Tests</a>
-  <ul class="collapse">
-  <li><a href="#augmented-dickey-fuller-test-results-for-gdp-growth" id="toc-augmented-dickey-fuller-test-results-for-gdp-growth" class="nav-link" data-scroll-target="#augmented-dickey-fuller-test-results-for-gdp-growth">Augmented Dickey-Fuller test results for GDP growth</a></li>
-  <li><a href="#augmented-dicky-fuller-test-results-for-the-cpi-rate" id="toc-augmented-dicky-fuller-test-results-for-the-cpi-rate" class="nav-link" data-scroll-target="#augmented-dicky-fuller-test-results-for-the-cpi-rate">Augmented Dicky-Fuller test results for the CPI rate</a></li>
-  <li><a href="#augmented-dicky-fuller-test-results-for-the-unemployment-rate" id="toc-augmented-dicky-fuller-test-results-for-the-unemployment-rate" class="nav-link" data-scroll-target="#augmented-dicky-fuller-test-results-for-the-unemployment-rate">Augmented Dicky-Fuller test results for the unemployment rate</a></li>
   <li><a href="#augmented-dicky-fuller-test-results-for-the-usd-index" id="toc-augmented-dicky-fuller-test-results-for-the-usd-index" class="nav-link" data-scroll-target="#augmented-dicky-fuller-test-results-for-the-usd-index">Augmented Dicky-Fuller test results for the USD Index</a></li>
-  </ul></li>
-  </ul></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  <li><a href="#model-specification" id="toc-model-specification" class="nav-link" data-scroll-target="#model-specification">Model Specification</a></li>
   </ul>
 </nav>
     </div>
@@ -200,76 +187,42 @@ window.Quarto = {
 
 
 <blockquote class="blockquote">
-<p><strong>Abstract.</strong> This research project investigates the dynamic effects of a weaker United States Dollar (USD) on the Australian economy, with a focus on economic stability. By employing Bayesian Structural Vector Autoregression (SVAR) analysis, this study aims to elucidate the transmission mechanisms of USD fluctuations through three channels: GDP growth, inflation, and unemployment. The findings are expected to provide nuanced insights into the macroeconomic interdependencies between the USD and the Australian economy, offering valuable perspectives for policymakers and economic analysts.</p>
+<p><strong>Abstract.</strong> This research project investigates the dynamic effects of the U.S. Dollar (USD) on the Australian economy, with a focus on economic stability. By employing Bayesian Structural Vector Autoregression (SVAR) analysis. This study aims to elucidate the transmission mechanisms of USD fluctuations through three channels: GDP growth, inflation, and unemployment. The findings are expected to provide nuanced insights into the macroeconomic interdependencies between the USD and the Australian economy, offering valuable perspectives for policymakers and economic analysts.</p>
 <p><strong>Keywords.</strong> Bayesian SVAR, USD, Australian economy, inflation, economic stability</p>
 </blockquote>
-<section id="introduction" class="level1">
-<h1>Introduction</h1>
+<section id="introduction" class="level3">
+<h3 class="anchored" data-anchor-id="introduction">Introduction</h3>
 <p>This document presents the design and implementation of a Bayesian Structural Vector Autoregression (SVAR) model. Our focus is on understanding the impact of the Trade Weighted Index (TWI) of the USD on Australian economic indicators: unemployment, inflation, and GDP rate.</p>
 </section>
-<section id="research-proposal-structure" class="level1">
-<h1>Research Proposal Structure</h1>
-<section id="the-question-objective-and-motivation" class="level2">
-<h2 class="anchored" data-anchor-id="the-question-objective-and-motivation">The Question, Objective, and Motivation</h2>
+<section id="research-proposal-structure" class="level3">
+<h3 class="anchored" data-anchor-id="research-proposal-structure">Research Proposal Structure</h3>
+<section id="the-question-objective-and-motivation" class="level4">
+<h4 class="anchored" data-anchor-id="the-question-objective-and-motivation">The Question, Objective, and Motivation</h4>
 <p><strong>Objective:</strong> To examine the dynamic effects of a weakening USD on the Australian economy, focusing on changes to the GDP, inflation and unemployment.</p>
 <p><strong>Research Question:</strong> How does a weakening United States Dollar (USD) influence overall economic stability in Australia?</p>
 <p><strong>Motivation:</strong> The relationship between the USD and the Australian economy is crucial, given the extensive trade links and financial interactions between the two nations. In light of recent global financial uncertainties, understanding this interplay is essential for crafting informed economic policies and strategies. This research endeavors to dissect the complexities of this economic relationship, aiming to provide insights that could inform both policymakers and market participants.</p>
+</section>
 <section id="the-us-dollar-trade-weighted-index-or-the-usdaud-exchange-rate" class="level4">
 <h4 class="anchored" data-anchor-id="the-us-dollar-trade-weighted-index-or-the-usdaud-exchange-rate">The US dollar trade weighted index or the USD/AUD exchange rate?</h4>
-<p><span class="citation" data-cites="Chen2004">Chen J., Naylor, and Lu (<a href="#ref-Chen2004" role="doc-biblioref">2004</a>)</span> offers insights into the dynamics of a small and open economy, discovering evidence from New Zealand that movements in exchange rates impact the value of firms. We argue that this impact could be wider, in partucluar, impacting macroeconomic indicators. The ability to ascertain the significance of such potential impact would require looking at the global relative strength of key currencies, in particular, in the case of Australia, in relation to the greenback.</p>
-<p>The U.S. Dollar Index (USDX, DXY, DX, or informally, the “Dixie”) is an index measuring the value of the United States dollar relative to a basket of foreign currencies, often those of major U.S. trade partners <span class="citation" data-cites="Chen2024">(<a href="#ref-Chen2024" role="doc-biblioref">J. Chen 2024</a>)</span>. This index increases when the U.S. dollar gains strength compared to other currencies. Managed by ICE (Intercontinental Exchange, Inc.), it’s a geometric mean weighted by:</p>
-<ul>
-<li>Euro (EUR) at 57.6%</li>
-<li>Japanese Yen (JPY) at 13.6%</li>
-<li>Pound Sterling (GBP) at 11.9%</li>
-<li>Canadian Dollar (CAD) at 9.1%</li>
-<li>Swedish Krona (SEK) at 4.2%</li>
-<li>Swiss Franc (CHF) at 3.6%</li>
-</ul>
-<p>Originating in March 1973 post-Bretton Woods, it started at 100.000, reaching a high of 164.7200 in February 1985 and a low of 70.698 on March 16, 2008. The index’s composition changed once, in 1999, with the introduction of the euro, replacing several European currencies. There have been calls for updating the “basket” to reflect current major U.S. trading partners like China and Brazil, as Sweden and Switzerland have lesser trade volumes with the U.S.</p>
-<p>The USD Index is influenced by major economic events and policies, demonstrated through historical data from 1967 to the present, showing fluctuations due to various global and domestic situations like oil crises, presidential elections, and economic policies. The index is also available through futures traded on the ICE platform and is calculated using a specific formula involving exchange rates against the aforementioned currencies.</p>
-<p>The index is a vital tool for traders, policymakers, and economists as it offers insights into the relative strength of the U.S. dollar and, by extension, the relative health of the U.S. economy compared to its major trading partners. It reflects the impact of U.S. economic conditions, policies, and global events on the value of the dollar and is a crucial benchmark in the financial markets.</p>
-<p>The US Trade Weighted Index and the USD/AUD exchange rate are both measures related to the value of the US dollar, but they provide different information. The USD Index is a broad measure of the value of the US dollar relative to a basket of currencies of its major trading partners. It is a weighted average, where currencies of more important trading partners have a greater influence on the index value. The weights are adjusted periodically to reflect changes in trading patterns. The USD Index focuses on the competitiveness of US goods and services in international trade. A higher USD Index indicates a stronger US dollar compared to the basket of currencies.</p>
-<p>On the other hand, the USD/AUD exchange rate is the price of one US dollar in terms of Australian dollars. This rate focuses on the direct exchange value between the US dollar and the Australian dollar. A higher USD/AUD rate means it takes more Australian dollars to buy one US dollar (stronger USD).</p>
-<p>In terms of the differences between the USD Index and the USD/AUD rate, the scope of the former is much larger than the scope of the latter, thus giving a better picture of the overall strength or weakness of the US dollar. USD Index considers a basket of currencies, while USD/AUD is just one currency pair. The USD Index focus reflects overall trade competitiveness, while USD/AUD is a specific exchange rate. The USD Index provides a broader picture, while USD/AUD is a more granular data point. Imagine the USD Index as a stock market index for the US dollar, reflecting its performance against a group of major currencies. The USD/AUD exchange rate is like the price of a single stock in that index.</p>
-<p>In order to ensure capturing an international perspective of the US dollar position, it is more appropriate to use the USD Index instead of the USD/AUD exchange rate. This research project will therefore opt to employ the Dixie to check its effect on the economic health of the Australian economy.</p>
+<p><span class="citation" data-cites="Chen2004">Chen J., Naylor, and Lu (<a href="#ref-Chen2004" role="doc-biblioref">2004</a>)</span> explores the impact of exchange rate movements on firm values in New Zealand, suggesting broader macroeconomic implications. Extending this analysis, <span class="citation" data-cites="Chen2024">J. Chen (<a href="#ref-Chen2024" role="doc-biblioref">2024</a>)</span> discusses the U.S. Dollar Index (USDX, DXY, “Dixie”), which measures the U.S. dollar’s strength against a basket of major trading partner currencies. This index is vital for understanding the U.S. dollar’s overall economic health and its global trade competitiveness.</p>
+<p>Using the USD Index is preferred over the USD/AUD exchange rate because it provides a more comprehensive view of the US dollar’s strength by comparing it against a basket of currencies from major trading partners. This broader perspective reflects overall trade competitiveness and economic impacts more accurately than the USD/AUD rate, which only measures the exchange value between two currencies. The USD Index, therefore, offers a better gauge of the US dollar’s performance on a global scale, making it more suitable for analyzing its effect on the economic health of the Australian economy.</p>
 </section>
 <section id="what-is-economic-stability" class="level4">
 <h4 class="anchored" data-anchor-id="what-is-economic-stability">What is economic stability?</h4>
-<p>Economic stability describes a healthy condition of a nation’s economy, characterized by:</p>
-<ul>
-<li><strong>Low and stable inflation:</strong> Prices rise slowly and predictably, allowing people to plan for the future without fearing excessive erosion of purchasing power.</li>
-<li><strong>Moderate unemployment rate:</strong> Enough jobs are available to employ most people seeking work, but not so few that wages become inflated due to a limited labor pool.</li>
-<li><strong>Minimal fluctuations:</strong> The economy experiences steady growth with minimal booms and busts. This translates to small variations in output growth.</li>
-</ul>
-<p>Governments and central banks use various tools like fiscal policy (taxation and spending) and monetary policy (interest rates) to try and achieve this economic stability. It is a delicate balancing act, and achieving all these goals simultaneously can be challenging.</p>
-<p>In simpler terms, economic stability reflects a predictable and healthy economic environment. This stability fosters business confidence, consumer spending, and overall economic well-being. Measuring inflation, unemployment rate, and GDP growth is a proxy for measuring economic stability.</p>
+<p>Economic stability indicates a nation’s economy is in a healthy state, characterized by low and stable inflation, allowing for future financial planning without significant loss of purchasing power. It also involves a moderate unemployment rate, ensuring sufficient employment opportunities without causing wage inflation due to a limited labor pool. Additionally, the economy should experience steady growth with minor fluctuations in output, avoiding major booms and busts. Governments and central banks strive to maintain this stability using fiscal policies, such as taxation and spending, and monetary policies, including adjusting interest rates. Achieving economic stability is challenging as it requires maintaining a balance across various economic indicators. This stability is crucial as it enhances business confidence, boosts consumer spending, and supports overall economic health, with metrics like inflation, unemployment, and GDP growth serving as indicators of economic stability.</p>
 </section>
-<section id="effect-of-a-weak-us-dollar-on-australian-inflation" class="level4">
-<h4 class="anchored" data-anchor-id="effect-of-a-weak-us-dollar-on-australian-inflation">Effect of a weak US dollar on Australian inflation</h4>
-<p>The effect of a weaker US dollar on inflation in Australia involves several mechanisms, primarily through trade and investment channels. A weaker US dollar makes US imports cheaper in Australian terms. This can reduce the price of goods and services Australia imports from the US, potentially lowering the inflation rate, especially for products directly imported from the US or priced in US dollars. Also, since Australia is a significant exporter, a weaker US dollar can increase the local currency value of its US dollar-denominated exports. This leads to higher income for Australian exporters and can boost the economy. However, this can also contribute to cost-push inflation if the increased demand raises domestic prices. A weaker US dollar can enhance the competitiveness of Australian exports by making them more affordable internationally. This could increase export revenues, boost economic activity, and potentially lead to higher demand-pull inflation in Australia. As to investment Flows, a depreciating US dollar might redirect investment flows away from the US and towards other economies, including Australia. Increased investment can stimulate the Australian economy but also contribute to inflationary pressures if it leads to increased spending. In summary, a weaker US dollar can have inflationary effects by making imports cheaper, increasing the local currency earnings from exports, and improving the competitiveness of Australian goods in the global market. However, the actual impact on Australian inflation will depend on a variety of factors, including the overall trade balance, the elasticity of demand for imports and exports, monetary policy responses, and the state of the global and domestic economies. Notwithstanding, by measuring the historcial effect of the US Trade Weighted Index on domestic inflation, one can ascertain the aggregate effect of these other factors, and potentially, predict the future effect of a weakening of the US dollar on the Australian CPI rate.</p>
-</section>
-<section id="effect-of-a-weak-us-dollar-on-australian-unemployment" class="level4">
-<h4 class="anchored" data-anchor-id="effect-of-a-weak-us-dollar-on-australian-unemployment">Effect of a weak US dollar on Australian unemployment</h4>
-<p>A weaker US dollar generally translates to a stronger Australian dollar (AUD). With a stronger AUD, Australian goods and services become relatively cheaper on the global market. This can lead to increased demand for Australian exports, potentially boosting production and requiring more workers, which could lead to a decrease in unemployment. However, a stronger AUD can also make imports cheaper for Australian businesses. This can reduce production costs and potentially improve profit margins. However, it can also make domestically produced goods less competitive compared to cheaper imports, potentially leading to job losses in some sectors. The net effect on unemployment depends on the relative strengths of these two forces. If the export boost outweighs the import competition, the unemployment rate might decrease. However, the impact can be complex and depend on other economic factors.</p>
-</section>
-<section id="effect-of-a-weak-us-dollar-on-australian-gdp-growth" class="level4">
-<h4 class="anchored" data-anchor-id="effect-of-a-weak-us-dollar-on-australian-gdp-growth">Effect of a weak US dollar on Australian GDP growth</h4>
-<p>Similarly, A weaker US dollar can have both positive and negative effects on the Australian GDP growth rate. A weaker US dollar can make Australian exports relatively cheaper for US buyers, potentially boosting demand for Australian goods and services in the US market. This increase in exports could lead to higher GDP growth as Australian businesses expand to meet this demand. On the flip side, a weaker US dollar can make imports into Australia more expensive, which could lead to higher costs for businesses and consumers. If the increase in import prices outweighs the benefits from increased exports, it could dampen overall economic growth. In addition, Australia is a major exporter of commodities such as iron ore, coal, and natural gas. Commodity prices are often denominated in US dollars, so a weaker US dollar can lead to higher commodity prices in US dollar terms. This can be beneficial for Australian exporters and government revenues, contributing positively to GDP growth. Also, changes in currency values can influence investment flows between countries. A weaker US dollar might make Australian assets relatively more attractive to investors, leading to increased foreign investment inflows into Australia. This can stimulate economic activity and contribute to GDP growth. Overall, the net effect of a weaker US dollar on Australian GDP growth rate will depend on various factors including the responsiveness of exports and imports to changes in currency values, commodity price movements, and the dynamics of investment flows.</p>
-<p>The transmission mechanisms through which the dynamics of the USD Index influence the economic stability indicators of the Australian economy, specifically inflation, unemployment, and GDP growth, are multifaceted and significant due to the interdependent nature of global trade and financial flows. Understanding these mechanisms is crucial for policymakers, businesses, and investors as they navigate the impacts of international monetary fluctuations.</p>
+<section id="effect-of-a-weak-us-dollar-on-the-australian-economy" class="level4">
+<h4 class="anchored" data-anchor-id="effect-of-a-weak-us-dollar-on-the-australian-economy">Effect of a weak US dollar on the Australian economy</h4>
+<p>A weaker US Dollar Index typically strengthens the Australian dollar, impacting the Australian economy in several ways:</p>
 <ol type="1">
-<li><p><strong>Trade Competitiveness and Inflation:</strong> The USD Index represents the strength of the US dollar relative to a basket of currencies of its major trading partners, including Australia. A rise in the USD Index implies a relatively weaker Australian dollar, making Australian exports cheaper and more competitive on the global market. This increased competitiveness can boost Australia’s export volumes, contributing positively to GDP growth. However, the flip side is that a weaker Australian dollar makes imports more expensive, translating into imported inflation. Imported goods, including essential items like oil, machinery, and technology, become pricier, pushing up the overall consumer price index (CPI) and thereby inflation rates within Australia. This imported inflation can erode purchasing power and increase the cost of living for Australians.</p></li>
-<li><p><strong>Investment Flows and Unemployment:</strong> Changes in the USD Index can influence international investment flows. A stronger US dollar (or a weaker Australian dollar) could divert investment from the US to Australian assets, seeking higher returns. This influx of capital can stimulate the Australian economy, potentially leading to job creation and lower unemployment rates. However, the volatility associated with fluctuating exchange rates may also lead to hesitancy among businesses to commit to new investments and expansions, possibly leading to a stagnation or increase in unemployment levels. Thus, the impact on unemployment can be dual-faceted, depending on other economic conditions and the response of businesses to currency movements.</p></li>
-<li><p><strong>GDP Growth through Trade Balances:</strong> The trade balance is a significant component of GDP calculation. As mentioned, a weaker Australian dollar (stemming from a higher USD Index) makes Australian goods more competitive abroad, potentially improving the trade balance as exports increase. However, this must be balanced against the cost of higher imports. If the increase in export revenue outweighs the increased costs of imports, the net effect could be positive for Australia’s GDP growth. Conversely, if import costs rise substantially without a corresponding increase in exports, this could negatively impact GDP growth.</p></li>
-<li><p><strong>Interest Rates and Monetary Policy:</strong> The dynamics of the USD Index can indirectly affect Australia’s monetary policy decisions, which in turn impact inflation and economic growth. For example, if the Reserve Bank of Australia (RBA) responds to a weaker Australian dollar and rising imported inflation by increasing interest rates, borrowing costs would rise. While this may help contain inflation, it could also dampen economic growth by making loans more expensive for consumers and businesses, potentially leading to reduced spending and investment.</p></li>
-<li><p><strong>Consumer Confidence and Market Sentiments:</strong> The strength of the US dollar and the corresponding weakness of the Australian dollar can influence consumer confidence and market sentiments. A depreciating domestic currency may lead to uncertainty and reduced consumer spending, particularly if inflation rises and purchasing power declines. This reduction in consumer demand can slow economic growth and increase unemployment.</p></li>
-<li><p><strong>Global Economic Conditions and Commodity Prices:</strong> Australia’s economy is significantly influenced by global economic conditions and commodity prices, many of which are denominated in US dollars. Changes in the USD Index can affect commodity prices and, by extension, Australia’s export revenues, given its status as a major commodity exporter. This relationship underscores how fluctuations in the USD Index can have far-reaching impacts on Australia’s economic stability.</p></li>
+<li><p><strong>Inflation:</strong> A stronger Australian dollar makes exports less competitive and imports cheaper, potentially decreasing export volumes while reducing inflation through lower import costs.</p></li>
+<li><p><strong>Unemployment:</strong> Reduced foreign investment due to a stronger Australian dollar could slow economic growth and potentially increase unemployment if businesses scale back expansion.</p></li>
+<li><p><strong>GDP Growth:</strong> The trade balance may suffer if reduced export revenues outweigh the benefits of cheaper imports, negatively impacting GDP growth.</p></li>
 </ol>
-<p>In conclusion, the dynamics of the US dollar index have substantial and varied transmission mechanisms affecting the Australian economy’s inflation, unemployment, and GDP growth. These mechanisms underscore the interaction between exchange rates and economic stability, highlighting the importance of vigilant monetary and fiscal policies to mitigate adverse effects and capitalize on favorable movements.</p>
 </section>
 </section>
-<section id="data-and-their-properties" class="level2">
-<h2 class="anchored" data-anchor-id="data-and-their-properties">Data and Their Properties</h2>
+<section id="data-and-their-properties" class="level3">
+<h3 class="anchored" data-anchor-id="data-and-their-properties">Data and Their Properties</h3>
 <p>In order to conduct a thorough analysis of the impact of USD fluctuations on the Australian economy, this study will utilize a set of time-series data that encapsulates three economic indicators:</p>
 <ul>
 <li><p><strong>Growth Rate in the Australian Gross Domestic Product:</strong> Quarterly GDP figures representing the overall economic activity within Australia.</p></li>
@@ -280,28 +233,14 @@ window.Quarto = {
 <ul>
 <li><strong>USD Trade Weighted Index:</strong> monthly index of US dollar major currency trade-weighted index.</li>
 </ul>
-<section id="motivation-for-data-choice" class="level3">
-<h3 class="anchored" data-anchor-id="motivation-for-data-choice">Motivation for Data Choice:</h3>
-<p>The chosen variables provide a comprehensive view of the economic landscape necessary for understanding the dynamics between the USD and the Australian economy. Trade weighted indices directly influence the competitiveness of a country’s goods and services abroad, impacting trade balances and, subsequently, GDP levels. Given that the United States is one of Australia’s major trading partners, changes in the strength of the USD would be likely to impact the growth rate in Australia’s GDP. Similarly, changes to the same index are likely to influence the inflation and unemployment rates, which are critical indicators of economic health, influencing purchasing power and consumer spending. Together, these data series allow for an in-depth analysis of international economic interactions and the stability of the Australian economy.</p>
+<section id="motivation-for-data-choice" class="level4">
+<h4 class="anchored" data-anchor-id="motivation-for-data-choice">Motivation for Data Choice:</h4>
+<p>The selected variables offer a detailed insight into the economic interactions between the US dollar and the Australian economy, focusing on how trade-weighted indices affect the competitiveness of Australian goods and services internationally. Changes in the US dollar’s strength can significantly impact Australia’s GDP growth, given the substantial trade relations with the United States. Additionally, fluctuations in this index are likely to alter inflation and unemployment rates, key indicators of economic stability that affect purchasing power and consumer spending. This comprehensive approach enables a thorough examination of the international economic dynamics and the overall stability of the Australian economy.</p>
+</section>
 </section>
 <section id="data-acquisition-and-transformation" class="level3">
 <h3 class="anchored" data-anchor-id="data-acquisition-and-transformation">Data Acquisition and Transformation:</h3>
-<p>The required data will be sourced from official Australian government databases, in particular the Reserve Bank of Australia. An initial look at the data indicates that they have different frequencies.</p>
-<p>It is apposite to point out here that the project will conduct the analysis on data in the time window between 1980 and 2019. Data older than the first quarter of 1980 is likely to be too remote to be relevant to the current trade relations impacting on the USD and the Australian economy. Data points after the fourth quarter in 2019 were impacted by the COVID-19 crisis, and this is likely to distort the analysis.</p>
-<p>Dealing with time series data at different frequencies within a Bayesian Structural Vector Autoregression (SVAR) model requires careful preprocessing. Mixed frequency data complicates modeling because the SVAR model requires observations at regular intervals.</p>
-<p>To decide on a common frequency for the model, one needs to consider the research question and the nature of the data. If short-term dynamics are crucial, one should consider daily or monthly frequencies. For longer-term analysis, quarterly data might suffice. Given that the project is interested in identifying the effects of a weakening USD on the Australian economy, and given the time it would take for shocks to propagate through international trade, it would be reasonable to choose a longer frequency, such as a quarterly or an annual one, to allow for capturing the effect of a weakening USD on the Australian economy. However, because the window of analysis is reduced to between the years of 1980 and 2019, and to ensure there is enough data points to conduct a meaningful analysis, all four series will need to be converted into quarterly frequency, if they are not already in that format.</p>
-<p>For the purposes of this project, a daily series will be converted to a quarterly series by choosing the last day in the relevant month for each quarter.For example, for the first quarter, we use the last data point from March. For monthly series we use the data for the month corresponding to the end of each quarter (March, June, Sept, Dec).</p>
-<p>Note, however, that one can also choose handling mixed frequencies in the analysis. Potentially, this is a more robust approach in terms of being faithful to the actual observed data. Techniques that are helpful here include:</p>
-<ul>
-<li><p><strong>Mixed Data Sampling (MIDAS)</strong>: MIDAS regressions or other mixed-frequency approaches can be employed to incorporate variables of different frequencies directly into the analysis without needing to aggregate or interpolate all series to the same frequency.</p></li>
-<li><p><strong>Temporal Hierarchy</strong>: If using Bayesian methods, one might construct models separately for different frequencies and then combine insights hierarchically, acknowledging different data granularities.</p></li>
-</ul>
-<p>For the initial stage of analysis, we will continue with the aligned quarterly data. Based on the outcomes, it could still be advantageous to re-assess the advantage of a mixed frequency approach.</p>
-<p>After aligning frequencies, one has to ensure that all series are stationary before including them in the SVAR model. Differencing, logging, or detrending might be necessary depending on the variable characteristics.</p>
-<ul>
-<li><p>In a Bayesian framework, one has to incorporate prior knowledge about how different frequency data relates and affects each other.</p></li>
-<li><p>One has to use Bayesian techniques to estimate the model parameters, acknowledging the frequency differences either in the data preparation stage or model structure, depending on your approach.</p></li>
-</ul>
+<p>The project will analyze data from 1980 to 2019 sourced from official Australian databases, particularly the Reserve Bank of Australia, focusing on the effects of a weakening USD on the Australian economy. Data from before 1980 and post-2019 are excluded due to their irrelevance to current trade relations and distortions from the COVID-19 crisis, respectively. The analysis will use time series data at different frequencies within a Bayesian Structural Vector Autoregression (SVAR) model, requiring preprocessing to match data frequencies.</p>
 <p>For our purposes in this initial proposal, the required data will be sourced from official Australian government databases using the <code>readrba</code> R packages. Based on the preliminary results from the project, it might become necessary to entertain a mixed frequency approach.</p>
 <p>The first series, the year-end Australian real GDP growth rate, is from the Reserve Bank of Australia (RBA) output and labour statistical tables <span class="citation" data-cites="RBA2024a">(<a href="#ref-RBA2024a" role="doc-biblioref">Reserve Bank of Australia 2024c</a>)</span>. This is a quarterly series, and will not need to be treated for frequency alignment.</p>
 <div class="cell">
@@ -318,7 +257,7 @@ Figure&nbsp;1: ACF and PACF functions for the GDP growth rate
 </div>
 </div>
 </div>
-<p>As seen in <a href="#fig-GDP" class="quarto-xref">Figure&nbsp;1</a>, the PACF above, the optimal lag for conducting the augmented Dicky-Fuller (DF) test is 4. A summary of the results of this test can be found in the appendix.</p>
+<p>As seen in <a href="#fig-GDP" class="quarto-xref">Figure&nbsp;1</a>, the PACF above, the optimal lag for conducting the augmented Dicky-Fuller (DF) test is 4. A summary of the results of this test can be found in the table below.</p>
 <p>Note that the augmented DF test suggests that the series is stationary at the 95% level. There is no need to modify the series. From the DF test results, its is safe to conclude that the GDP_rate series is stationary.</p>
 <p>The second series, the year-end change in Australian inflation rate, is from the Reserve Bank of Australia (RBA) inflation and inflation expectations statistical tables (<span class="citation" data-cites="RBA2024b">Reserve Bank of Australia (<a href="#ref-RBA2024b" role="doc-biblioref">2024d</a>)</span>). This series has been converted from a monthly series into a quarterly series by choosing the relevant months for the beginning of each quarter, starting from March and ending with December.</p>
 <div class="cell">
@@ -368,6 +307,54 @@ Figure&nbsp;4: ACF and PACF functions for the USD Trade Weighted Index
 </div>
 </div>
 <p><a href="#fig-Index" class="quarto-xref">Figure&nbsp;4</a> above indicates that a lag 4 should be used for the augmented DF test. The results suggest that the series is not stationary at the 95% confidence level. We therefore use the differenced series.</p>
+</section>
+<section id="augmented-dicky-fuller-test-results-for-the-usd-index" class="level3">
+<h3 class="anchored" data-anchor-id="augmented-dicky-fuller-test-results-for-the-usd-index">Augmented Dicky-Fuller test results for the USD Index</h3>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<table class="table table-striped table-hover table-sm small" data-quarto-postprocess="true">
+<caption>ADF Test Results Summary</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Variable</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Test_Statistic</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Critical_Value_5pct</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">GDP</td>
+<td style="text-align: left;">GDP</td>
+<td style="text-align: right;">-3.872311</td>
+<td style="text-align: right;">-2.88</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">CPI</td>
+<td style="text-align: left;">CPI</td>
+<td style="text-align: right;">-2.178294</td>
+<td style="text-align: right;">-2.88</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Unemployment</td>
+<td style="text-align: left;">Unemployment</td>
+<td style="text-align: right;">-1.927413</td>
+<td style="text-align: right;">-2.88</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">USD_Index</td>
+<td style="text-align: left;">USD_Index</td>
+<td style="text-align: right;">-2.194568</td>
+<td style="text-align: right;">-2.88</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</div>
 <p>The four treated series for the proposed model are in <a href="#fig-combined" class="quarto-xref">Figure&nbsp;5</a> below. All these series are now reflecting change (rates) in the underlying economic indicator.</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -384,10 +371,8 @@ Figure&nbsp;5: Treated series plots
 </div>
 </div>
 </section>
-</section>
-</section>
-<section id="model-specification" class="level1">
-<h1>Model Specification</h1>
+<section id="model-specification" class="level3">
+<h3 class="anchored" data-anchor-id="model-specification">Model Specification</h3>
 <p>The above selection and treatment of the data is pivotal to answering the research question: How does a weakening United States Dollar (USD) influence overall economic stability in Australia? By focusing on key economic indicators like the GDP growth rate, unemployment rate, and inflation rate, and comparing these against the USD Trade Weighted Index (TWI), the study strategically addresses the multifaceted impact of USD fluctuations on the Australian economy. The chosen data encapsulate the essential aspects of economic stability, allowing for a nuanced analysis of the interdependencies between the USD’s value and Australian economic health.</p>
 <p>This approach is vital for constructing a comprehensive Bayesian Structural Vector Autoregression (SVAR) model. The SVAR model, designed to elucidate the transmission mechanisms of USD fluctuations, relies on accurate, time-aligned, and contextually relevant data to provide meaningful insights. By ensuring the data are stationary and appropriately preprocessed for the chosen analysis timeframe (1980-2019), excluding periods of atypical economic disruption like the COVID-19 crisis, the document ensures that the model’s outputs are reflective of standard economic interactions, enhancing the reliability of the findings.</p>
 <p>Furthermore, the data treatment, including the conversion of series to quarterly frequencies and addressing stationarity, directly informs the model equations by ensuring that the inputs reflect genuine economic trends devoid of seasonal or non-stationary noise. This data preparation not only strengthens the study’s methodological framework but also ensures that the SVAR model’s findings will offer actionable insights, enabling policymakers and analysts to base decisions on solid empirical evidence, thereby underlining the importance of investigating the specified problem.</p>
@@ -401,11 +386,6 @@ Figure&nbsp;5: Treated series plots
 <h4 class="anchored" data-anchor-id="interpretation-of-the-a-matrix-in-the-bayesian-svar-model">Interpretation of the <span class="math inline">\(A\)</span> Matrix in the Bayesian SVAR Model</h4>
 <p>In our Bayesian SVAR model, the matrix <span class="math inline">\(A\)</span> is pivotal as it encapsulates the contemporaneous relationships between the endogenous variables. Each entry <span class="math inline">\(a_{ij}\)</span>​ in the <span class="math inline">\(A\)</span> matrix can be interpreted as the immediate impact of a one-unit shock in variable <span class="math inline">\(j\)</span> on variable <span class="math inline">\(i\)</span> within the same time period, holding all other factors constant. This interpretation allows us to understand the intricate web of interactions within the economic system, such as how a sudden change in the USD Index might immediately affect Australia’s GDP growth, inflation, or unemployment rate.</p>
 <p>For instance, a positive entry in the row of the GDP growth and in the column of the USD Index would indicate that an instantaneous increase in the USD Index (reflecting a strengthening of the USD) has a positive impact on Australian GDP growth within the same period. Such insights are invaluable for policymakers and analysts seeking to anticipate and mitigate the effects of international monetary fluctuations on domestic economic stability.</p>
-</section>
-<section id="granger-causality-tests-within-the-bayesian-svar-framework" class="level4">
-<h4 class="anchored" data-anchor-id="granger-causality-tests-within-the-bayesian-svar-framework">Granger Causality Tests within the Bayesian SVAR Framework</h4>
-<p>Granger causality tests within the Bayesian SVAR model framework offer a methodological enhancement to our analysis by enabling us to test for predictive causality between variables. Specifically, these tests help determine whether historical fluctuations in the USD Index can predict future changes in Australia’s economic indicators, beyond what the past values of these indicators themselves would predict.</p>
-<p>By integrating Granger causality tests into our Bayesian SVAR model, we can identify if movements in the USD Index precede changes in key metrics of economic stability, such as inflation, unemployment, and GDP growth. This not only adds depth to our analysis but also provides a more rigorous examination of the temporal and causal relationships among the studied variables. For policymakers and economic strategists, such insights are crucial for designing proactive measures that enhance economic resilience in the face of USD fluctuations.</p>
 <p>This is a 4x1 vector of endogenous variables at time t, where:</p>
 <ul>
 <li><span class="math inline">\(USD\_Index\)</span> : Trade Weighted Index of the US Dollar.</li>
@@ -462,187 +442,10 @@ B_0 + B_1Y_{t-1} + ... + B_pY_{t-p} + \epsilon_t
 <p><strong>Variance Decompositions</strong>: These help us understand the proportion of the forecast variance of each endogenous variable that can be attributed to shocks to each variable in the model, including shocks to the USD_Index. This is crucial for assessing the significance of US dollar fluctuations compared to other domestic factors.</p>
 <p><strong>Credibility Intervals</strong>: Unlike classical confidence intervals, credibility intervals in Bayesian analysis offer a probability statement about the parameter values. Examining these intervals for the effects of interest will provide insights into the certainty of our estimates.</p>
 <p>In terms of economic context, understanding the relationship between the US dollar index and Australian economic indicators is vital for policymakers and economic analysts, especially considering the significant trade and financial ties between the two countries. The model helps address the research objectives by providing a structured way to quantify these relationships, thereby informing decisions that could enhance economic stability in response to international currency movements.</p>
+
+
+
 </section>
-<section id="appendix-augmented-dicky-fuller-tests" class="level2">
-<h2 class="anchored" data-anchor-id="appendix-augmented-dicky-fuller-tests">Appendix: Augmented Dicky-Fuller Tests</h2>
-<section id="augmented-dickey-fuller-test-results-for-gdp-growth" class="level3">
-<h3 class="anchored" data-anchor-id="augmented-dickey-fuller-test-results-for-gdp-growth">Augmented Dickey-Fuller test results for GDP growth</h3>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>
-############################################### 
-# Augmented Dickey-Fuller Test Unit Root Test # 
-############################################### 
-
-Test regression drift 
-
-
-Call:
-lm(formula = z.diff ~ z.lag.1 + 1 + z.diff.lag)
-
-Residuals:
-     Min       1Q   Median       3Q      Max 
--2.44778 -0.47410 -0.03589  0.49497  2.70768 
-
-Coefficients:
-            Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)  0.73280    0.20383   3.595 0.000440 ***
-z.lag.1     -0.23437    0.06053  -3.872 0.000161 ***
-z.diff.lag1  0.24165    0.07374   3.277 0.001305 ** 
-z.diff.lag2  0.18227    0.07564   2.410 0.017183 *  
-z.diff.lag3  0.10094    0.07695   1.312 0.191627    
-z.diff.lag4 -0.33011    0.07639  -4.321 2.82e-05 ***
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-Residual standard error: 0.9244 on 149 degrees of freedom
-Multiple R-squared:  0.3257,    Adjusted R-squared:  0.3031 
-F-statistic:  14.4 on 5 and 149 DF,  p-value: 1.703e-11
-
-
-Value of test-statistic is: -3.8723 7.4979 
-
-Critical values for test statistics: 
-      1pct  5pct 10pct
-tau2 -3.46 -2.88 -2.57
-phi1  6.52  4.63  3.81</code></pre>
-</div>
-</div>
-</section>
-<section id="augmented-dicky-fuller-test-results-for-the-cpi-rate" class="level3">
-<h3 class="anchored" data-anchor-id="augmented-dicky-fuller-test-results-for-the-cpi-rate">Augmented Dicky-Fuller test results for the CPI rate</h3>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>
-############################################### 
-# Augmented Dickey-Fuller Test Unit Root Test # 
-############################################### 
-
-Test regression drift 
-
-
-Call:
-lm(formula = z.diff ~ z.lag.1 + 1 + z.diff.lag)
-
-Residuals:
-     Min       1Q   Median       3Q      Max 
--2.22603 -0.40338 -0.01825  0.34653  3.11452 
-
-Coefficients:
-            Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)  0.14294    0.10421   1.372  0.17226    
-z.lag.1     -0.04698    0.02157  -2.178  0.03097 *  
-z.diff.lag1  0.23365    0.07238   3.228  0.00153 ** 
-z.diff.lag2  0.14258    0.07378   1.932  0.05521 .  
-z.diff.lag3  0.17606    0.07407   2.377  0.01874 *  
-z.diff.lag4 -0.40980    0.07316  -5.601 1.01e-07 ***
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-Residual standard error: 0.7374 on 148 degrees of freedom
-Multiple R-squared:  0.2701,    Adjusted R-squared:  0.2454 
-F-statistic: 10.95 on 5 and 148 DF,  p-value: 5.554e-09
-
-
-Value of test-statistic is: -2.1783 2.6324 
-
-Critical values for test statistics: 
-      1pct  5pct 10pct
-tau2 -3.46 -2.88 -2.57
-phi1  6.52  4.63  3.81</code></pre>
-</div>
-</div>
-</section>
-<section id="augmented-dicky-fuller-test-results-for-the-unemployment-rate" class="level3">
-<h3 class="anchored" data-anchor-id="augmented-dicky-fuller-test-results-for-the-unemployment-rate">Augmented Dicky-Fuller test results for the unemployment rate</h3>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>
-############################################### 
-# Augmented Dickey-Fuller Test Unit Root Test # 
-############################################### 
-
-Test regression drift 
-
-
-Call:
-lm(formula = z.diff ~ z.lag.1 + 1 + z.diff.lag)
-
-Residuals:
-     Min       1Q   Median       3Q      Max 
--0.73043 -0.14333 -0.00665  0.10642  1.35930 
-
-Coefficients:
-            Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)  0.19111    0.07980   2.395   0.0179 *  
-z.lag.1     -0.02791    0.01125  -2.480   0.0142 *  
-z.diff.lag1  0.47916    0.07869   6.089 8.98e-09 ***
-z.diff.lag2  0.19928    0.07987   2.495   0.0137 *  
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-Residual standard error: 0.2458 on 151 degrees of freedom
-Multiple R-squared:  0.3799,    Adjusted R-squared:  0.3676 
-F-statistic: 30.83 on 3 and 151 DF,  p-value: 1.317e-15
-
-
-Value of test-statistic is: -2.4803 3.0764 
-
-Critical values for test statistics: 
-      1pct  5pct 10pct
-tau2 -3.46 -2.88 -2.57
-phi1  6.52  4.63  3.81</code></pre>
-</div>
-</div>
-</section>
-<section id="augmented-dicky-fuller-test-results-for-the-usd-index" class="level3">
-<h3 class="anchored" data-anchor-id="augmented-dicky-fuller-test-results-for-the-usd-index">Augmented Dicky-Fuller test results for the USD Index</h3>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>
-############################################### 
-# Augmented Dickey-Fuller Test Unit Root Test # 
-############################################### 
-
-Test regression drift 
-
-
-Call:
-lm(formula = z.diff ~ z.lag.1 + 1 + z.diff.lag)
-
-Residuals:
-    Min      1Q  Median      3Q     Max 
--7.4652 -1.8834  0.2093  2.1113  7.6908 
-
-Coefficients:
-            Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)  2.86356    1.56019   1.835 0.068415 .  
-z.lag.1     -0.03158    0.01658  -1.905 0.058740 .  
-z.diff.lag   0.28696    0.07691   3.731 0.000269 ***
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-Residual standard error: 2.997 on 151 degrees of freedom
-Multiple R-squared:  0.09709,   Adjusted R-squared:  0.08513 
-F-statistic: 8.119 on 2 and 151 DF,  p-value: 0.0004478
-
-
-Value of test-statistic is: -1.9045 1.8582 
-
-Critical values for test statistics: 
-      1pct  5pct 10pct
-tau2 -3.46 -2.88 -2.57
-phi1  6.52  4.63  3.81</code></pre>
-</div>
-</div>
-</section>
-</section>
-</section>
-<section id="references" class="level1 unnumbered">
-
-
-
-
 </section>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
