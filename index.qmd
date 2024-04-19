@@ -73,6 +73,7 @@ The project will analyze data from 1980 to 2019 sourced from official Australian
 For our purposes in this initial proposal, the required data will be sourced from official Australian government databases using the `readrba` R packages. Based on the preliminary results from the project, it might become necessary to entertain a mixed frequency approach. 
 
 The first series, the year-end Australian real GDP growth rate, is from the Reserve Bank of Australia (RBA) output and labour statistical tables [@RBA2024a]. This is a quarterly series, and will not need to be treated for frequency alignment. 
+
 ```{r setup, include=FALSE}
 #| echo: false
 #| message: false
@@ -135,27 +136,6 @@ adf_test_result <- ur.df(GDP_rate$value, type = "drift", lags = 4, selectlags = 
 
 Note that the augmented DF test suggests that the series is stationary at the 95% level. There is no need to modify the series. From the DF test results, its is safe to conclude that the GDP_rate series is stationary. 
 
-```{r}
-#| echo: false
-#| message: false
-#| warning: false
-
-# If the series is non-stationary, take the first difference and adjust dates
-if (adf_test_result@teststat[1] > adf_test_result@cval[1]) {  # Check if non-stationary
-  GDP_rate$value <- diff(GDP_rate$value)
-  # Adjust dates accordingly
-  GDP_rate$date <- GDP_rate$date[-1]
-}
-
-# Determine plot title based on whether the series has been differenced
-if (is.null(attr(GDP_rate$value, "diff"))) {  # Check if series has been differenced
-  plot_title <- "Quarterly GDP Rate (1980-2019)"
-} else {
-  plot_title <- "Differenced Quarterly GDP Rate (1980-2019)"
-}
-
-```
-
 The second series, the year-end change in Australian inflation rate, is from the Reserve Bank of Australia (RBA) inflation and inflation expectations statistical tables (@RBA2024b). This series has been converted from a monthly series into a quarterly series by choosing the relevant months for the beginning of each quarter, starting from March and ending with December. 
 
 ```{r CPI rate}
@@ -200,19 +180,6 @@ par(mfrow=c(1,1))
 
 # Conduct the ADF test to check for stationarity
 adf_test_result <- ur.df(CPI_rate$value, type = "drift", lags = 4, selectlags = "AIC")
-
-
-# Difference the series if necessary
-if (adf_test_result@teststat[1] > adf_test_result@cval[1, "5pct"]) {  
-  CPI_rate <- CPI_rate %>%
-    mutate(diff_value = c(NA, diff(value)))  # Prepend NA to maintain the length
-} else {
-  message("The series is already stationary.")
-}
-
-# Remove NA values from the differenced series
-CPI_rate <- na.omit(CPI_rate)
-
 
 ```
 
@@ -264,18 +231,7 @@ par(mfrow=c(1, 1))
 adf_test_result <- ur.df(unemp_rate$value, type = "drift", lags = 4, selectlags = "AIC")
 
 
-# Check stationarity and apply differencing if necessary
-if(adf_test_result@teststat[1] <= adf_test_result@cval[1, "5pct"]) {  # Adjust based on desired significance level
-  # Plotting the data without differencing
-  ggplot(unemp_rate, aes(x = quarter, y = value)) +
-    geom_line() +
-    theme_minimal() +
-    labs(title = "Quarterly Unemployment Rate (1980-2019)", x = "Quarter", y = "Unemployment Rate (%)")
-} else {
-  # Plotting the differenced data
-  unemp_rate <- unemp_rate %>%
-    mutate(diff_value = c(NA, diff(value)))  # Prepend NA to maintain the length
-}
+
 ```
 
 @fig-unemp above explains that a lag 4 should be used for the augmented DF test. Note that this test (see Appendix) suggests that the series is not stationary at the 95% confidence level. We therefore use the differenced series.
@@ -312,6 +268,9 @@ series_quarterly <- series %>%
 USD_Index <- series_quarterly %>%
   filter(quarter >= as.yearqtr("1980 Q1") & quarter <= as.yearqtr("2019 Q4"))
 
+# Apply logarithmic transformation to the USD Index values
+USD_Index$value <- log(USD_Index$value)
+
 # Set up the plotting area
 par(mfrow=c(1, 2))
 
@@ -327,16 +286,7 @@ par(mfrow=c(1, 1))
 # Augmented Dickey-Fuller test to check for stationarity
 adf_test_result <- ur.df(USD_Index$value, type = "drift", lags = 4, selectlags = "AIC")
 
-# Difference the series if necessary
-if (adf_test_result@teststat[1] > adf_test_result@cval[1, "5pct"]) {  
-  USD_Index <- USD_Index %>%
-    mutate(diff_value = c(NA, diff(value)))  # Prepend NA to maintain the length
-} else {
-  message("The series is already stationary.")
-}
 
-# Since the first value is now NA after differencing, remove it for plotting
-USD_Index <- na.omit(USD_Index)
 
 ```
 
@@ -383,7 +333,9 @@ kable(adf_summary_df, caption = "ADF Test Results Summary") %>%
 
 ```
 
-The four treated series for the proposed model are in  @fig-combined below. All these series are now reflecting change (rates) in the underlying economic indicator. 
+### Do we need to use stationary data series
+
+After consultations with Thomaz Wozniak, my understanding is that it is possible to use unit-root nonstationary variables in dynamic modeling. Based, on this, all rates are used without differencing, and the USD Index is used in logged form, also without differencing. 
 
 ```{r plotting all four series}
 #| echo: false
@@ -391,7 +343,7 @@ The four treated series for the proposed model are in  @fig-combined below. All 
 #| warning: false
 #| label: fig-combined
 #| fig-cap: "Treated series plots"
-#| 
+
 
 p1 <- ggplot(GDP_rate, aes(x = date, y = value)) +
   geom_line() +
@@ -400,10 +352,10 @@ p1 <- ggplot(GDP_rate, aes(x = date, y = value)) +
   theme(plot.title = element_text(size = 9))
 
 datasets <- list(CPI_rate = CPI_rate, unemp_rate = unemp_rate, USD_Index = USD_Index)
-titles <- c("Differenced Quarterly CPI Rate (1980-2019)",
-            "Differenced Quarterly Unemployment Rate (1980-2019)", "Differenced Quarterly USD Index (1980-2019)")
-y_titles <- c("CPI Rate (%)","Differenced Unemployment Rate (%)", 
-              "USD Trade Weighted Index (%)")
+titles <- c("Quarterly CPI Rate (1980-2019)",
+            "Quarterly Unemployment Rate (1980-2019)", "Log of Quarterly USD Index (1980-2019)")
+y_titles <- c("CPI Rate (%)","Unemployment Rate (%)", 
+              "Log(USD Index)")
 
 # Empty list to store the plots
 plot_list <- list()
@@ -411,10 +363,10 @@ plot_list <- list()
 # Loop over the datasets and titles
 for (i in seq_along(datasets)) {
   # Create the plot
-  plot <- ggplot(datasets[[i]], aes(x = quarter, y = diff_value)) +
+  plot <- ggplot(datasets[[i]], aes(x = quarter, y = value)) +
     geom_line() +
     theme_minimal() +
-    labs(title = titles[i], x = "Quarter", y = y_titles[i]) + # y_titles for y-axis labels
+    labs(title = titles[i], x = "Quarter", y = y_titles[i]) +
     theme(plot.title = element_text(size = 9))
   
   # Add the plot to the list
@@ -422,8 +374,14 @@ for (i in seq_along(datasets)) {
 }
 
 plot_list <- c(list(p1), plot_list)
-grid.arrange(p1, grobs = plot_list, ncol = 2)
+grid.arrange(grobs = plot_list, ncol = 2)
+
+
+
+
+
 ```
+
 
 
 ### Model Specification
@@ -443,15 +401,15 @@ In addressing the dynamics between the United States Dollar (USD) and the Austra
 
 Furthermore, SVAR models enable us to decipher the structural impacts of economic shocks, such as fluctuations in the USD, on various indicators of economic stability within Australia, including GDP growth, inflation, and unemployment rates. Unlike standard VAR models that treat all innovations as endogenously generated within the system, SVAR models allow us to impose structural restrictions based on economic theory. This is critical for understanding the directionality and magnitude of relationships between variables, thereby offering a more nuanced analysis of economic interdependencies.
 
-#### Interpretation of the $A$ Matrix in the Bayesian SVAR Model
+#### Interpretation of the $B_0$ Matrix in the Bayesian SVAR Model
 
-In our Bayesian SVAR model, the matrix $A$ is pivotal as it encapsulates the contemporaneous relationships between the endogenous variables. Each entry $a_{ij}$​ in the $A$ matrix can be interpreted as the immediate impact of a one-unit shock in variable $j$ on variable $i$ within the same time period, holding all other factors constant. This interpretation allows us to understand the intricate web of interactions within the economic system, such as how a sudden change in the USD Index might immediately affect Australia's GDP growth, inflation, or unemployment rate.
+In our Bayesian SVAR model, the matrix $B_0$ is pivotal as it encapsulates the contemporaneous relationships between the endogenous variables. Each entry $b_{ij}$ in the $B_0$ matrix can be interpreted as the immediate impact of a one-unit shock in variable $j$ on variable $i$ within the same time period, holding all other factors constant. This interpretation allows us to understand the intricate web of interactions within the economic system, such as how a sudden change in the USD Index might immediately affect Australia's GDP growth, inflation, or unemployment rate.
 
 For instance, a positive entry in the row of the GDP growth and in the column of the USD Index would indicate that an instantaneous increase in the USD Index (reflecting a strengthening of the USD) has a positive impact on Australian GDP growth within the same period. Such insights are invaluable for policymakers and analysts seeking to anticipate and mitigate the effects of international monetary fluctuations on domestic economic stability.
 
 This is a 4x1 vector of endogenous variables at time t, where:
 
-- $USD\_Index$ : Trade Weighted Index of the US Dollar.
+- $USD\_Index$ : Log of the Trade Weighted Index of the US Dollar.
 - $Unemployment\_rate$ : unemployment rate.
 - $Inflation\_rate$ : inflation rate.
 - $GDP\_growth$ : growth rate of GDP.
@@ -459,9 +417,11 @@ This is a 4x1 vector of endogenous variables at time t, where:
 
 The SVAR model structure:
 
-- $A$ is a 4X4 matrix representing the contemporaneous relationships between the variables.
+- $B_0$ is a 4X4 matrix representing the contemporaneous relationships between the variables.
 - $B_i$ (for i = 0,1,...,p) are 4x4 matrices representing the lagged effects (where p is the lag order).
-- $\epsilon_t$ is a 4x1 vector of errors.
+- $u_t$ is a vector of innovations at time $t$, assumed to follow $u_t \mid Y_{t-1} \sim N(0, I_N)$, where $I_N$ is the identity matrix. This implies that shocks are independently and identically distributed with no correlation and a standard normal distribution.
+
+LaTe
 
 $$ 
 Y_t =
@@ -475,20 +435,22 @@ $$
 
 The Bayesian Structural VAR model can then be written as: 
 
+The Bayesian Structural Vector Autoregression (SVAR) model is given by the equation:
+
 $$
-AY_t = 
-B_0 + B_1Y_{t-1} + ... + B_pY_{t-p} + \epsilon_t
+B_0 Y_t = b_0 + B_1 Y_{t-1} + \dots + B_p Y_{t-p} + u_t
 $$
+
 
 #### Model Notations:
 
-$Y_t$​: This represents the vector of endogenous variables at time tt. In this context, the vector consists of the Trade Weighted Index of the US Dollar (USD_Index), the unemployment rate, the inflation rate, and the GDP growth rate. These variables are chosen because they represent key indicators of economic stability.
+$Y_t$: This represents the vector of endogenous variables at time tt. In this context, the vector consists of the Trade Weighted Index of the US Dollar (USD_Index), the unemployment rate, the inflation rate, and the GDP growth rate. These variables are chosen because they represent key indicators of economic stability.
 
-$A$: This is a matrix representing the contemporaneous relationships between the variables in $Y_t$. In an SVAR model, this matrix helps to understand how shocks to one variable (e.g., USD_Index) can contemporaneously affect other variables (e.g., unemployment, inflation, GDP growth).
+$B_0$: This is a matrix representing the contemporaneous relationships between the variables in $Y_t$. In an SVAR model, this matrix helps to understand how shocks to one variable (e.g., USD_Index) can contemporaneously affect other variables (e.g., unemployment, inflation, GDP growth).
 
-$B_i$ (for i=0,1,...,pi=0,1,...,p): These are matrices representing the lagged effects of the variables on each other. The subscript ii represents the lag order, showing how past values (lags) of each variable in $Y_t$​ influence the current values. In time series analysis, this captures dynamics such as how past economic conditions influence current outcomes.
+$B_i$ (for i=0,1,...,pi=0,1,...,p): These are matrices representing the lagged effects of the variables on each other. The subscript ii represents the lag order, showing how past values (lags) of each variable in $Y_t$ influence the current values. In time series analysis, this captures dynamics such as how past economic conditions influence current outcomes.
 
-$ϵ_t$​: This is the vector of errors or shocks at time tt. In the SVAR framework, these are considered unobservable random shocks that affect the endogenous variables. In Bayesian SVAR models, these shocks are also subjected to prior distributions reflecting our beliefs or assumptions before observing the data.
+$u_t$: This is the vector of errors or shocks at time tt. In the SVAR framework, these are considered unobservable random shocks that affect the endogenous variables. In Bayesian SVAR models, these shocks are also subjected to prior distributions reflecting our beliefs or assumptions before observing the data.
 
 #### Using the Model to Answer the Research Question:
 
