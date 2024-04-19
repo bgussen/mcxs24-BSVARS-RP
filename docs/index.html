@@ -154,6 +154,7 @@ window.Quarto = {
   <li><a href="#data-and-their-properties" id="toc-data-and-their-properties" class="nav-link" data-scroll-target="#data-and-their-properties">Data and Their Properties</a></li>
   <li><a href="#data-acquisition-and-transformation" id="toc-data-acquisition-and-transformation" class="nav-link" data-scroll-target="#data-acquisition-and-transformation">Data Acquisition and Transformation:</a></li>
   <li><a href="#augmented-dicky-fuller-test-results-for-the-usd-index" id="toc-augmented-dicky-fuller-test-results-for-the-usd-index" class="nav-link" data-scroll-target="#augmented-dicky-fuller-test-results-for-the-usd-index">Augmented Dicky-Fuller test results for the USD Index</a></li>
+  <li><a href="#do-we-need-to-use-stationary-data-series" id="toc-do-we-need-to-use-stationary-data-series" class="nav-link" data-scroll-target="#do-we-need-to-use-stationary-data-series">Do we need to use stationary data series</a></li>
   <li><a href="#model-specification" id="toc-model-specification" class="nav-link" data-scroll-target="#model-specification">Model Specification</a></li>
   </ul>
 </nav>
@@ -333,7 +334,7 @@ Figure&nbsp;4: ACF and PACF functions for the USD Trade Weighted Index
 <tr class="even">
 <td style="text-align: left;">CPI</td>
 <td style="text-align: left;">CPI</td>
-<td style="text-align: right;">-2.178294</td>
+<td style="text-align: right;">-2.262783</td>
 <td style="text-align: right;">-2.88</td>
 </tr>
 <tr class="odd">
@@ -345,7 +346,7 @@ Figure&nbsp;4: ACF and PACF functions for the USD Trade Weighted Index
 <tr class="even">
 <td style="text-align: left;">USD_Index</td>
 <td style="text-align: left;">USD_Index</td>
-<td style="text-align: right;">-2.194568</td>
+<td style="text-align: right;">-1.930479</td>
 <td style="text-align: right;">-2.88</td>
 </tr>
 </tbody>
@@ -355,7 +356,10 @@ Figure&nbsp;4: ACF and PACF functions for the USD Trade Weighted Index
 </div>
 </div>
 </div>
-<p>The four treated series for the proposed model are in <a href="#fig-combined" class="quarto-xref">Figure&nbsp;5</a> below. All these series are now reflecting change (rates) in the underlying economic indicator.</p>
+</section>
+<section id="do-we-need-to-use-stationary-data-series" class="level3">
+<h3 class="anchored" data-anchor-id="do-we-need-to-use-stationary-data-series">Do we need to use stationary data series</h3>
+<p>After consultations with Thomaz Wozniak, my understanding is that it is possible to use unit-root nonstationary variables in dynamic modeling. Based, on this, all rates are used without differencing, and the USD Index is used in logged form, also without differencing.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-combined" class="quarto-figure quarto-figure-center quarto-float anchored">
@@ -382,23 +386,24 @@ Figure&nbsp;5: Treated series plots
 <p>In addressing the dynamics between the United States Dollar (USD) and the Australian economy, we opt for a Bayesian Structural Vector Autoregression (SVAR) model over alternative econometric methodologies for several reasons. Firstly, the SVAR model allows us to incorporate prior knowledge and uncertainties into our analysis, an advantage not readily available in traditional VAR models. This Bayesian approach is particularly beneficial in economic studies where historical data and expert judgment play crucial roles in shaping analysis and expectations.</p>
 <p>Furthermore, SVAR models enable us to decipher the structural impacts of economic shocks, such as fluctuations in the USD, on various indicators of economic stability within Australia, including GDP growth, inflation, and unemployment rates. Unlike standard VAR models that treat all innovations as endogenously generated within the system, SVAR models allow us to impose structural restrictions based on economic theory. This is critical for understanding the directionality and magnitude of relationships between variables, thereby offering a more nuanced analysis of economic interdependencies.</p>
 </section>
-<section id="interpretation-of-the-a-matrix-in-the-bayesian-svar-model" class="level4">
-<h4 class="anchored" data-anchor-id="interpretation-of-the-a-matrix-in-the-bayesian-svar-model">Interpretation of the <span class="math inline">\(A\)</span> Matrix in the Bayesian SVAR Model</h4>
-<p>In our Bayesian SVAR model, the matrix <span class="math inline">\(A\)</span> is pivotal as it encapsulates the contemporaneous relationships between the endogenous variables. Each entry <span class="math inline">\(a_{ij}\)</span>​ in the <span class="math inline">\(A\)</span> matrix can be interpreted as the immediate impact of a one-unit shock in variable <span class="math inline">\(j\)</span> on variable <span class="math inline">\(i\)</span> within the same time period, holding all other factors constant. This interpretation allows us to understand the intricate web of interactions within the economic system, such as how a sudden change in the USD Index might immediately affect Australia’s GDP growth, inflation, or unemployment rate.</p>
+<section id="interpretation-of-the-b_0-matrix-in-the-bayesian-svar-model" class="level4">
+<h4 class="anchored" data-anchor-id="interpretation-of-the-b_0-matrix-in-the-bayesian-svar-model">Interpretation of the <span class="math inline">\(B_0\)</span> Matrix in the Bayesian SVAR Model</h4>
+<p>In our Bayesian SVAR model, the matrix <span class="math inline">\(B_0\)</span> is pivotal as it encapsulates the contemporaneous relationships between the endogenous variables. Each entry <span class="math inline">\(b_{ij}\)</span> in the <span class="math inline">\(B_0\)</span> matrix can be interpreted as the immediate impact of a one-unit shock in variable <span class="math inline">\(j\)</span> on variable <span class="math inline">\(i\)</span> within the same time period, holding all other factors constant. This interpretation allows us to understand the intricate web of interactions within the economic system, such as how a sudden change in the USD Index might immediately affect Australia’s GDP growth, inflation, or unemployment rate.</p>
 <p>For instance, a positive entry in the row of the GDP growth and in the column of the USD Index would indicate that an instantaneous increase in the USD Index (reflecting a strengthening of the USD) has a positive impact on Australian GDP growth within the same period. Such insights are invaluable for policymakers and analysts seeking to anticipate and mitigate the effects of international monetary fluctuations on domestic economic stability.</p>
 <p>This is a 4x1 vector of endogenous variables at time t, where:</p>
 <ul>
-<li><span class="math inline">\(USD\_Index\)</span> : Trade Weighted Index of the US Dollar.</li>
+<li><span class="math inline">\(USD\_Index\)</span> : Log of the Trade Weighted Index of the US Dollar.</li>
 <li><span class="math inline">\(Unemployment\_rate\)</span> : unemployment rate.</li>
 <li><span class="math inline">\(Inflation\_rate\)</span> : inflation rate.</li>
 <li><span class="math inline">\(GDP\_growth\)</span> : growth rate of GDP.</li>
 </ul>
 <p>The SVAR model structure:</p>
 <ul>
-<li><span class="math inline">\(A\)</span> is a 4X4 matrix representing the contemporaneous relationships between the variables.</li>
+<li><span class="math inline">\(B_0\)</span> is a 4X4 matrix representing the contemporaneous relationships between the variables.</li>
 <li><span class="math inline">\(B_i\)</span> (for i = 0,1,…,p) are 4x4 matrices representing the lagged effects (where p is the lag order).</li>
-<li><span class="math inline">\(\epsilon_t\)</span> is a 4x1 vector of errors.</li>
+<li><span class="math inline">\(u_t\)</span> is a vector of innovations at time <span class="math inline">\(t\)</span>, assumed to follow <span class="math inline">\(u_t \mid Y_{t-1} \sim N(0, I_N)\)</span>, where <span class="math inline">\(I_N\)</span> is the identity matrix. This implies that shocks are independently and identically distributed with no correlation and a standard normal distribution.</li>
 </ul>
+<p>LaTe</p>
 <p><span class="math display">\[
 Y_t =
 \begin{bmatrix}
@@ -409,17 +414,17 @@ Y_t =
 \end{bmatrix}
 \]</span></p>
 <p>The Bayesian Structural VAR model can then be written as:</p>
+<p>The Bayesian Structural Vector Autoregression (SVAR) model is given by the equation:</p>
 <p><span class="math display">\[
-AY_t =
-B_0 + B_1Y_{t-1} + ... + B_pY_{t-p} + \epsilon_t
+B_0 Y_t = b_0 + B_1 Y_{t-1} + \dots + B_p Y_{t-p} + u_t
 \]</span></p>
 </section>
 <section id="model-notations" class="level4">
 <h4 class="anchored" data-anchor-id="model-notations">Model Notations:</h4>
-<p><span class="math inline">\(Y_t\)</span>​: This represents the vector of endogenous variables at time tt. In this context, the vector consists of the Trade Weighted Index of the US Dollar (USD_Index), the unemployment rate, the inflation rate, and the GDP growth rate. These variables are chosen because they represent key indicators of economic stability.</p>
-<p><span class="math inline">\(A\)</span>: This is a matrix representing the contemporaneous relationships between the variables in <span class="math inline">\(Y_t\)</span>. In an SVAR model, this matrix helps to understand how shocks to one variable (e.g., USD_Index) can contemporaneously affect other variables (e.g., unemployment, inflation, GDP growth).</p>
-<p><span class="math inline">\(B_i\)</span> (for i=0,1,…,pi=0,1,…,p): These are matrices representing the lagged effects of the variables on each other. The subscript ii represents the lag order, showing how past values (lags) of each variable in <span class="math inline">\(Y_t\)</span>​ influence the current values. In time series analysis, this captures dynamics such as how past economic conditions influence current outcomes.</p>
-<p><span class="math inline">\(ϵ_t\)</span>​: This is the vector of errors or shocks at time tt. In the SVAR framework, these are considered unobservable random shocks that affect the endogenous variables. In Bayesian SVAR models, these shocks are also subjected to prior distributions reflecting our beliefs or assumptions before observing the data.</p>
+<p><span class="math inline">\(Y_t\)</span>: This represents the vector of endogenous variables at time tt. In this context, the vector consists of the Trade Weighted Index of the US Dollar (USD_Index), the unemployment rate, the inflation rate, and the GDP growth rate. These variables are chosen because they represent key indicators of economic stability.</p>
+<p><span class="math inline">\(B_0\)</span>: This is a matrix representing the contemporaneous relationships between the variables in <span class="math inline">\(Y_t\)</span>. In an SVAR model, this matrix helps to understand how shocks to one variable (e.g., USD_Index) can contemporaneously affect other variables (e.g., unemployment, inflation, GDP growth).</p>
+<p><span class="math inline">\(B_i\)</span> (for i=0,1,…,pi=0,1,…,p): These are matrices representing the lagged effects of the variables on each other. The subscript ii represents the lag order, showing how past values (lags) of each variable in <span class="math inline">\(Y_t\)</span> influence the current values. In time series analysis, this captures dynamics such as how past economic conditions influence current outcomes.</p>
+<p><span class="math inline">\(u_t\)</span>: This is the vector of errors or shocks at time tt. In the SVAR framework, these are considered unobservable random shocks that affect the endogenous variables. In Bayesian SVAR models, these shocks are also subjected to prior distributions reflecting our beliefs or assumptions before observing the data.</p>
 </section>
 <section id="using-the-model-to-answer-the-research-question" class="level4">
 <h4 class="anchored" data-anchor-id="using-the-model-to-answer-the-research-question">Using the Model to Answer the Research Question:</h4>
