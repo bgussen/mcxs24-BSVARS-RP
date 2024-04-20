@@ -156,6 +156,7 @@ window.Quarto = {
   <li><a href="#augmented-dicky-fuller-test-results-for-the-usd-index" id="toc-augmented-dicky-fuller-test-results-for-the-usd-index" class="nav-link" data-scroll-target="#augmented-dicky-fuller-test-results-for-the-usd-index">Augmented Dicky-Fuller test results for the USD Index</a></li>
   <li><a href="#do-we-need-to-use-stationary-data-series" id="toc-do-we-need-to-use-stationary-data-series" class="nav-link" data-scroll-target="#do-we-need-to-use-stationary-data-series">Do we need to use stationary data series</a></li>
   <li><a href="#model-specification" id="toc-model-specification" class="nav-link" data-scroll-target="#model-specification">Model Specification</a></li>
+  <li><a href="#bayesian-estimation-using-mcmc" id="toc-bayesian-estimation-using-mcmc" class="nav-link" data-scroll-target="#bayesian-estimation-using-mcmc">Bayesian estimation using MCMC</a></li>
   </ul>
 </nav>
     </div>
@@ -340,7 +341,7 @@ Figure&nbsp;4: ACF and PACF functions for the USD Trade Weighted Index
 <tr class="odd">
 <td style="text-align: left;">Unemployment</td>
 <td style="text-align: left;">Unemployment</td>
-<td style="text-align: right;">-1.927413</td>
+<td style="text-align: right;">-1.928571</td>
 <td style="text-align: right;">-2.88</td>
 </tr>
 <tr class="even">
@@ -408,8 +409,8 @@ Figure&nbsp;5: Treated series plots
 Y_t =
 \begin{bmatrix}
     USD\_Index_t \\
-    Unemployment\_rate_t\\
     Inflation\_rate_t \\
+    Unemployment\_rate_t\\
     GDP\_growth_t
 \end{bmatrix}
 \]</span></p>
@@ -430,15 +431,11 @@ B_0 Y_t = b_0 + B_1 Y_{t-1} + \dots + B_p Y_{t-p} + u_t
 <h4 class="anchored" data-anchor-id="using-the-model-to-answer-the-research-question">Using the Model to Answer the Research Question:</h4>
 <p>The model will be used to analyze how fluctuations in the US Trade Weighted Index (representing a weakening or strengthening USD) impact the Australian economy’s stability, specifically through GDP growth, inflation, and unemployment rates. By examining the contemporaneous and lagged relationships between these variables, we can understand the transmission mechanisms of US dollar fluctuations.</p>
 <p>To address the research objectives, we will assess the dynamic effects of the USD_Index on Australia’s economic indicators. This involves looking at the impulse response functions (IRFs) and variance decompositions derived from the SVAR model. The IRFs will show how a shock to the US dollar index impacts Australian GDP growth, inflation, and unemployment over time. This directly speaks to the study’s aim to elucidate the transmission mechanisms of such fluctuations.</p>
-<p>In addition, to enhance our understanding of the dynamic relationships among economic indicators and the USD Index, we will incorporate an analysis of Granger causality (see <span class="citation" data-cites="Kirchgässner&amp;Wolters2007">Kirchgässner and Walters (<a href="#ref-Kirchgässner&amp;Wolters2007" role="doc-biblioref">2007</a>)</span>, pp.&nbsp;93-123). This addition aims to rigorously test the directional influence between the USD Index and key Australian economic metrics: inflation, unemployment, and GDP growth. To implement this, we propose extending the Bayesian Structural Vector Autoregression (SVAR) model to include Granger causality tests. These tests will determine whether past values of the USD Index can predict future values of Australian inflation, unemployment, and GDP growth, beyond the predictions based on past values of these Australian indicators themselves.</p>
 <p>This analysis will be conducted using a stepwise approach:</p>
 <ul>
-<li><p>Lag Selection: Optimal lags for the variables will be determined based on information criteria such as AIC or BIC within the Bayesian framework.</p></li>
+<li><p>Lag Selection: Optimal lags for the variables will be determined based on the general approach in the literature for quarterly data, namely, 12 lags.</p></li>
 <li><p>Model Estimation: The extended SVAR model, incorporating the selected lags, will be estimated to analyze the interactions between the USD Index and Australian economic indicators.</p></li>
-<li><p>Granger Causality Tests: We will perform Bayesian Granger causality tests within the context of the SVAR model to investigate if the USD Index has a predictive power over Australian inflation, unemployment, and GDP growth rates.</p></li>
 </ul>
-<p>The addition of Granger causality analysis will provide a more nuanced understanding of how changes in the USD Index might precede alterations in Australia’s economic conditions. This could be particularly insightful for policymakers, providing evidence on whether movements in the USD Index could serve as a leading indicator for shifts in economic stability within Australia.</p>
-<p>By integrating this causality testing into our model, we aim to offer more comprehensive insights into the interdependencies between international currency movements and domestic economic health. This approach will help in clarifying the temporal precedence and potential predictive relationships, thereby enriching the findings and implications of our research on the impacts of the USD’s strength on Australian economic stability.</p>
 </section>
 <section id="estimation-outputs-for-interpreting-the-research-question" class="level4">
 <h4 class="anchored" data-anchor-id="estimation-outputs-for-interpreting-the-research-question">Estimation Outputs for Interpreting the Research Question:</h4>
@@ -447,10 +444,199 @@ B_0 Y_t = b_0 + B_1 Y_{t-1} + \dots + B_p Y_{t-p} + u_t
 <p><strong>Variance Decompositions</strong>: These help us understand the proportion of the forecast variance of each endogenous variable that can be attributed to shocks to each variable in the model, including shocks to the USD_Index. This is crucial for assessing the significance of US dollar fluctuations compared to other domestic factors.</p>
 <p><strong>Credibility Intervals</strong>: Unlike classical confidence intervals, credibility intervals in Bayesian analysis offer a probability statement about the parameter values. Examining these intervals for the effects of interest will provide insights into the certainty of our estimates.</p>
 <p>In terms of economic context, understanding the relationship between the US dollar index and Australian economic indicators is vital for policymakers and economic analysts, especially considering the significant trade and financial ties between the two countries. The model helps address the research objectives by providing a structured way to quantify these relationships, thereby informing decisions that could enhance economic stability in response to international currency movements.</p>
-
-
-
+<p>For your Bayesian SVAR model examining the impact of the U.S. Dollar on the Australian economy, applying exclusionary restrictions to the <span class="math inline">\(B_0\)</span> matrix can be guided by economic theory concerning the likely immediate (contemporaneous) effects of one variable on another. In the context of your study, focusing on GDP growth, inflation, and unemployment as responses to changes in the USD Trade Weighted Index, here are some suggestions for structuring these restrictions:</p>
 </section>
+<section id="considerations-for-b_0-matrix-exclusionary-restrictions" class="level4">
+<h4 class="anchored" data-anchor-id="considerations-for-b_0-matrix-exclusionary-restrictions">Considerations for <span class="math inline">\(B_0\)</span> Matrix Exclusionary Restrictions</h4>
+<p>Using a lower triangular matrix for <span class="math inline">\(B_0\)</span> in our Bayesian Structural Vector Autoregression (SVAR) model is a common approach in identifying the model. This approach can help ensure that the model is identified under the assumption that the contemporaneous relationships between the variables follow a specific causal ordering. Here’s how we implement and justify this approach along with leveraging the Minnesota prior for testing and imposing restrictions:</p>
+</section>
+<section id="using-a-lower-triangular-matrix-for-b_0" class="level4">
+<h4 class="anchored" data-anchor-id="using-a-lower-triangular-matrix-for-b_0">Using a Lower Triangular Matrix for <span class="math inline">\(B_0\)</span></h4>
+<section id="advantages" class="level5">
+<h5 class="anchored" data-anchor-id="advantages">Advantages</h5>
+<ul>
+<li><strong>Causality Assumption</strong>: A lower triangular matrix implies that a variable does not contemporaneously affect any variables that come before it in the ordering. This reflects a causal hierarchy among the variables, where earlier variables can affect later ones within the same time period, but not vice versa.</li>
+<li><strong>Model Identification</strong>: SVAR models often suffer from identification issues due to the symmetric nature of the covariance matrix of the errors. Using a lower triangular <span class="math inline">\(B_0\)</span> can help in uniquely determining the model by providing a clear causal path among variables.</li>
+</ul>
+</section>
+<section id="how-to-implement" class="level5">
+<h5 class="anchored" data-anchor-id="how-to-implement">How to Implement</h5>
+<ul>
+<li><p><strong>Ordering of Variables</strong>: Decide the ordering of variables based on economic theory or empirical evidence. For our analysis on the effects of a weakening USD:</p>
+<ol type="1">
+<li><strong>USD Index</strong>: As the exogenous shock.</li>
+<li><strong>Inflation Rate</strong>: Likely responds quickly to currency value changes due to import prices.</li>
+<li><strong>Unemployment Rate</strong>: Might react to changes in economic conditions that are influenced by inflation adjustments.</li>
+<li><strong>GDP Growth</strong>: Often considered to respond over a longer period to changes in broader economic indicators.</li>
+</ol></li>
+<li><p><strong>Matrix Structure</strong>: With this ordering, our <span class="math inline">\(B_0\)</span> matrix would look like:</p>
+<p><span class="math inline">\(B_0 =\)</span></p>
+<span class="math display">\[\begin{bmatrix}
+  b_{11} &amp; 0 &amp; 0 &amp; 0 \\
+  b_{21} &amp; b_{22} &amp; 0 &amp; 0 \\
+  b_{31} &amp; b_{32} &amp; b_{33} &amp; 0 \\
+  b_{41} &amp; b_{42} &amp; b_{43} &amp; b_{44}
+\end{bmatrix}\]</span>
+<p>Here, <span class="math inline">\(b_{ij}\)</span> are parameters to be estimated, with non-zero entries allowed only in the lower triangle, reflecting the immediate impacts as per the assumed causality.</p></li>
+</ul>
+</section>
+</section>
+<section id="testing-restrictions-using-the-minnesota-prior" class="level4">
+<h4 class="anchored" data-anchor-id="testing-restrictions-using-the-minnesota-prior">Testing Restrictions Using the Minnesota Prior</h4>
+<section id="minnesota-prior-and-shrinkage" class="level5">
+<h5 class="anchored" data-anchor-id="minnesota-prior-and-shrinkage">Minnesota Prior and Shrinkage</h5>
+<ul>
+<li><strong>Role of Minnesota Prior</strong>: In Bayesian SVARs, the Minnesota prior typically imposes shrinkage on the parameters, pulling them towards some baseline values (often zero or a random walk hypothesis for autoregressive parameters). This can be particularly useful in imposing and testing exclusion restrictions implicitly through the prior distribution.</li>
+<li><strong>Implementing Shrinkage</strong>: You can use the Minnesota prior to differentially shrink the off-diagonal elements of <span class="math inline">\(B_0\)</span> to test whether the data supports the exclusion restrictions. Larger shrinkage (higher prior variance) on certain parameters can test if the unrestricted model significantly deviates from these baseline assumptions.</li>
+</ul>
+</section>
+<section id="steps-to-follow" class="level5">
+<h5 class="anchored" data-anchor-id="steps-to-follow">Steps to Follow</h5>
+<ol type="1">
+<li><strong>Specify the Prior</strong>: Define your Minnesota prior for each element in <span class="math inline">\(B_0\)</span> based on how strongly you believe in the causal ordering and immediate impacts.</li>
+<li><strong>Fit the Model</strong>: Use Bayesian estimation techniques. We will use the Gibbs sampling proposed by <span class="citation" data-cites="Waggoner&amp;Zha2003">Waggoner and Zha (<a href="#ref-Waggoner&amp;Zha2003" role="doc-biblioref">2003</a>)</span> to fit the SVAR model.</li>
+<li><strong>Analyze the Posterior</strong>: Check the posterior distributions of the <span class="math inline">\(B_0\)</span> elements. If the posterior distributions of certain off-diagonal elements concentrate around zero (or within a close range), it supports the exclusion restrictions under the causal ordering.</li>
+<li><strong>Robustness Checks</strong>: Consider alternative orderings or less restrictive priors to ensure robustness of the findings.</li>
+</ol>
+<p>This approach not only aids in model identification and ensures adherence to theoretical expectations but also leverages the flexibility of Bayesian methods to incorporate and test economic theory effectively.</p>
+</section>
+</section>
+</section>
+<section id="bayesian-estimation-using-mcmc" class="level3">
+<h3 class="anchored" data-anchor-id="bayesian-estimation-using-mcmc">Bayesian estimation using MCMC</h3>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>     USD_Index Inflation Unemployment GDP_growth
+[1,]  4.584230      10.4     6.026952   1.682161
+[2,]  4.551898      11.0     6.227223   3.607271
+[3,]  4.541329       9.9     6.130936   3.198774
+[4,]  4.560051       9.2     5.985115   2.986107
+[5,]  4.600619       9.4     5.758989   2.926067
+[6,]  4.657520       8.4     5.505360   4.241317</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     USD_Index Inflation Unemployment GDP_growth
+[1,]  4.551898      11.0     6.227223   3.607271
+[2,]  4.541329       9.9     6.130936   3.198774
+[3,]  4.560051       9.2     5.985115   2.986107
+[4,]  4.600619       9.4     5.758989   2.926067
+[5,]  4.657520       8.4     5.505360   4.241317
+[6,]  4.700794       9.0     5.827826   5.785212</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>[[1]]
+
+Iterations = 10001:60000
+Thinning interval = 1 
+Number of chains = 1 
+Sample size per chain = 50000 
+
+1. Empirical mean and standard deviation for each variable,
+   plus standard error of the mean:
+
+                    Mean        SD  Naive SE Time-series SE
+XUSD_Index     1.0007991 0.0029000 1.297e-05      1.297e-05
+XInflation    -0.0003058 0.0009149 4.092e-06      4.092e-06
+XUnemployment  0.0001147 0.0015834 7.081e-06      7.081e-06
+XGDP_growth   -0.0011519 0.0015646 6.997e-06      6.992e-06
+sigma2         0.0011359 0.0001313 5.872e-07      5.948e-07
+
+2. Quantiles for each variable:
+
+                   2.5%        25%        50%        75%    97.5%
+XUSD_Index     0.995124  0.9988387  1.0007999  1.003e+00 1.006493
+XInflation    -0.002098 -0.0009223 -0.0003055  3.084e-04 0.001494
+XUnemployment -0.002999 -0.0009459  0.0001045  1.176e-03 0.003221
+XGDP_growth   -0.004224 -0.0022075 -0.0011546 -9.758e-05 0.001931
+sigma2         0.000908  0.0010436  0.0011261  1.218e-03 0.001419
+
+
+[[2]]
+
+Iterations = 10001:60000
+Thinning interval = 1 
+Number of chains = 1 
+Sample size per chain = 50000 
+
+1. Empirical mean and standard deviation for each variable,
+   plus standard error of the mean:
+
+                  Mean      SD  Naive SE Time-series SE
+XUSD_Index     0.04770 0.07102 0.0003176      0.0003176
+XInflation     0.96106 0.02241 0.0001002      0.0001002
+XUnemployment -0.05588 0.03878 0.0001734      0.0001734
+XGDP_growth    0.08790 0.03832 0.0001714      0.0001712
+sigma2         0.68129 0.07876 0.0003522      0.0003568
+
+2. Quantiles for each variable:
+
+                  2.5%        25%      50%      75%  97.5%
+XUSD_Index    -0.09128 -0.0003089  0.04772  0.09506 0.1872
+XInflation     0.91718  0.9459607  0.96107  0.97610 1.0051
+XUnemployment -0.13214 -0.0818513 -0.05613 -0.02989 0.0202
+XGDP_growth    0.01268  0.0620528  0.08784  0.11372 0.1634
+sigma2         0.54460  0.6259537  0.67541  0.73032 0.8512
+
+
+[[3]]
+
+Iterations = 10001:60000
+Thinning interval = 1 
+Number of chains = 1 
+Sample size per chain = 50000 
+
+1. Empirical mean and standard deviation for each variable,
+   plus standard error of the mean:
+
+                  Mean       SD  Naive SE Time-series SE
+XUSD_Index     0.06965 0.021720 9.714e-05      9.714e-05
+XInflation     0.01908 0.006853 3.065e-05      3.065e-05
+XUnemployment  0.98227 0.011859 5.304e-05      5.304e-05
+XGDP_growth   -0.08874 0.011718 5.241e-05      5.237e-05
+sigma2         0.06372 0.007366 3.294e-05      3.337e-05
+
+2. Quantiles for each variable:
+
+                   2.5%      25%      50%      75%    97.5%
+XUSD_Index     0.027148  0.05497  0.06966  0.08414  0.11230
+XInflation     0.005663  0.01447  0.01909  0.02368  0.03257
+XUnemployment  0.958942  0.97432  0.98219  0.99022  1.00553
+XGDP_growth   -0.111743 -0.09664 -0.08876 -0.08084 -0.06565
+sigma2         0.050937  0.05855  0.06317  0.06831  0.07961
+
+
+[[4]]
+
+Iterations = 10001:60000
+Thinning interval = 1 
+Number of chains = 1 
+Sample size per chain = 50000 
+
+1. Empirical mean and standard deviation for each variable,
+   plus standard error of the mean:
+
+                   Mean      SD  Naive SE Time-series SE
+XUSD_Index    -0.001595 0.08934 0.0003995      0.0003995
+XInflation    -0.037659 0.02819 0.0001261      0.0001261
+XUnemployment  0.120273 0.04878 0.0002182      0.0002182
+XGDP_growth    0.788157 0.04820 0.0002156      0.0002154
+sigma2         1.078201 0.12464 0.0005574      0.0005646
+
+2. Quantiles for each variable:
+
+                  2.5%      25%       50%      75%   97.5%
+XUSD_Index    -0.17643 -0.06199 -0.001571  0.05798 0.17383
+XInflation    -0.09286 -0.05665 -0.037650 -0.01874 0.01781
+XUnemployment  0.02434  0.08760  0.119956  0.15297 0.21597
+XGDP_growth    0.69352  0.75564  0.788075  0.82064 0.88315
+sigma2         0.86187  0.99062  1.068904  1.15578 1.34702</code></pre>
+</div>
+</div>
+
+
+
 </section>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
@@ -463,9 +649,6 @@ Chen, J. 2024. <span>“What Is the u.s. Dollar Index (USDX) and How to Trade It
 <div id="ref-Chen2004" class="csl-entry" role="listitem">
 Chen, J., M. Naylor, and X. Lu. 2004. <span>“Some Insights into the Foreign Exchange Pricing Puzzle: Evidence from a Small Open Economy.”</span> <em>Pacific-Basin Finance Journal</em> 12 (1): 41–64.
 </div>
-<div id="ref-Kirchgässner&amp;Wolters2007" class="csl-entry" role="listitem">
-Kirchgässner, G., and J. Walters. 2007. <em>Introduction to Modern Time Series Analysis</em>. Springer.
-</div>
 <div id="ref-RBA2024d" class="csl-entry" role="listitem">
 Reserve Bank of Australia. 2024a. <span>“F12 Table, Exchange Rates, Series ID FUSXRTWI.”</span> <a href="https://www.rba.gov.au/statistics/tables/" class="uri">https://www.rba.gov.au/statistics/tables/</a>. 2024.
 </div>
@@ -477,6 +660,9 @@ Reserve Bank of Australia. 2024a. <span>“F12 Table, Exchange Rates, Series ID 
 </div>
 <div id="ref-RBA2024b" class="csl-entry" role="listitem">
 ———. 2024d. <span>“H5 Table, Labour Force, Series ID GLFSURSA.”</span> <a href="https://www.rba.gov.au/statistics/tables/" class="uri">https://www.rba.gov.au/statistics/tables/</a>. 2024.
+</div>
+<div id="ref-Waggoner&amp;Zha2003" class="csl-entry" role="listitem">
+Waggoner, D., and T. Zha. 2003. <span>“A Gibbs Sampler for Structural Vector Autoregressions.”</span> <em>Journal of Economic Dynamics &amp; Control</em> 28 (2): 349–66.
 </div>
 <div id="ref-wozniakBsvarsBayesianEstimation2022" class="csl-entry" role="listitem">
 Woźniak, Tomasz. 2022. <em>Bsvars: Bayesian Estimation of Structural Vector Autoregressive Models</em>. R Package. <a href="https://cran.r-project.org/package=bsvars">https://cran.r-project.org/package=bsvars</a>.
