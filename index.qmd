@@ -88,6 +88,12 @@ library(urca)  # For conducting the ADF test
 library(forecast) # For ACF and PACF plots 
 library(gridExtra)
 library(kableExtra)
+library(MCMCpack)       # For Bayesian estimation
+library(coda)           # For MCMC analysis
+library(mvtnorm)        # For multivariate normal distributions
+library(Matrix)         # For matrix operations
+library(BVAR)
+library(MASS)
 ```
 
 ```{r GDP growth rate}
@@ -335,7 +341,7 @@ kable(adf_summary_df, caption = "ADF Test Results Summary") %>%
 
 ### Do we need to use stationary data series
 
-After consultations with Thomaz Wozniak, my understanding is that it is possible to use unit-root nonstationary variables in dynamic modeling. Based, on this, all rates are used without differencing, and the USD Index is used in logged form, also without differencing. 
+After consultations with Thomaz Wozniak, my understanding is that it is possible to use unit-root nonstationary variables in dynamic modeling. Based, on this, all rates are used without differencing, and the USD Index is used in logged form, also without differencing.
 
 ```{r plotting all four series}
 #| echo: false
@@ -427,11 +433,12 @@ $$
 Y_t =
 \begin{bmatrix}
     USD\_Index_t \\
-    Unemployment\_rate_t\\
     Inflation\_rate_t \\
+    Unemployment\_rate_t\\
     GDP\_growth_t
 \end{bmatrix}
 $$
+
 
 The Bayesian Structural VAR model can then be written as: 
 
@@ -458,19 +465,11 @@ The model will be used to analyze how fluctuations in the US Trade Weighted Inde
 
 To address the research objectives, we will assess the dynamic effects of the USD_Index on Australia's economic indicators. This involves looking at the impulse response functions (IRFs) and variance decompositions derived from the SVAR model. The IRFs will show how a shock to the US dollar index impacts Australian GDP growth, inflation, and unemployment over time. This directly speaks to the study's aim to elucidate the transmission mechanisms of such fluctuations.
 
-In addition, to enhance our understanding of the dynamic relationships among economic indicators and the USD Index, we will incorporate an analysis of Granger causality (see @Kirchgässner&Wolters2007, pp. 93-123). This addition aims to rigorously test the directional influence between the USD Index and key Australian economic metrics: inflation, unemployment, and GDP growth. To implement this, we propose extending the Bayesian Structural Vector Autoregression (SVAR) model to include Granger causality tests. These tests will determine whether past values of the USD Index can predict future values of Australian inflation, unemployment, and GDP growth, beyond the predictions based on past values of these Australian indicators themselves.
-
 This analysis will be conducted using a stepwise approach:
 
-- Lag Selection: Optimal lags for the variables will be determined based on information criteria such as AIC or BIC within the Bayesian framework.
+- Lag Selection: Optimal lags for the variables will be determined based on the general approach in the literature for quarterly data, namely, 12 lags.
 
 - Model Estimation: The extended SVAR model, incorporating the selected lags, will be estimated to analyze the interactions between the USD Index and Australian economic indicators.
-
-- Granger Causality Tests: We will perform Bayesian Granger causality tests within the context of the SVAR model to investigate if the USD Index has a predictive power over Australian inflation, unemployment, and GDP growth rates.
-
-The addition of Granger causality analysis will provide a more nuanced understanding of how changes in the USD Index might precede alterations in Australia’s economic conditions. This could be particularly insightful for policymakers, providing evidence on whether movements in the USD Index could serve as a leading indicator for shifts in economic stability within Australia.
-
-By integrating this causality testing into our model, we aim to offer more comprehensive insights into the interdependencies between international currency movements and domestic economic health. This approach will help in clarifying the temporal precedence and potential predictive relationships, thereby enriching the findings and implications of our research on the impacts of the USD's strength on Australian economic stability.
 
 #### Estimation Outputs for Interpreting the Research Question:
 
@@ -484,4 +483,195 @@ By integrating this causality testing into our model, we aim to offer more compr
 
 In terms of economic context, understanding the relationship between the US dollar index and Australian economic indicators is vital for policymakers and economic analysts, especially considering the significant trade and financial ties between the two countries. The model helps address the research objectives by providing a structured way to quantify these relationships, thereby informing decisions that could enhance economic stability in response to international currency movements.
 
+For your Bayesian SVAR model examining the impact of the U.S. Dollar on the Australian economy, applying exclusionary restrictions to the $B_0$ matrix can be guided by economic theory concerning the likely immediate (contemporaneous) effects of one variable on another. In the context of your study, focusing on GDP growth, inflation, and unemployment as responses to changes in the USD Trade Weighted Index, here are some suggestions for structuring these restrictions:
 
+#### Considerations for $B_0$ Matrix Exclusionary Restrictions
+
+Using a lower triangular matrix for $B_0$ in our Bayesian Structural Vector Autoregression (SVAR) model is a common approach in identifying the model. This approach can help ensure that the model is identified under the assumption that the contemporaneous relationships between the variables follow a specific causal ordering. Here's how we  implement and justify this approach along with leveraging the Minnesota prior for testing and imposing restrictions:
+
+#### Using a Lower Triangular Matrix for $B_0$
+
+##### Advantages
+- **Causality Assumption**: A lower triangular matrix implies that a variable does not contemporaneously affect any variables that come before it in the ordering. This reflects a causal hierarchy among the variables, where earlier variables can affect later ones within the same time period, but not vice versa.
+- **Model Identification**: SVAR models often suffer from identification issues due to the symmetric nature of the covariance matrix of the errors. Using a lower triangular $B_0$ can help in uniquely determining the model by providing a clear causal path among variables.
+
+##### How to Implement
+- **Ordering of Variables**: Decide the ordering of variables based on economic theory or empirical evidence. For our analysis on the effects of a weakening USD:
+  1. **USD Index**: As the exogenous shock.
+  2. **Inflation Rate**: Likely responds quickly to currency value changes due to import prices.
+  3. **Unemployment Rate**: Might react to changes in economic conditions that are influenced by inflation adjustments.
+  4. **GDP Growth**: Often considered to respond over a longer period to changes in broader economic indicators.
+- **Matrix Structure**: With this ordering, our $B_0$ matrix would look like:
+
+  $B_0 =$ 
+  \begin{bmatrix}
+    b_{11} & 0 & 0 & 0 \\
+    b_{21} & b_{22} & 0 & 0 \\
+    b_{31} & b_{32} & b_{33} & 0 \\
+    b_{41} & b_{42} & b_{43} & b_{44}
+  \end{bmatrix}
+
+  Here, $b_{ij}$ are parameters to be estimated, with non-zero entries allowed only in the lower triangle, reflecting the immediate impacts as per the assumed causality.
+
+#### Testing Restrictions Using the Minnesota Prior
+
+##### Minnesota Prior and Shrinkage
+- **Role of Minnesota Prior**: In Bayesian SVARs, the Minnesota prior typically imposes shrinkage on the parameters, pulling them towards some baseline values (often zero or a random walk hypothesis for autoregressive parameters). This can be particularly useful in imposing and testing exclusion restrictions implicitly through the prior distribution.
+- **Implementing Shrinkage**: You can use the Minnesota prior to differentially shrink the off-diagonal elements of $B_0$ to test whether the data supports the exclusion restrictions. Larger shrinkage (higher prior variance) on certain parameters can test if the unrestricted model significantly deviates from these baseline assumptions.
+
+##### Steps to Follow
+1. **Specify the Prior**: Define your Minnesota prior for each element in $B_0$ based on how strongly you believe in the causal ordering and immediate impacts.
+2. **Fit the Model**: Use Bayesian estimation techniques. We will use the Gibbs sampling proposed by @Waggoner&Zha2003 to fit the SVAR model.
+3. **Analyze the Posterior**: Check the posterior distributions of the $B_0$ elements. If the posterior distributions of certain off-diagonal elements concentrate around zero (or within a close range), it supports the exclusion restrictions under the causal ordering.
+4. **Robustness Checks**: Consider alternative orderings or less restrictive priors to ensure robustness of the findings.
+
+This approach not only aids in model identification and ensures adherence to theoretical expectations but also leverages the flexibility of Bayesian methods to incorporate and test economic theory effectively.
+
+### Bayesian estimation using MCMC
+
+
+```{r prepare data for estimation (again)}
+#| echo: false
+#| message: false
+#| warning: false
+
+# Downloading data from the internet
+series <- read_rba(series_id = "GGDPCVGDPY")
+
+#clean the series by removing missing values
+series <- na.omit(series)
+
+# Ensuring the date format is appropriate for quarterly data
+series <- series %>% 
+  mutate(date = as.yearqtr(date, format = "%Y-%q"))
+
+# Filtering the dataset for the desired date range
+GDP_rate <- series %>%
+  filter(date >= as.yearqtr("1980 Q1") & date <= as.yearqtr("2019 Q4"))
+
+## Downloading CPI data from the internet
+series <- read_rba(series_id = "GCPIAGYP") 
+
+#clean the series by removing missing values
+series <- na.omit(series)
+
+# Ensuring the date format is appropriate for quarterly data
+series <- series %>% 
+  mutate(date = as.yearqtr(date, format = "%Y-%q"))
+
+# Ensuring that date is recognized as a quarterly object and summarizing to quarterly values
+series_quarterly <- series %>% 
+  mutate(quarter = as.yearqtr(date)) %>%
+  group_by(quarter) %>%
+  summarize(value = mean(value, na.rm = TRUE)) %>%
+  ungroup()
+
+# Filter for the correct range from Q1 1980 to Q4 2019
+CPI_rate <- series_quarterly %>%
+  filter(quarter >= as.yearqtr("1980 Q1") & quarter <= as.yearqtr("2019 Q4"))
+
+## Downloading unemployment data from the internet
+series <- read_rba(series_id = "GLFSURSA") 
+
+#clean the series by removing missing values
+series <- na.omit(series)
+
+# Convert the date format from dd/mm/yyyy to Date object
+series <- series %>% 
+  mutate(date = as.Date(as.character(date), format = "%Y-%m-%d")) 
+
+# Ensuring that date is recognized as a quarterly object and summarizing to quarterly values
+series_quarterly <- series %>% 
+  mutate(quarter = as.yearqtr(date)) %>%
+  group_by(quarter) %>%
+  summarize(value = mean(value, na.rm = TRUE)) %>%
+  ungroup()
+
+# Filter the series to start from the first quarter of 1980 and end in the last quarter of 2019
+unemp_rate <- series_quarterly %>%
+  filter(quarter >= as.yearqtr("1980 Q1") & quarter <= as.yearqtr("2019 Q4"))
+
+# Downloading USD Trade Weighted Index data from the internet (March 1973 = 100)
+
+# Reading and preparing the USD TWI data
+series <- read_rba(series_id = "FUSXRTWI") 
+
+#clean the series by removing missing values
+series <- na.omit(series)
+
+# Convert the date format from dd/mm/yyyy to Date object
+series <- series %>% 
+  mutate(date = as.Date(as.character(date), format = "%Y-%m-%d")) 
+
+# Ensuring that date is recognized as a quarterly object and summarizing to quarterly values
+series_quarterly <- series %>% 
+  mutate(quarter = as.yearqtr(date)) %>%
+  group_by(quarter) %>%
+  summarize(value = mean(value, na.rm = TRUE)) %>%
+  ungroup()
+
+# Filter the series to start from the first quarter of 1980 and end in the last quarter of 2019
+USD_Index <- series_quarterly %>%
+  filter(quarter >= as.yearqtr("1980 Q1") & quarter <= as.yearqtr("2019 Q4"))
+
+# Apply logarithmic transformation to the USD Index values
+USD_Index$value <- log(USD_Index$value)
+
+```
+
+```{r}
+
+# Creating matrices Y and X
+
+# Combining the data into one data frame
+data <- data.frame(
+  USD_Index = USD_Index$value, 
+  Inflation = CPI_rate$value, 
+  Unemployment = unemp_rate$value, 
+  GDP_growth = GDP_rate$value
+)
+
+# Convert to a matrix Y
+Y <- as.matrix(data)
+
+# Define the number of lags
+lags <- 1
+
+# Manually shift the matrix to create lagged X
+X <- Y[1:(nrow(Y) - lags), ]  # Get all rows up to the last 'lags' rows
+
+# Adjust Y to match the new dimensions of X
+Y <- Y[(lags + 1):nrow(Y), ]  # Start from row 'lags+1' to end
+
+# Check the head of the matrices to ensure alignment
+head(X)
+head(Y)
+
+```
+
+```{r}
+
+# Ensure matrices are numeric and aligned
+Y <- as.matrix(Y)
+X <- as.matrix(X)
+
+# Define parameters for Bayesian estimation
+burnin <- 10000
+n_iter <- 50000
+
+# Run separate MCMC regression for each variable in Y
+results <- lapply(1:ncol(Y), function(i) {
+  MCMCregress(Y[, i] ~ X - 1,  # No intercept since X includes lags and potentially a constant term
+              b0 = rep(0, ncol(X)),    # Prior mean
+              B0 = diag(0.01, ncol(X)),  # Prior precision (inverse of variance)
+              mcmc = n_iter, burnin = burnin)
+})
+
+# To check the summary of results for each variable
+summary_results <- lapply(results, summary)
+summary_results
+
+
+
+
+```
