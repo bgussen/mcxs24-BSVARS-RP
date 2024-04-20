@@ -409,7 +409,7 @@ Furthermore, SVAR models enable us to decipher the structural impacts of economi
 
 #### Interpretation of the $B_0$ Matrix in the Bayesian SVAR Model
 
-
+In our Bayesian SVAR model, the matrix $B_0$ is pivotal as it encapsulates the contemporaneous relationships between the endogenous variables. Each entry $b_{ij}$ in the $B_0$ matrix can be interpreted as the immediate impact of a one-unit shock in variable $j$ on variable $i$ within the same time period, holding all other factors constant. This interpretation allows us to understand the intricate web of interactions within the economic system, such as how a sudden change in the USD Index might immediately affect Australia's GDP growth, inflation, or unemployment rate.
 
 For instance, a positive entry in the row of the GDP growth and in the column of the USD Index would indicate that an instantaneous increase in the USD Index (reflecting a strengthening of the USD) has a positive impact on Australian GDP growth within the same period. Such insights are invaluable for policymakers and analysts seeking to anticipate and mitigate the effects of international monetary fluctuations on domestic economic stability.
 
@@ -457,7 +457,7 @@ $B_0$: This is a matrix representing the contemporaneous relationships between t
 
 $B_i$ (for i=0,1,...,pi=0,1,...,p): These are matrices representing the lagged effects of the variables on each other. The subscript ii represents the lag order, showing how past values (lags) of each variable in $Y_t$ influence the current values. In time series analysis, this captures dynamics such as how past economic conditions influence current outcomes.
 
-
+$u_t$: This is the vector of errors or shocks at time tt. In the SVAR framework, these are considered unobservable random shocks that affect the endogenous variables. In Bayesian SVAR models, these shocks are also subjected to prior distributions reflecting our beliefs or assumptions before observing the data.
 
 #### Using the Model to Answer the Research Question:
 
