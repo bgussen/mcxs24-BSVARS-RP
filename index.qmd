@@ -84,16 +84,21 @@ library(zoo)
 library(lubridate)
 library(tseries)
 library(ggplot2)
-library(urca)  # For conducting the ADF test
-library(forecast) # For ACF and PACF plots 
+library(urca)           # For conducting the ADF test
+library(forecast)       # For ACF and PACF plots 
 library(gridExtra)
 library(kableExtra)
 library(MCMCpack)       # For Bayesian estimation
 library(coda)           # For MCMC analysis
 library(mvtnorm)        # For multivariate normal distributions
 library(Matrix)         # For matrix operations
+library(matrixcalc)     # For matrix calculations
 library(BVAR)
-library(MASS)
+library(MASS)           # For multivariate normal distributions
+library(sn)             # For skew-normal and generalized normal distributions
+
+
+
 ```
 
 ```{r GDP growth rate}
@@ -527,8 +532,52 @@ Using a lower triangular matrix for $B_0$ in our Bayesian Structural Vector Auto
 
 This approach not only aids in model identification and ensures adherence to theoretical expectations but also leverages the flexibility of Bayesian methods to incorporate and test economic theory effectively.
 
-### Bayesian estimation using MCMC
+### Derivation of the Estimation Algorithm 
 
+For the basic model as described above, we will proceed as follows: 
+
+#### Model Structure
+
+The SVAR model is expressed as:
+$B_0 Y_t = B_+ X_t + u_t$
+where:
+- $B_0$ contains contemporaneous effects with certain zero restrictions (exclusion restrictions).
+- $B_+$ is the matrix comprising the intercept and coefficients of lagged variables.
+- $X_t$includes a constant and lagged values of \( Y \).
+- $u_t$ is the error term assumed to be normally distributed.
+
+#### Exclusion Restrictions
+You’ve specified that each row $n$ of $B_0$ can be represented as a product of unrestricted coefficients $b_n$ and a fixed matrix $V_n$ of zeros and ones, applying structural constraints to the model.
+
+#### Likelihood Function
+The likelihood function for the model incorporates the determinants and exponentials of quadratic forms, which reflect the usual Gaussian assumptions for the innovations.
+
+#### Prior and Posterior Distributions
+The model uses a Normal-generalized-normal (NGN) distribution approach for the priors. The likelihood and priors are combined to form the posterior distributions, which are sampled using Gibbs sampling.
+
+#### Gibbs Sampling Procedure
+Gibbs sampling for this model involves:
+1. **Sampling the unrestricted coefficients $b_n$** from their conditional distributions given the data and all other parameters.
+2. **Sampling $B_+$**, considering the latest draws of $b_n$ and the data.
+
+#### Steps to Implement in R
+
+To estimate this model in R, you would generally need to:
+
+1. **Define the Model Structure:**
+   - Set up matrices $B_0$ and $B_+$ based on the given structure and exclusion restrictions.
+   - Prepare the data matrices $Y$ and $X$.
+
+2. **Initialize Parameters:**
+   - Initialize $B_0$, $B_+$, and any other matrices or parameters required for the Gibbs sampling.
+
+3. **Implement Gibbs Sampler:**
+   - Write loops to update each parameter iteratively based on its conditional posterior distribution. This includes:
+     - Computing residuals and other derived quantities needed to sample $b_n$ and $B_+$.
+     - Drawing from the conditional distributions using function  `rmvnorm` for multivariate normal distributions.
+
+4. **Normalize and Summarize Results:**
+   - After obtaining the draws, normalize and summarize the posterior distributions to get estimates and credible intervals for the parameters.
 
 ```{r prepare data for estimation (again)}
 #| echo: false
@@ -620,6 +669,45 @@ USD_Index$value <- log(USD_Index$value)
 ```
 
 ```{r}
+# Load necessary libraries
+library(MASS)
+
+# Example data setup
+set.seed(123)  # For reproducibility
+T <- 100  # Number of observations
+N <- 4    # Number of variables
+
+# Simulate an example Y matrix as a random normal matrix
+Y <- matrix(rnorm(T * N), nrow = T, ncol = N)
+
+# Simulate an example X matrix, assuming X could be lagged values of Y or other predictors
+X <- matrix(rnorm(T * N), nrow = T, ncol = N)
+
+# Parameters for Gibbs sampling
+nu <- 10
+Omega <- diag(1, N)  # Omega must match the number of predictors in X
+S <- diag(1, N)
+B_tilda <- matrix(0, ncol = N, nrow = N)
+B0_init <- diag(1, N)
+B_plus_init <- matrix(0.1, ncol = N, nrow = N)
+iterations <- 1000
+
+# Define the Gibbs sampler function (as previously corrected)
+gibbs_sampler_NGN <- function(Y, X, iterations, nu, Omega, S, B_tilda, B0_init, B_plus_init) {
+  # Function body as previously corrected...
+  # Ensure the function here is defined as in the last correction provided
+}
+
+# Call the Gibbs sampling function
+results <- gibbs_sampler_NGN(Y, X, iterations, nu, Omega, S, B_tilda, B0_init, B_plus_init)
+
+# Optionally print or summarize results
+print(results$B0_samples[,,1])  # Print first sample of B0 to check
+
+
+```
+
+```{r}
 
 # Creating matrices Y and X
 
@@ -646,32 +734,5 @@ Y <- Y[(lags + 1):nrow(Y), ]  # Start from row 'lags+1' to end
 # Check the head of the matrices to ensure alignment
 head(X)
 head(Y)
-
-```
-
-```{r}
-
-# Ensure matrices are numeric and aligned
-Y <- as.matrix(Y)
-X <- as.matrix(X)
-
-# Define parameters for Bayesian estimation
-burnin <- 10000
-n_iter <- 50000
-
-# Run separate MCMC regression for each variable in Y
-results <- lapply(1:ncol(Y), function(i) {
-  MCMCregress(Y[, i] ~ X - 1,  # No intercept since X includes lags and potentially a constant term
-              b0 = rep(0, ncol(X)),    # Prior mean
-              B0 = diag(0.01, ncol(X)),  # Prior precision (inverse of variance)
-              mcmc = n_iter, burnin = burnin)
-})
-
-# To check the summary of results for each variable
-summary_results <- lapply(results, summary)
-summary_results
-
-
-
 
 ```

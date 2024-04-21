@@ -156,7 +156,7 @@ window.Quarto = {
   <li><a href="#augmented-dicky-fuller-test-results-for-the-usd-index" id="toc-augmented-dicky-fuller-test-results-for-the-usd-index" class="nav-link" data-scroll-target="#augmented-dicky-fuller-test-results-for-the-usd-index">Augmented Dicky-Fuller test results for the USD Index</a></li>
   <li><a href="#do-we-need-to-use-stationary-data-series" id="toc-do-we-need-to-use-stationary-data-series" class="nav-link" data-scroll-target="#do-we-need-to-use-stationary-data-series">Do we need to use stationary data series</a></li>
   <li><a href="#model-specification" id="toc-model-specification" class="nav-link" data-scroll-target="#model-specification">Model Specification</a></li>
-  <li><a href="#bayesian-estimation-using-mcmc" id="toc-bayesian-estimation-using-mcmc" class="nav-link" data-scroll-target="#bayesian-estimation-using-mcmc">Bayesian estimation using MCMC</a></li>
+  <li><a href="#derivation-of-the-estimation-algorithm" id="toc-derivation-of-the-estimation-algorithm" class="nav-link" data-scroll-target="#derivation-of-the-estimation-algorithm">Derivation of the Estimation Algorithm</a></li>
   </ul>
 </nav>
     </div>
@@ -387,6 +387,9 @@ Figure&nbsp;5: Treated series plots
 <p>In addressing the dynamics between the United States Dollar (USD) and the Australian economy, we opt for a Bayesian Structural Vector Autoregression (SVAR) model over alternative econometric methodologies for several reasons. Firstly, the SVAR model allows us to incorporate prior knowledge and uncertainties into our analysis, an advantage not readily available in traditional VAR models. This Bayesian approach is particularly beneficial in economic studies where historical data and expert judgment play crucial roles in shaping analysis and expectations.</p>
 <p>Furthermore, SVAR models enable us to decipher the structural impacts of economic shocks, such as fluctuations in the USD, on various indicators of economic stability within Australia, including GDP growth, inflation, and unemployment rates. Unlike standard VAR models that treat all innovations as endogenously generated within the system, SVAR models allow us to impose structural restrictions based on economic theory. This is critical for understanding the directionality and magnitude of relationships between variables, thereby offering a more nuanced analysis of economic interdependencies.</p>
 </section>
+<section id="interpretation-of-the-b_0-matrix-in-the-bayesian-svar-model" class="level4">
+<h4 class="anchored" data-anchor-id="interpretation-of-the-b_0-matrix-in-the-bayesian-svar-model">Interpretation of the <span class="math inline">\(B_0\)</span> Matrix in the Bayesian SVAR Model</h4>
+<p>In our Bayesian SVAR model, the matrix <span class="math inline">\(B_0\)</span> is pivotal as it encapsulates the contemporaneous relationships between the endogenous variables. Each entry <span class="math inline">\(b_{ij}\)</span> in the <span class="math inline">\(B_0\)</span> matrix can be interpreted as the immediate impact of a one-unit shock in variable <span class="math inline">\(j\)</span> on variable <span class="math inline">\(i\)</span> within the same time period, holding all other factors constant. This interpretation allows us to understand the intricate web of interactions within the economic system, such as how a sudden change in the USD Index might immediately affect Australia’s GDP growth, inflation, or unemployment rate.</p>
 <p>For instance, a positive entry in the row of the GDP growth and in the column of the USD Index would indicate that an instantaneous increase in the USD Index (reflecting a strengthening of the USD) has a positive impact on Australian GDP growth within the same period. Such insights are invaluable for policymakers and analysts seeking to anticipate and mitigate the effects of international monetary fluctuations on domestic economic stability.</p>
 <p>This is a 4x1 vector of endogenous variables at time t, where:</p>
 <ul>
@@ -420,8 +423,9 @@ B_0 Y_t = b_0 + B_1 Y_{t-1} + \dots + B_p Y_{t-p} + u_t
 <section id="model-notations" class="level4">
 <h4 class="anchored" data-anchor-id="model-notations">Model Notations:</h4>
 <p><span class="math inline">\(Y_t\)</span>: This represents the vector of endogenous variables at time tt. In this context, the vector consists of the Trade Weighted Index of the US Dollar (USD_Index), the unemployment rate, the inflation rate, and the GDP growth rate. These variables are chosen because they represent key indicators of economic stability.</p>
-
-
+<p><span class="math inline">\(B_0\)</span>: This is a matrix representing the contemporaneous relationships between the variables in <span class="math inline">\(Y_t\)</span>. In an SVAR model, this matrix helps to understand how shocks to one variable (e.g., USD_Index) can contemporaneously affect other variables (e.g., unemployment, inflation, GDP growth).</p>
+<p><span class="math inline">\(B_i\)</span> (for i=0,1,…,pi=0,1,…,p): These are matrices representing the lagged effects of the variables on each other. The subscript ii represents the lag order, showing how past values (lags) of each variable in <span class="math inline">\(Y_t\)</span> influence the current values. In time series analysis, this captures dynamics such as how past economic conditions influence current outcomes.</p>
+<p><span class="math inline">\(u_t\)</span>: This is the vector of errors or shocks at time tt. In the SVAR framework, these are considered unobservable random shocks that affect the endogenous variables. In Bayesian SVAR models, these shocks are also subjected to prior distributions reflecting our beliefs or assumptions before observing the data.</p>
 </section>
 <section id="using-the-model-to-answer-the-research-question" class="level4">
 <h4 class="anchored" data-anchor-id="using-the-model-to-answer-the-research-question">Using the Model to Answer the Research Question:</h4>
@@ -498,8 +502,60 @@ B_0 Y_t = b_0 + B_1 Y_{t-1} + \dots + B_p Y_{t-p} + u_t
 </section>
 </section>
 </section>
-<section id="bayesian-estimation-using-mcmc" class="level3">
-<h3 class="anchored" data-anchor-id="bayesian-estimation-using-mcmc">Bayesian estimation using MCMC</h3>
+<section id="derivation-of-the-estimation-algorithm" class="level3">
+<h3 class="anchored" data-anchor-id="derivation-of-the-estimation-algorithm">Derivation of the Estimation Algorithm</h3>
+<p>For the basic model as described above, we will proceed as follows:</p>
+<section id="model-structure" class="level4">
+<h4 class="anchored" data-anchor-id="model-structure">Model Structure</h4>
+<p>The SVAR model is expressed as: <span class="math inline">\(B_0 Y_t = B_+ X_t + u_t\)</span> where: - <span class="math inline">\(B_0\)</span> contains contemporaneous effects with certain zero restrictions (exclusion restrictions). - <span class="math inline">\(B_+\)</span> is the matrix comprising the intercept and coefficients of lagged variables. - <span class="math inline">\(X_t\)</span>includes a constant and lagged values of ( Y ). - <span class="math inline">\(u_t\)</span> is the error term assumed to be normally distributed.</p>
+</section>
+<section id="exclusion-restrictions" class="level4">
+<h4 class="anchored" data-anchor-id="exclusion-restrictions">Exclusion Restrictions</h4>
+<p>You’ve specified that each row <span class="math inline">\(n\)</span> of <span class="math inline">\(B_0\)</span> can be represented as a product of unrestricted coefficients <span class="math inline">\(b_n\)</span> and a fixed matrix <span class="math inline">\(V_n\)</span> of zeros and ones, applying structural constraints to the model.</p>
+</section>
+<section id="likelihood-function" class="level4">
+<h4 class="anchored" data-anchor-id="likelihood-function">Likelihood Function</h4>
+<p>The likelihood function for the model incorporates the determinants and exponentials of quadratic forms, which reflect the usual Gaussian assumptions for the innovations.</p>
+</section>
+<section id="prior-and-posterior-distributions" class="level4">
+<h4 class="anchored" data-anchor-id="prior-and-posterior-distributions">Prior and Posterior Distributions</h4>
+<p>The model uses a Normal-generalized-normal (NGN) distribution approach for the priors. The likelihood and priors are combined to form the posterior distributions, which are sampled using Gibbs sampling.</p>
+</section>
+<section id="gibbs-sampling-procedure" class="level4">
+<h4 class="anchored" data-anchor-id="gibbs-sampling-procedure">Gibbs Sampling Procedure</h4>
+<p>Gibbs sampling for this model involves: 1. <strong>Sampling the unrestricted coefficients <span class="math inline">\(b_n\)</span></strong> from their conditional distributions given the data and all other parameters. 2. <strong>Sampling <span class="math inline">\(B_+\)</span></strong>, considering the latest draws of <span class="math inline">\(b_n\)</span> and the data.</p>
+</section>
+<section id="steps-to-implement-in-r" class="level4">
+<h4 class="anchored" data-anchor-id="steps-to-implement-in-r">Steps to Implement in R</h4>
+<p>To estimate this model in R, you would generally need to:</p>
+<ol type="1">
+<li><strong>Define the Model Structure:</strong>
+<ul>
+<li>Set up matrices <span class="math inline">\(B_0\)</span> and <span class="math inline">\(B_+\)</span> based on the given structure and exclusion restrictions.</li>
+<li>Prepare the data matrices <span class="math inline">\(Y\)</span> and <span class="math inline">\(X\)</span>.</li>
+</ul></li>
+<li><strong>Initialize Parameters:</strong>
+<ul>
+<li>Initialize <span class="math inline">\(B_0\)</span>, <span class="math inline">\(B_+\)</span>, and any other matrices or parameters required for the Gibbs sampling.</li>
+</ul></li>
+<li><strong>Implement Gibbs Sampler:</strong>
+<ul>
+<li>Write loops to update each parameter iteratively based on its conditional posterior distribution. This includes:
+<ul>
+<li>Computing residuals and other derived quantities needed to sample <span class="math inline">\(b_n\)</span> and <span class="math inline">\(B_+\)</span>.</li>
+<li>Drawing from the conditional distributions using function <code>rmvnorm</code> for multivariate normal distributions.</li>
+</ul></li>
+</ul></li>
+<li><strong>Normalize and Summarize Results:</strong>
+<ul>
+<li>After obtaining the draws, normalize and summarize the posterior distributions to get estimates and credible intervals for the parameters.</li>
+</ul></li>
+</ol>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>NULL</code></pre>
+</div>
+</div>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>     USD_Index Inflation Unemployment GDP_growth
@@ -520,119 +576,10 @@ B_0 Y_t = b_0 + B_1 Y_{t-1} + \dots + B_p Y_{t-p} + u_t
 [6,]  4.700794       9.0     5.827826   5.785212</code></pre>
 </div>
 </div>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>[[1]]
-
-Iterations = 10001:60000
-Thinning interval = 1 
-Number of chains = 1 
-Sample size per chain = 50000 
-
-1. Empirical mean and standard deviation for each variable,
-   plus standard error of the mean:
-
-                    Mean        SD  Naive SE Time-series SE
-XUSD_Index     1.0007991 0.0029000 1.297e-05      1.297e-05
-XInflation    -0.0003058 0.0009149 4.092e-06      4.092e-06
-XUnemployment  0.0001147 0.0015834 7.081e-06      7.081e-06
-XGDP_growth   -0.0011519 0.0015646 6.997e-06      6.992e-06
-sigma2         0.0011359 0.0001313 5.872e-07      5.948e-07
-
-2. Quantiles for each variable:
-
-                   2.5%        25%        50%        75%    97.5%
-XUSD_Index     0.995124  0.9988387  1.0007999  1.003e+00 1.006493
-XInflation    -0.002098 -0.0009223 -0.0003055  3.084e-04 0.001494
-XUnemployment -0.002999 -0.0009459  0.0001045  1.176e-03 0.003221
-XGDP_growth   -0.004224 -0.0022075 -0.0011546 -9.758e-05 0.001931
-sigma2         0.000908  0.0010436  0.0011261  1.218e-03 0.001419
-
-
-[[2]]
-
-Iterations = 10001:60000
-Thinning interval = 1 
-Number of chains = 1 
-Sample size per chain = 50000 
-
-1. Empirical mean and standard deviation for each variable,
-   plus standard error of the mean:
-
-                  Mean      SD  Naive SE Time-series SE
-XUSD_Index     0.04770 0.07102 0.0003176      0.0003176
-XInflation     0.96106 0.02241 0.0001002      0.0001002
-XUnemployment -0.05588 0.03878 0.0001734      0.0001734
-XGDP_growth    0.08790 0.03832 0.0001714      0.0001712
-sigma2         0.68129 0.07876 0.0003522      0.0003568
-
-2. Quantiles for each variable:
-
-                  2.5%        25%      50%      75%  97.5%
-XUSD_Index    -0.09128 -0.0003089  0.04772  0.09506 0.1872
-XInflation     0.91718  0.9459607  0.96107  0.97610 1.0051
-XUnemployment -0.13214 -0.0818513 -0.05613 -0.02989 0.0202
-XGDP_growth    0.01268  0.0620528  0.08784  0.11372 0.1634
-sigma2         0.54460  0.6259537  0.67541  0.73032 0.8512
-
-
-[[3]]
-
-Iterations = 10001:60000
-Thinning interval = 1 
-Number of chains = 1 
-Sample size per chain = 50000 
-
-1. Empirical mean and standard deviation for each variable,
-   plus standard error of the mean:
-
-                  Mean       SD  Naive SE Time-series SE
-XUSD_Index     0.06965 0.021720 9.714e-05      9.714e-05
-XInflation     0.01908 0.006853 3.065e-05      3.065e-05
-XUnemployment  0.98227 0.011859 5.304e-05      5.304e-05
-XGDP_growth   -0.08874 0.011718 5.241e-05      5.237e-05
-sigma2         0.06372 0.007366 3.294e-05      3.337e-05
-
-2. Quantiles for each variable:
-
-                   2.5%      25%      50%      75%    97.5%
-XUSD_Index     0.027148  0.05497  0.06966  0.08414  0.11230
-XInflation     0.005663  0.01447  0.01909  0.02368  0.03257
-XUnemployment  0.958942  0.97432  0.98219  0.99022  1.00553
-XGDP_growth   -0.111743 -0.09664 -0.08876 -0.08084 -0.06565
-sigma2         0.050937  0.05855  0.06317  0.06831  0.07961
-
-
-[[4]]
-
-Iterations = 10001:60000
-Thinning interval = 1 
-Number of chains = 1 
-Sample size per chain = 50000 
-
-1. Empirical mean and standard deviation for each variable,
-   plus standard error of the mean:
-
-                   Mean      SD  Naive SE Time-series SE
-XUSD_Index    -0.001595 0.08934 0.0003995      0.0003995
-XInflation    -0.037659 0.02819 0.0001261      0.0001261
-XUnemployment  0.120273 0.04878 0.0002182      0.0002182
-XGDP_growth    0.788157 0.04820 0.0002156      0.0002154
-sigma2         1.078201 0.12464 0.0005574      0.0005646
-
-2. Quantiles for each variable:
-
-                  2.5%      25%       50%      75%   97.5%
-XUSD_Index    -0.17643 -0.06199 -0.001571  0.05798 0.17383
-XInflation    -0.09286 -0.05665 -0.037650 -0.01874 0.01781
-XUnemployment  0.02434  0.08760  0.119956  0.15297 0.21597
-XGDP_growth    0.69352  0.75564  0.788075  0.82064 0.88315
-sigma2         0.86187  0.99062  1.068904  1.15578 1.34702</code></pre>
-</div>
-</div>
 
 
 
+</section>
 </section>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
