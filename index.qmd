@@ -604,8 +604,8 @@ X <- Y[-n, ]  # Dropping the last row to lag
 Y <- Y[-1, ]  # Dropping the first row to align Y with X
 
 # Check the head of the matrices to ensure alignment
-#head(X)
-#head(Y)
+head(X)
+head(Y)
 
 ```
 
@@ -635,14 +635,14 @@ S_bar <- solve(S_bar_inv)
 nu_bar <- T + nu_underscore
 
 # Outputs
-#print("Posterior estimates of B_bar:")
-#print(B_bar)
-#print("Posterior precision matrix Omega_bar:")
-#print(Omega_bar)
-#print("Posterior estimates of S_bar:")
-#print(S_bar)
-#print("Updated shape parameter nu_bar:")
-#print(nu_bar)
+print("Posterior estimates of B_bar:")
+print(B_bar)
+print("Posterior precision matrix Omega_bar:")
+print(Omega_bar)
+print("Posterior estimates of S_bar:")
+print(S_bar)
+print("Updated shape parameter nu_bar:")
+print(nu_bar)
 
 ```
 
@@ -674,67 +674,116 @@ lapply(V_matrices, print)
 
 ```
 
-```{r L16 code for calculating the posterior B0}
+```{r}
 
-rgn = function(n, S_inv, nu, V, B0_initial) {
-  # This function simulates draws for the unrestricted elements
-  # of the contemporaneous relationships matrix of an SVAR model
-  # from a generalized-normal distribution according to algorithm
-  # by Waggoner & Zha (2003, JEDC)
-  
-  print("Initial B0:")
-  print(B0_initial)  # Corrected print statement
-  
-  N <- nrow(B0_initial)
-  no.draws <- n
-  
-  B0 <- array(NA, c(N, N, no.draws))
-  B0.aux <- B0_initial
-  
-  print("Empty B0 array:")
-  print(B0[,,1])  # Print the first layer of B0 to show initialization
-  
-  for (i in 1:no.draws) {
-    for (n in 1:N) {
-      rn <- nrow(V[[n]])
-      S_Vn <- V[[n]] %*% S_inv %*% t(V[[n]])
-      Un <- chol(S_Vn + 1e-6 * diag(rn))  # Adding regularization
-      
-      w <- orthogonal.complement.matrix.TW(t(B0.aux[-n, ]))
-      w1 <- w %*% t(V[[n]]) %*% t(Un) / sqrt(as.numeric(w %*% t(V[[n]]) %*% t(Un) %*% Un %*% V[[n]] %*% t(w)))
-      
-      Wn <- if (rn > 1) {
-        cbind(t(w1), orthogonal.complement.matrix.TW(t(w1)))
-      } else {
-        w1
-      }
-      
-      alpha <- rep(NA, rn)
-      u <- mvrnorm(1, rep(0, nu + 1), (1 / nu) * diag(nu + 1))
-      alpha[1] <- sqrt(sum(u^2))
-      if (runif(1) < 0.5) {
-        alpha[1] <- -alpha[1]
-      }
-      if (rn > 1) {
-        alpha[2:rn] <- mvrnorm(1, rep(0, rn - 1), (1 / nu) * diag(rn - 1))
-      }
-      
-      bn <- alpha %*% Wn %*% Un
-      B0.aux[n, ] <- bn %*% V[[n]]
-    }
-    B0[,,i] <- B0.aux
-  }
-  
-  print("Final B0 after simulation:")
-  print(B0[,,1])  # Print the first layer of the final B0
-  
-  return(B0)
+orthogonal.complement.matrix.TW = function(x){
+  # x is a mxn matrix and m>n
+  # the function returns a mx(m-n) matrix, out, that is an orthogonal complement of x, i.e.:
+  # t(x)%*%out = 0 and det(cbind(x,out))!=0
+  N     = dim(x)
+  tmp   = qr.Q(qr(x, tol = 1e-10),complete=TRUE)
+  out   = as.matrix(tmp[,(N[2]+1):N[1]])
+  return(out)
 }
 
 
 ```
 
-```{r}
+
+```{r L16 code}
+
+# useful functions
+############################################################
+orthogonal.complement.matrix.TW = function(x){
+  # x is a mxn matrix and m>n
+  # the function returns a mx(m-n) matrix, out, that is an orthogonal complement of x, i.e.:
+  # t(x)%*%out = 0 and det(cbind(x,out))!=0
+  N     = dim(x)
+  tmp   = qr.Q(qr(x, tol = 1e-10),complete=TRUE)
+  out   = as.matrix(tmp[,(N[2]+1):N[1]])
+  return(out)
+}
+
+r.conditional.generalized.normal = function(S.inv, nu, Vn, n, B0){
+  # A function to sample a random draw from a conditional generalized normal distribution
+  # of the unrestricted elements of the n-th row of matrix B0 
+  # given the parameters from the remaining rows of B0
+  # Depends on package mvtnorm
+  # use: library(rmvtnorm)
+  
+  rn            = nrow(Vn)
+  Un            = chol(nu*solve(Vn%*%S.inv%*%t(Vn)))
+  w             = t(orthogonal.complement.matrix.TW(t(B0[-n,])))
+  w1            = w %*% t(Vn) %*% t(Un) / sqrt(as.numeric(w %*% t(Vn) %*% t(Un) %*% Un %*% Vn %*% t(w)))
+  if (rn>1){
+    Wn          = cbind(t(w1),orthogonal.complement.matrix.TW(t(w1)))
+  } else {
+    Wn          = w1
+  }
+  alpha         = rep(NA,rn)
+  u             = rmvnorm(1,rep(0,nu+1),(1/nu)*diag(nu+1))
+  alpha[1]      = sqrt(as.numeric(u%*%t(u)))
+  if (runif(1)<0.5){
+    alpha[1]    = -alpha[1]
+  }
+  if (rn>1){
+    alpha[2:rn] = rmvnorm(1,rep(0,nrow(Vn)-1),(1/nu)*diag(rn-1))
+  }
+  bn            = alpha %*% Wn %*% Un
+  B0n           = bn %*% Vn
+  
+  output        = list(bn=bn, B0n=B0n)
+  return(output)
+}
+
+
+
+
+rgn             = function(n,S.inv,nu,V,B0.initial){
+  # This function simulates draws for the unrestricted elements 
+  # of the conteporaneous relationships matrix of an SVAR model
+  # from a generalized-normal distribution according to algorithm 
+  # by Waggoner & Zha (2003, JEDC)
+  # n     - a positive integer, the number of draws to be sampled
+  # S     - an NxN positive definite matrix, a parameter of the generalized-normal distribution
+  # nu    - a positive scalar, degrees of freedom parameter
+  # V     - an N-element list, with fixed matrices
+  # B0.initial - an NxN matrix, of initial values of the parameters
+  
+  N             = nrow(B0.initial)
+  no.draws      = n
+  
+  B0            = array(NA, c(N,N,no.draws))
+  B0.aux        = B0.initial
+  
+  for (i in 1:no.draws){
+    for (n in 1:N){
+      rn            = nrow(V[[n]])
+      Un            = chol(nu*solve(V[[n]]%*%S.inv%*%t(V[[n]])))
+      w             = t(orthogonal.complement.matrix.TW(t(B0.aux[-n,])))
+      w1            = w %*% t(V[[n]]) %*% t(Un) / sqrt(as.numeric(w %*% t(V[[n]]) %*% t(Un) %*% Un %*% V[[n]] %*% t(w)))
+      if (rn>1){
+        Wn          = cbind(t(w1),orthogonal.complement.matrix.TW(t(w1)))
+      } else {
+        Wn          = w1
+      }
+      alpha         = rep(NA,rn)
+      u             = rmvnorm(1,rep(0,nu+1),(1/nu)*diag(nu+1))
+      alpha[1]      = sqrt(as.numeric(u%*%t(u)))
+      if (runif(1)<0.5){
+        alpha[1]    = -alpha[1]
+      }
+      if (rn>1){
+        alpha[2:rn] = rmvnorm(1,rep(0,nrow(V[[n]])-1),(1/nu)*diag(rn-1))
+      }
+      bn            = alpha %*% Wn %*% Un
+      B0.aux[n,]    = bn %*% V[[n]]
+    }
+    B0[,,i]         = B0.aux
+  }
+  
+  return(B0)
+}
 
 normalization.wz2003  = function(B0,B0.hat.inv, Sigma.inv, diag.signs){
   # This function normalizes a matrix of contemporaneous effects
@@ -759,12 +808,6 @@ normalization.wz2003  = function(B0,B0.hat.inv, Sigma.inv, diag.signs){
   
   return(B0.out)
 }
-
-
-```
-
-
-```{r}
 
 normalize.Gibbs.output.parallel          = function(B0.posterior,B0.hat){
   # This function normalizes the Gibbs sampler output from function rgn
@@ -792,9 +835,141 @@ normalize.Gibbs.output.parallel          = function(B0.posterior,B0.hat){
   return(B0.posterior.n)
 }
 
+normalize.Gibbs.output          = function(B0.posterior,B0.hat){
+  # This function normalizes the Gibbs sampler output from function rgn
+  # using function normalization.wz2003 
+  # B0.posterior  - a list, output from function rgn
+  # B0.hat        - an NxN matrix, a normalized matrix
+  
+  N                 = nrow(B0.hat)
+  K                 = 2^N
+  
+  B0.hat.inv        = solve(B0.hat)
+  Sigma.inv         = solve(B0.hat.inv %*% t(B0.hat.inv))
+  
+  diag.signs        = matrix(NA,2^N,N)
+  for (n in 1:N){
+    diag.signs[,n]  = kronecker(c(-1,1),rep(1,2^(n-1)))
+  }
+  
+  for (i in 1:dim(B0.posterior)[3]){
+    if (i%%100==0){ cat(i," ")}
+    norm.post                   = normalization.wz2003(B0=B0.posterior[,,i],B0.hat.inv, Sigma.inv, diag.signs)
+    B0.posterior[,,i]           = norm.post
+  }
+  return(B0.posterior)
+}
 
+rnorm.ngn       = function(B0.posterior,B,Omega){
+  # This function simulates draws for the multivariate normal distribution
+  # of the autoregressive slope matrix of an SVAR model
+  # from a normal-generalized-normal distribution according to algorithm 
+  # by Waggoner & Zha (2003, JEDC)
+  # B0.posterior  - a list, output from function rgn
+  # B             - an NxK matrix, a parameter determining the mean of the multivariate conditionally normal distribution given B0
+  # Omega         - a KxK positive definite matrix, a covariance matrix of the multivariate normal distribution
+  
+  N             = nrow(B)
+  K             = ncol(B)
+  no.draws      = dim(B0.posterior)[3]
+  L             = t(chol(Omega))
+  
+  Bp.posterior  = lapply(1:no.draws,function(i){
+    Bp          = matrix(NA, N, K)
+    for (n in 1:N){
+      Bp[n,]    = as.vector(t(B0.posterior[n,,i] %*% B) + L%*%rnorm(K))
+    }
+    return(Bp)
+  })
+  Bp.posterior  = simplify2array(Bp.posterior)
+  return(Bp.posterior)
+}
 
 ```
+
+```{r calculate B0 and B+ for the Bayesian SVAR model}
+
+set.seed(1234567)
+
+y       = Y
+
+N       = ncol(y)
+p       = 5
+K       = 1+N*p
+h       = 6
+S.burnin= 100
+S       = 5000
+
+# create Y and X
+############################################################
+Y       = y[(p+1):nrow(y),]
+X       = matrix(1,nrow(Y),1)
+for (i in 1:p){
+  X     = cbind(X,y[((p+1):nrow(y))-i,])
+}
+Y       = t(Y)
+X       = t(X)
+
+# set the priors
+############################################################
+kappa1  = .1       # autoregressive slope shrinkage
+kappa4  = 1       # VAR prior persistence
+kappa2  = 10      # constant term shrinkage
+kappa3  = 10      # contemporaneous effects shrinkage
+
+priors  = list(
+  B     = cbind(rep(0,N), kappa4*diag(N), matrix(0, N, (p-1)*N)),
+  Omega = diag(c(kappa2,kappa1*((1:p)^(-2))%x%rep(1,N))),
+  # Omega = diag(c(kappa2,kappa1*rep(1,N*p))),
+  S     = kappa3*diag(N),
+  nu    = N
+)
+
+# compute posterior distribution parameters, matrices V, and starting values
+############################################################
+Omega.inv   = solve(priors$Omega)
+Omega.post.inv = X%*%t(X) + Omega.inv
+Omega.post  = solve( Omega.post.inv )
+B.post      = (Y%*%t(X) + priors$B%*%Omega.inv) %*% Omega.post
+S.post      = solve(Y%*%t(Y) + solve(priors$S) + priors$B%*%Omega.inv%*%t(priors$B) - B.post%*%Omega.post.inv%*%t(B.post) )
+nu.post     = ncol(Y) + priors$nu
+
+posteriors = list(
+  B        = B.post,
+  Omega    = Omega.post,
+  S        = S.post,
+  nu       = nu.post
+)
+
+
+B0.initial = matrix(0,N,N)
+for (n in 1:N){
+  unrestricted    = apply(V_matrices[[n]],2,sum)==1
+  B0.initial[n,unrestricted] = rnorm(sum(unrestricted))
+}
+
+
+# run the posterior simulations and save their output
+############################################################
+# burn-in run: sampling B0 from the posterior distribution using Gibbs
+
+B0.posterior        = rgn(n=S.burnin, S=S.post, nu=nu.post, V=V_matrices, B0.initial=B0.initial)
+
+# sampling B0 from the posterior distribution using Gibbs
+
+B0.posterior        = rgn(n=S, S=S.post, nu=nu.post, V=NBR.V, B0.initial=B0.posterior[,,S.burnin])
+
+# normalisation
+B0.hat              = diag(sign(diag(B0.posterior[,,S])))%*%B0.posterior[,,S]
+B0.posterior        = normalize.Gibbs.output.parallel(B0.posterior,B0.hat=B0.hat)
+
+
+# sample B+ from the normal conditional posterior
+
+Bp.posterior    = rnorm.ngn(B0.posterior, B=B.post,Omega=Omega.post)
+
+```
+
 
 
 
