@@ -96,8 +96,7 @@ library(matrixcalc)     # For matrix calculations
 library(BVAR)
 library(MASS)           # For multivariate normal distributions
 library(sn)             # For skew-normal and generalized normal distributions
-
-
+library(parallel) 
 
 ```
 
@@ -579,135 +578,227 @@ To estimate this model in R, you would generally need to:
 4. **Normalize and Summarize Results:**
    - After obtaining the draws, normalize and summarize the posterior distributions to get estimates and credible intervals for the parameters.
 
-```{r prepare data for estimation (again)}
-#| echo: false
-#| message: false
-#| warning: false
 
-# Downloading data from the internet
-series <- read_rba(series_id = "GGDPCVGDPY")
 
-#clean the series by removing missing values
-series <- na.omit(series)
+```{r creating Y and X matrices using a random walk}
 
-# Ensuring the date format is appropriate for quarterly data
-series <- series %>% 
-  mutate(date = as.yearqtr(date, format = "%Y-%q"))
-
-# Filtering the dataset for the desired date range
-GDP_rate <- series %>%
-  filter(date >= as.yearqtr("1980 Q1") & date <= as.yearqtr("2019 Q4"))
-
-## Downloading CPI data from the internet
-series <- read_rba(series_id = "GCPIAGYP") 
-
-#clean the series by removing missing values
-series <- na.omit(series)
-
-# Ensuring the date format is appropriate for quarterly data
-series <- series %>% 
-  mutate(date = as.yearqtr(date, format = "%Y-%q"))
-
-# Ensuring that date is recognized as a quarterly object and summarizing to quarterly values
-series_quarterly <- series %>% 
-  mutate(quarter = as.yearqtr(date)) %>%
-  group_by(quarter) %>%
-  summarize(value = mean(value, na.rm = TRUE)) %>%
-  ungroup()
-
-# Filter for the correct range from Q1 1980 to Q4 2019
-CPI_rate <- series_quarterly %>%
-  filter(quarter >= as.yearqtr("1980 Q1") & quarter <= as.yearqtr("2019 Q4"))
-
-## Downloading unemployment data from the internet
-series <- read_rba(series_id = "GLFSURSA") 
-
-#clean the series by removing missing values
-series <- na.omit(series)
-
-# Convert the date format from dd/mm/yyyy to Date object
-series <- series %>% 
-  mutate(date = as.Date(as.character(date), format = "%Y-%m-%d")) 
-
-# Ensuring that date is recognized as a quarterly object and summarizing to quarterly values
-series_quarterly <- series %>% 
-  mutate(quarter = as.yearqtr(date)) %>%
-  group_by(quarter) %>%
-  summarize(value = mean(value, na.rm = TRUE)) %>%
-  ungroup()
-
-# Filter the series to start from the first quarter of 1980 and end in the last quarter of 2019
-unemp_rate <- series_quarterly %>%
-  filter(quarter >= as.yearqtr("1980 Q1") & quarter <= as.yearqtr("2019 Q4"))
-
-# Downloading USD Trade Weighted Index data from the internet (March 1973 = 100)
-
-# Reading and preparing the USD TWI data
-series <- read_rba(series_id = "FUSXRTWI") 
-
-#clean the series by removing missing values
-series <- na.omit(series)
-
-# Convert the date format from dd/mm/yyyy to Date object
-series <- series %>% 
-  mutate(date = as.Date(as.character(date), format = "%Y-%m-%d")) 
-
-# Ensuring that date is recognized as a quarterly object and summarizing to quarterly values
-series_quarterly <- series %>% 
-  mutate(quarter = as.yearqtr(date)) %>%
-  group_by(quarter) %>%
-  summarize(value = mean(value, na.rm = TRUE)) %>%
-  ungroup()
-
-# Filter the series to start from the first quarter of 1980 and end in the last quarter of 2019
-USD_Index <- series_quarterly %>%
-  filter(quarter >= as.yearqtr("1980 Q1") & quarter <= as.yearqtr("2019 Q4"))
-
-# Apply logarithmic transformation to the USD Index values
-USD_Index$value <- log(USD_Index$value)
-
-```
-
-```{r}
-# Load necessary libraries
-library(MASS)
-
-# Example data setup
-set.seed(123)  # For reproducibility
-T <- 100  # Number of observations
-N <- 4    # Number of variables
-
-# Simulate an example Y matrix as a random normal matrix
-Y <- matrix(rnorm(T * N), nrow = T, ncol = N)
-
-# Simulate an example X matrix, assuming X could be lagged values of Y or other predictors
-X <- matrix(rnorm(T * N), nrow = T, ncol = N)
-
-# Parameters for Gibbs sampling
-nu <- 10
-Omega <- diag(1, N)  # Omega must match the number of predictors in X
-S <- diag(1, N)
-B_tilda <- matrix(0, ncol = N, nrow = N)
-B0_init <- diag(1, N)
-B_plus_init <- matrix(0.1, ncol = N, nrow = N)
-iterations <- 1000
-
-# Define the Gibbs sampler function (as previously corrected)
-gibbs_sampler_NGN <- function(Y, X, iterations, nu, Omega, S, B_tilda, B0_init, B_plus_init) {
-  # Function body as previously corrected...
-  # Ensure the function here is defined as in the last correction provided
+# Function to simulate a multivariate Gaussian random walk
+simulate_random_walk <- function(n, initial_value, sigma) {
+  K <- length(initial_value)
+  data <- matrix(nrow = n, ncol = K, data = NA)
+  data[1,] <- initial_value
+  for (i in 2:n) {
+    data[i,] <- data[i-1,] + mvrnorm(1, mu = rep(0, K), Sigma = sigma)
+  }
+  return(data)
 }
 
-# Call the Gibbs sampling function
-results <- gibbs_sampler_NGN(Y, X, iterations, nu, Omega, S, B_tilda, B0_init, B_plus_init)
+# Simulate the Y matrix as a random walk
+n <- 1000  # Number of observations
+initial_values <- rep(0.1, 4)  # Initial values for each of the 4 variables
+sigma <- diag(0.1, 4)  # Variance for each variable in the random walk
+Y <- simulate_random_walk(n, initial_values, sigma)
 
-# Optionally print or summarize results
-print(results$B0_samples[,,1])  # Print first sample of B0 to check
+# Create the X matrix as lagged values of Y (simple lag 1 for example)
+X <- Y[-n, ]  # Dropping the last row to lag
+Y <- Y[-1, ]  # Dropping the first row to align Y with X
+
+# Check the head of the matrices to ensure alignment
+#head(X)
+#head(Y)
+
+```
+
+```{r calculate the NGN distribution posteriors to use in the Gibbs sampler}
+
+# Initialize parameters for SVAR
+p <- ncol(Y)
+T <- nrow(Y)
+
+# NGN distribution parameters
+B_underscore <- matrix(rnorm(p^2), p, p)  # Random B matrix for demonstration
+Omega_underscore <- diag(1/p, p)  # Prior precision matrix for B0
+S_underscore <- diag(1, p)  # Scale matrix for the NGN
+nu_underscore <- 5  # Shape parameter for the NGN
+
+# Posterior estimation using NGN distribution parameters
+# Posterior of B
+XtX <- t(X) %*% X
+Omega_bar <- solve(XtX + solve(Omega_underscore))
+B_bar <- (t(X) %*% Y + solve(Omega_underscore) %*% B_underscore) %*% Omega_bar
+
+# Posterior of S (scale of the NGN distribution)
+S_bar_inv <- t(Y) %*% Y + solve(S_underscore) + B_underscore %*% solve(Omega_underscore) %*% t(B_underscore) - B_bar %*% solve(Omega_bar) %*% t(B_bar)
+S_bar <- solve(S_bar_inv)
+
+# Update nu_post (shape of the NGN distribution)
+nu_bar <- T + nu_underscore
+
+# Outputs
+#print("Posterior estimates of B_bar:")
+#print(B_bar)
+#print("Posterior precision matrix Omega_bar:")
+#print(Omega_bar)
+#print("Posterior estimates of S_bar:")
+#print(S_bar)
+#print("Updated shape parameter nu_bar:")
+#print(nu_bar)
+
+```
+
+```{r defining the Vn matrices for the exclusion restrictions on B0} 
+
+# Create a list V with predefined fixed matrices
+create_V_matrices <- function() {
+  V <- list()
+  V[[1]] <- matrix(c(1, 0, 0, 0), nrow = 1, ncol = 4, byrow = TRUE)
+  V[[2]] <- matrix(c(1, 0, 0, 0,
+                     0, 1, 0, 0), nrow = 2, ncol = 4, byrow = TRUE)
+  V[[3]] <- matrix(c(1, 0, 0, 0,
+                     0, 1, 0, 0,
+                     0, 0, 1, 0), nrow = 3, ncol = 4, byrow = TRUE)
+  V[[4]] <- matrix(c(1, 0, 0, 0,
+                     0, 1, 0, 0,
+                     0, 0, 1, 0,
+                     0, 0, 0, 1), nrow = 4, ncol = 4, byrow = TRUE)
+  return(V)
+}
+
+# Generate the list of V matrices
+V_matrices <- create_V_matrices()
+
+#Print the matrices to verify
+print("List of V matrices:")
+lapply(V_matrices, print)
+
+
+```
+
+```{r L16 code for calculating the posterior B0}
+
+rgn = function(n, S_inv, nu, V, B0_initial) {
+  # This function simulates draws for the unrestricted elements
+  # of the contemporaneous relationships matrix of an SVAR model
+  # from a generalized-normal distribution according to algorithm
+  # by Waggoner & Zha (2003, JEDC)
+  
+  print("Initial B0:")
+  print(B0_initial)  # Corrected print statement
+  
+  N <- nrow(B0_initial)
+  no.draws <- n
+  
+  B0 <- array(NA, c(N, N, no.draws))
+  B0.aux <- B0_initial
+  
+  print("Empty B0 array:")
+  print(B0[,,1])  # Print the first layer of B0 to show initialization
+  
+  for (i in 1:no.draws) {
+    for (n in 1:N) {
+      rn <- nrow(V[[n]])
+      S_Vn <- V[[n]] %*% S_inv %*% t(V[[n]])
+      Un <- chol(S_Vn + 1e-6 * diag(rn))  # Adding regularization
+      
+      w <- orthogonal.complement.matrix.TW(t(B0.aux[-n, ]))
+      w1 <- w %*% t(V[[n]]) %*% t(Un) / sqrt(as.numeric(w %*% t(V[[n]]) %*% t(Un) %*% Un %*% V[[n]] %*% t(w)))
+      
+      Wn <- if (rn > 1) {
+        cbind(t(w1), orthogonal.complement.matrix.TW(t(w1)))
+      } else {
+        w1
+      }
+      
+      alpha <- rep(NA, rn)
+      u <- mvrnorm(1, rep(0, nu + 1), (1 / nu) * diag(nu + 1))
+      alpha[1] <- sqrt(sum(u^2))
+      if (runif(1) < 0.5) {
+        alpha[1] <- -alpha[1]
+      }
+      if (rn > 1) {
+        alpha[2:rn] <- mvrnorm(1, rep(0, rn - 1), (1 / nu) * diag(rn - 1))
+      }
+      
+      bn <- alpha %*% Wn %*% Un
+      B0.aux[n, ] <- bn %*% V[[n]]
+    }
+    B0[,,i] <- B0.aux
+  }
+  
+  print("Final B0 after simulation:")
+  print(B0[,,1])  # Print the first layer of the final B0
+  
+  return(B0)
+}
 
 
 ```
 
 ```{r}
+
+normalization.wz2003  = function(B0,B0.hat.inv, Sigma.inv, diag.signs){
+  # This function normalizes a matrix of contemporaneous effects
+  # according to the algorithm by Waggoner & Zha (2003, JOE)
+  # B0        - an NxN matrix, to be normalized
+  # B0.hat    - an NxN matrix, a normalized matrix
+  
+  N                 = nrow(B0)
+  K                 = 2^N
+  distance          = rep(NA,K)
+  for (k in 1:K){
+    B0.tmp.inv      = solve(diag(diag.signs[k,]) %*% B0)
+    distance[k]     = sum(
+      unlist(
+        lapply(1:N,
+               function(n){
+                 t(B0.tmp.inv - B0.hat.inv)[n,] %*%Sigma.inv %*% t(B0.tmp.inv - B0.hat.inv)[n,]
+               }
+        )))
+  }
+  B0.out            = diag(diag.signs[which.min(distance),]) %*% B0
+  
+  return(B0.out)
+}
+
+
+```
+
+
+```{r}
+
+normalize.Gibbs.output.parallel          = function(B0.posterior,B0.hat){
+  # This function normalizes the Gibbs sampler output from function rgn
+  # using function normalization.wz2003 
+  # B0.posterior  - a list, output from function rgn
+  # B0.hat        - an NxN matrix, a normalized matrix
+  
+  N                 = nrow(B0.hat)
+  K                 = 2^N
+  
+  B0.hat.inv        = solve(B0.hat)
+  Sigma.inv         = t(B0.hat)%*%B0.hat
+  
+  diag.signs        = matrix(NA,2^N,N)
+  for (n in 1:N){
+    diag.signs[,n]  = kronecker(c(-1,1),rep(1,2^(n-1)))
+  }
+  
+  B0.posterior.n    = mclapply(1:dim(B0.posterior)[3],function(i){
+    normalization.wz2003(B0=B0.posterior[,,i],B0.hat.inv, Sigma.inv, diag.signs)
+  },mc.cores=4
+  )
+  B0.posterior.n  = simplify2array(B0.posterior.n)
+  
+  return(B0.posterior.n)
+}
+
+
+
+```
+
+
+
+```{r Building matrices Y and X from the actual data for evaluating the Bayesian SVAR model}
 
 # Creating matrices Y and X
 
