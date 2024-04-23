@@ -582,6 +582,8 @@ To estimate this model in R, you would generally need to:
 
 ```{r creating Y and X matrices using a random walk}
 
+set.seed(1234567)
+
 # Function to simulate a multivariate Gaussian random walk
 simulate_random_walk <- function(n, initial_value, sigma) {
   K <- length(initial_value)
@@ -673,22 +675,6 @@ lapply(V_matrices, print)
 
 
 ```
-
-```{r}
-
-orthogonal.complement.matrix.TW = function(x){
-  # x is a mxn matrix and m>n
-  # the function returns a mx(m-n) matrix, out, that is an orthogonal complement of x, i.e.:
-  # t(x)%*%out = 0 and det(cbind(x,out))!=0
-  N     = dim(x)
-  tmp   = qr.Q(qr(x, tol = 1e-10),complete=TRUE)
-  out   = as.matrix(tmp[,(N[2]+1):N[1]])
-  return(out)
-}
-
-
-```
-
 
 ```{r L16 code}
 
@@ -957,7 +943,7 @@ B0.posterior        = rgn(n=S.burnin, S=S.post, nu=nu.post, V=V_matrices, B0.ini
 
 # sampling B0 from the posterior distribution using Gibbs
 
-B0.posterior        = rgn(n=S, S=S.post, nu=nu.post, V=NBR.V, B0.initial=B0.posterior[,,S.burnin])
+B0.posterior        = rgn(n=S, S=S.post, nu=nu.post, V=V_matrices, B0.initial=B0.posterior[,,S.burnin])
 
 # normalisation
 B0.hat              = diag(sign(diag(B0.posterior[,,S])))%*%B0.posterior[,,S]
