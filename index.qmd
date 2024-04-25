@@ -596,7 +596,7 @@ simulate_random_walk <- function(n, initial_value, sigma) {
 }
 
 # Simulate the Y matrix as a random walk
-n <- 1000  # Number of observations
+n <- 300  # Number of observations
 initial_values <- rep(0.1, 4)  # Initial values for each of the 4 variables
 sigma <- diag(0.1, 4)  # Variance for each variable in the random walk
 Y <- simulate_random_walk(n, initial_values, sigma)
@@ -676,7 +676,7 @@ lapply(V_matrices, print)
 
 ```
 
-```{r L16 code}
+```{r L16 code for useful functions}
 
 # useful functions
 ############################################################
@@ -880,11 +880,11 @@ set.seed(1234567)
 y       = Y
 
 N       = ncol(y)
-p       = 5
+p       = 1
 K       = 1+N*p
 h       = 6
 S.burnin= 100
-S       = 5000
+S       = 1000
 
 # create Y and X
 ############################################################
@@ -955,8 +955,6 @@ B0.posterior        = normalize.Gibbs.output.parallel(B0.posterior,B0.hat=B0.hat
 Bp.posterior    = rnorm.ngn(B0.posterior, B=B.post,Omega=Omega.post)
 
 ```
-
-
 
 
 ```{r Building matrices Y and X from the actual data for evaluating the Bayesian SVAR model}
