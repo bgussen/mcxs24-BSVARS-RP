@@ -884,7 +884,7 @@ p       = 1
 K       = 1+N*p
 h       = 6
 S.burnin= 100
-S       = 1000
+S       = 6000
 
 # create Y and X
 ############################################################
@@ -895,6 +895,10 @@ for (i in 1:p){
 }
 Y       = t(Y)
 X       = t(X)
+
+# Check the head of the matrices to ensure alignment
+head(X)
+head(Y)
 
 # set the priors
 ############################################################
@@ -927,6 +931,15 @@ posteriors = list(
   nu       = nu.post
 )
 
+# Outputs
+print("Posterior estimates of B.post:")
+print(B)
+print("Posterior precision matrix Omega.post:")
+print(Omega)
+print("Posterior estimates of S.post:")
+print(S)
+print("Updated shape parameter nu.post:")
+print(nu)
 
 B0.initial = matrix(0,N,N)
 for (n in 1:N){
@@ -953,6 +966,17 @@ B0.posterior        = normalize.Gibbs.output.parallel(B0.posterior,B0.hat=B0.hat
 # sample B+ from the normal conditional posterior
 
 Bp.posterior    = rnorm.ngn(B0.posterior, B=B.post,Omega=Omega.post)
+
+
+```
+
+```{r}
+
+print("Normalized B0 matrix")
+print(B0.posterior [,,S])
+
+print("B plus matrix")
+print(Bp.posterior [,,S])
 
 ```
 
