@@ -579,103 +579,6 @@ To estimate this model in R, you would generally need to:
    - After obtaining the draws, normalize and summarize the posterior distributions to get estimates and credible intervals for the parameters.
 
 
-
-```{r creating Y and X matrices using a random walk}
-
-set.seed(1234567)
-
-# Function to simulate a multivariate Gaussian random walk
-simulate_random_walk <- function(n, initial_value, sigma) {
-  K <- length(initial_value)
-  data <- matrix(nrow = n, ncol = K, data = NA)
-  data[1,] <- initial_value
-  for (i in 2:n) {
-    data[i,] <- data[i-1,] + mvrnorm(1, mu = rep(0, K), Sigma = sigma)
-  }
-  return(data)
-}
-
-# Simulate the Y matrix as a random walk
-n <- 300  # Number of observations
-initial_values <- rep(0.1, 4)  # Initial values for each of the 4 variables
-sigma <- diag(0.1, 4)  # Variance for each variable in the random walk
-Y <- simulate_random_walk(n, initial_values, sigma)
-
-# Create the X matrix as lagged values of Y (simple lag 1 for example)
-X <- Y[-n, ]  # Dropping the last row to lag
-Y <- Y[-1, ]  # Dropping the first row to align Y with X
-
-# Check the head of the matrices to ensure alignment
-head(X)
-head(Y)
-
-```
-
-```{r calculate the NGN distribution posteriors to use in the Gibbs sampler}
-
-# Initialize parameters for SVAR
-p <- ncol(Y)
-T <- nrow(Y)
-
-# NGN distribution parameters
-B_underscore <- matrix(rnorm(p^2), p, p)  # Random B matrix for demonstration
-Omega_underscore <- diag(1/p, p)  # Prior precision matrix for B0
-S_underscore <- diag(1, p)  # Scale matrix for the NGN
-nu_underscore <- 5  # Shape parameter for the NGN
-
-# Posterior estimation using NGN distribution parameters
-# Posterior of B
-XtX <- t(X) %*% X
-Omega_bar <- solve(XtX + solve(Omega_underscore))
-B_bar <- (t(X) %*% Y + solve(Omega_underscore) %*% B_underscore) %*% Omega_bar
-
-# Posterior of S (scale of the NGN distribution)
-S_bar_inv <- t(Y) %*% Y + solve(S_underscore) + B_underscore %*% solve(Omega_underscore) %*% t(B_underscore) - B_bar %*% solve(Omega_bar) %*% t(B_bar)
-S_bar <- solve(S_bar_inv)
-
-# Update nu_post (shape of the NGN distribution)
-nu_bar <- T + nu_underscore
-
-# Outputs
-print("Posterior estimates of B_bar:")
-print(B_bar)
-print("Posterior precision matrix Omega_bar:")
-print(Omega_bar)
-print("Posterior estimates of S_bar:")
-print(S_bar)
-print("Updated shape parameter nu_bar:")
-print(nu_bar)
-
-```
-
-```{r defining the Vn matrices for the exclusion restrictions on B0} 
-
-# Create a list V with predefined fixed matrices
-create_V_matrices <- function() {
-  V <- list()
-  V[[1]] <- matrix(c(1, 0, 0, 0), nrow = 1, ncol = 4, byrow = TRUE)
-  V[[2]] <- matrix(c(1, 0, 0, 0,
-                     0, 1, 0, 0), nrow = 2, ncol = 4, byrow = TRUE)
-  V[[3]] <- matrix(c(1, 0, 0, 0,
-                     0, 1, 0, 0,
-                     0, 0, 1, 0), nrow = 3, ncol = 4, byrow = TRUE)
-  V[[4]] <- matrix(c(1, 0, 0, 0,
-                     0, 1, 0, 0,
-                     0, 0, 1, 0,
-                     0, 0, 0, 1), nrow = 4, ncol = 4, byrow = TRUE)
-  return(V)
-}
-
-# Generate the list of V matrices
-V_matrices <- create_V_matrices()
-
-#Print the matrices to verify
-print("List of V matrices:")
-lapply(V_matrices, print)
-
-
-```
-
 ```{r L16 code for useful functions}
 
 # useful functions
@@ -873,18 +776,65 @@ rnorm.ngn       = function(B0.posterior,B,Omega){
 
 ```
 
-```{r calculate B0 and B+ for the Bayesian SVAR model}
+
+```{r creating Y and X matrices using a random walk}
 
 set.seed(1234567)
+
+# Function to simulate a multivariate Gaussian random walk
+simulate_random_walk <- function(n, initial_value, sigma) {
+  K <- length(initial_value)
+  data <- matrix(nrow = n, ncol = K, data = NA)
+  data[1,] <- initial_value
+  for (i in 2:n) {
+    data[i,] <- data[i-1,] + mvrnorm(1, mu = rep(0, K), Sigma = sigma)
+  }
+  return(data)
+}
+
+# Simulate the Y matrix as a random walk
+n <- 100  # Number of observations
+initial_values <- rep(0, 4)  # Initial values for each of the 2 variables
+sigma <- diag(0.1, 4)  # Variance for each variable in the random walk
+Y <- simulate_random_walk(n, initial_values, sigma)
+
+```
+
+
+```{r defining the Vn matrices for the exclusion restrictions on B0} 
+
+# Create a list V with predefined fixed matrices
+create_V_matrices <- function() {
+  V <- list()
+  V[[1]] <- matrix(c(1, 0, 0, 0), nrow = 1, ncol = 4, byrow = TRUE)
+  V[[2]] <- matrix(c(1, 0, 0, 0,
+                     0, 1, 0, 0), nrow = 2, ncol = 4, byrow = TRUE)
+  V[[3]] <- matrix(c(1, 0, 0, 0,
+                     0, 1, 0, 0,
+                     0, 0, 1, 0), nrow = 3, ncol = 4, byrow = TRUE)
+  V[[4]] <- matrix(c(1, 0, 0, 0,
+                     0, 1, 0, 0,
+                     0, 0, 1, 0,
+                     0, 0, 0, 1), nrow = 4, ncol = 4, byrow = TRUE)
+  return(V)
+}
+
+# Generate the list of V matrices
+V_matrices <- create_V_matrices()
+
+```
+
+
+```{r Random Walk calculate B0 and B+ for the Bayesian SVAR model}
 
 y       = Y
 
 N       = ncol(y)
-p       = 1
+p       = 2
 K       = 1+N*p
 h       = 6
 S.burnin= 100
-S       = 6000
+S       = 5000
 
 # create Y and X
 ############################################################
@@ -893,19 +843,18 @@ X       = matrix(1,nrow(Y),1)
 for (i in 1:p){
   X     = cbind(X,y[((p+1):nrow(y))-i,])
 }
+
+
 Y       = t(Y)
 X       = t(X)
 
-# Check the head of the matrices to ensure alignment
-head(X)
-head(Y)
 
 # set the priors
 ############################################################
-kappa1  = .1       # autoregressive slope shrinkage
-kappa4  = 1       # VAR prior persistence
-kappa2  = 10      # constant term shrinkage
-kappa3  = 10      # contemporaneous effects shrinkage
+kappa1  = 0.00001   # autoregressive slope shrinkage
+kappa2  = 0.01      # constant term shrinkage 
+kappa3  = 0.01      # contemporaneous effects shrinkage
+kappa4  = 1         # VAR prior persistence
 
 priors  = list(
   B     = cbind(rep(0,N), kappa4*diag(N), matrix(0, N, (p-1)*N)),
@@ -931,15 +880,6 @@ posteriors = list(
   nu       = nu.post
 )
 
-# Outputs
-print("Posterior estimates of B.post:")
-print(B)
-print("Posterior precision matrix Omega.post:")
-print(Omega)
-print("Posterior estimates of S.post:")
-print(S)
-print("Updated shape parameter nu.post:")
-print(nu)
 
 B0.initial = matrix(0,N,N)
 for (n in 1:N){
@@ -952,11 +892,11 @@ for (n in 1:N){
 ############################################################
 # burn-in run: sampling B0 from the posterior distribution using Gibbs
 
-B0.posterior        = rgn(n=S.burnin, S=S.post, nu=nu.post, V=V_matrices, B0.initial=B0.initial)
+B0.posterior        = rgn(n=S.burnin, S.inv=solve(S.post), nu=nu.post, V=V_matrices, B0.initial=B0.initial)
 
 # sampling B0 from the posterior distribution using Gibbs
 
-B0.posterior        = rgn(n=S, S=S.post, nu=nu.post, V=V_matrices, B0.initial=B0.posterior[,,S.burnin])
+B0.posterior        = rgn(n=S, S.inv=solve(S.post), nu=nu.post, V=V_matrices, B0.initial=B0.posterior[,,S.burnin])
 
 # normalisation
 B0.hat              = diag(sign(diag(B0.posterior[,,S])))%*%B0.posterior[,,S]
@@ -970,12 +910,12 @@ Bp.posterior    = rnorm.ngn(B0.posterior, B=B.post,Omega=Omega.post)
 
 ```
 
-```{r}
+```{r Ranom Walk normalization of the B0 matrix}
 
-print("Normalized B0 matrix")
+print("Random Walk Testing Normalized B0 matrix")
 print(B0.posterior [,,S])
 
-print("B plus matrix")
+print("Random Walk Testing B plus matrix")
 print(Bp.posterior [,,S])
 
 ```
@@ -1005,8 +945,100 @@ X <- Y[1:(nrow(Y) - lags), ]  # Get all rows up to the last 'lags' rows
 # Adjust Y to match the new dimensions of X
 Y <- Y[(lags + 1):nrow(Y), ]  # Start from row 'lags+1' to end
 
-# Check the head of the matrices to ensure alignment
-head(X)
-head(Y)
+```
+
+
+```{r calculate B0 and B+ for the Bayesian SVAR model}
+
+y       = Y
+
+N       = ncol(y)
+p       = 12
+K       = 1+N*p
+h       = 6
+S.burnin= 100
+S       = 5000
+
+# create Y and X
+############################################################
+Y       = y[(p+1):nrow(y),]
+X       = matrix(1,nrow(Y),1)
+for (i in 1:p){
+  X     = cbind(X,y[((p+1):nrow(y))-i,])
+}
+
+
+Y       = t(Y)
+X       = t(X)
+
+
+# set the priors
+############################################################
+kappa1  = 0.00001   # autoregressive slope shrinkage
+kappa2  = 0.01      # constant term shrinkage 
+kappa3  = 0.01      # contemporaneous effects shrinkage
+kappa4  = 1         # VAR prior persistence
+
+priors  = list(
+  B     = cbind(rep(0,N), kappa4*diag(N), matrix(0, N, (p-1)*N)),
+  Omega = diag(c(kappa2,kappa1*((1:p)^(-2))%x%rep(1,N))),
+  # Omega = diag(c(kappa2,kappa1*rep(1,N*p))),
+  S     = kappa3*diag(N),
+  nu    = N
+)
+
+# compute posterior distribution parameters, matrices V, and starting values
+############################################################
+Omega.inv   = solve(priors$Omega)
+Omega.post.inv = X%*%t(X) + Omega.inv
+Omega.post  = solve( Omega.post.inv )
+B.post      = (Y%*%t(X) + priors$B%*%Omega.inv) %*% Omega.post
+S.post      = solve(Y%*%t(Y) + solve(priors$S) + priors$B%*%Omega.inv%*%t(priors$B) - B.post%*%Omega.post.inv%*%t(B.post) )
+nu.post     = ncol(Y) + priors$nu
+
+posteriors = list(
+  B        = B.post,
+  Omega    = Omega.post,
+  S        = S.post,
+  nu       = nu.post
+)
+
+
+B0.initial = matrix(0,N,N)
+for (n in 1:N){
+  unrestricted    = apply(V_matrices[[n]],2,sum)==1
+  B0.initial[n,unrestricted] = rnorm(sum(unrestricted))
+}
+
+
+# run the posterior simulations and save their output
+############################################################
+# burn-in run: sampling B0 from the posterior distribution using Gibbs
+
+B0.posterior        = rgn(n=S.burnin, S.inv=solve(S.post), nu=nu.post, V=V_matrices, B0.initial=B0.initial)
+
+# sampling B0 from the posterior distribution using Gibbs
+
+B0.posterior        = rgn(n=S, S.inv=solve(S.post), nu=nu.post, V=V_matrices, B0.initial=B0.posterior[,,S.burnin])
+
+# normalisation
+B0.hat              = diag(sign(diag(B0.posterior[,,S])))%*%B0.posterior[,,S]
+B0.posterior        = normalize.Gibbs.output.parallel(B0.posterior,B0.hat=B0.hat)
+
+
+# sample B+ from the normal conditional posterior
+
+Bp.posterior    = rnorm.ngn(B0.posterior, B=B.post,Omega=Omega.post)
+
+
+```
+
+```{r Normalization of the B0 matrix for the basic model}
+
+print("Basic Model Normalized B0 matrix")
+print(B0.posterior [,,S])
+
+print("Basic Model B plus matrix")
+print(Bp.posterior [,,S])
 
 ```
