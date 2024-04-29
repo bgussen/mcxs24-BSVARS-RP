@@ -551,8 +551,51 @@ We have specified that each row $n$ of $B_0$ can be represented as a product of 
 #### Likelihood Function
 The likelihood function for the model incorporates the determinants and exponentials of quadratic forms, which reflect the usual Gaussian assumptions for the innovations.
 
+The likelihood function usning the Normal-Generalized-Normal (NGN) distribution is detailed below: 
+
+$L(B_+, B_0 \mid Y, X) = \left| \det (B_0) \right|^T \exp \left( -\frac{1}{2} \sum_{n=1}^N \left( b_n V_n Y - B_n X \right) \left( b_n V_n Y - B_n X \right)' \right)$
+
+Expanded Expression
+
+Expanding the expression within the exponential term:
+
+$\sum_{n=1}^N \left( b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n' \right)$
+
+And further: 
+
+$b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n' = b_n V_n \left( Y Y' - Y X' (X X')^{-1} X Y' \right) V_n' b_n' + (B_n - b_n V_n \hat{A}) (X X') (B_n - b_n V_n \hat{A})'$
+
+where $\hat{A} = YX' (XX')^{-1}$.
+
+Likelihood Function Simplification
+
+The simplified likelihood function can then be presented as:
+
+$L(B_+, B_0 \mid Y, X) \sim NGN \left( \hat{A}, (X X')^{-1}, (Y Y' - Y X' (X X')^{-1} X Y')^{-1}, T + N \right)$
+
+
 #### Prior and Posterior Distributions
 The model uses a Normal-generalized-normal (NGN) distribution approach for the priors. The likelihood and priors are combined to form the posterior distributions, which are sampled using Gibbs sampling.
+
+Natural-Conjugate Prior
+
+The NGN distribution as a natural-conjugate prior:
+
+$p(B_+, B_0) \sim NGN \left( B, \Omega, S, \nu \right)$
+
+$p(B_+, B_0) = \prod_{n=1}^N p(B_n \mid b_n) \cdot p(b_1, \ldots, b_N)$
+
+$p(B_n \mid b_n) \sim N_K \left( b_n V_n B, \Omega \right)$
+
+$p(b_1, \ldots, b_N) \propto \left| \det(B_0) \right|^{\nu-N} \exp \left( -\frac{1}{2} \sum_{n=1}^N b_n V_n S^{-1} V_n' b_n' \right)$
+
+Posterior Distribution
+
+Combining the likelihood and the prior, the posterior distribution:
+
+$p(B_+, B_0 \mid Y, X) \propto L(B_+, B_0 \mid Y, X) \cdot p(B_+, B_0)$
+
+$= \left| \det (B_0) \right|^{T+\nu-N} \exp \left( -\frac{1}{2} \sum_{n=1}^N \left( b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n' + b_n V_n S^{-1} V_n' b_n' + B_n \Omega^{-1} B_n' - 2 b_n V_n B \Omega^{-1} B_n' + b_n V_n B \Omega^{-1} B' V_n' b_n' \right) \right)$
 
 #### Gibbs Sampling Procedure
 Gibbs sampling for this model involves:
@@ -1052,24 +1095,6 @@ print(B0.posterior [,,S])
 
 print("Basic Model B plus matrix")
 print(Bp.posterior [,,S])
-
-```
-
-```{r}
-
-# Loop through each row of Bp.posterior
-for (i in 1:nrow(Bp.posterior)) {
-  # Create a new figure for each row
-  par(mfrow = c(2, 2))
-  
-  # Divide each element of the row by the corresponding diagonal element of B0.posterior
-  normalized_row <- Bp.posterior[i, ] / diag(B0.posterior)[i]
-  
-  # Plot each normalized value over time
-  for (j in 1:length(normalized_row)) {
-    plot(normalized_row[j], type = "b", main = paste("Row", i, ", Column", j), xlab = "Time", ylab = "Normalized Value")
-  }
-}
 
 ```
 
