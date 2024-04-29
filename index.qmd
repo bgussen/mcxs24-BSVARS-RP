@@ -521,10 +521,10 @@ Using a lower triangular matrix for $B_0$ in our Bayesian Structural Vector Auto
 
 ##### Minnesota Prior and Shrinkage
 - **Role of Minnesota Prior**: In Bayesian SVARs, the Minnesota prior typically imposes shrinkage on the parameters, pulling them towards some baseline values (often zero or a random walk hypothesis for autoregressive parameters). This can be particularly useful in imposing and testing exclusion restrictions implicitly through the prior distribution.
-- **Implementing Shrinkage**: You can use the Minnesota prior to differentially shrink the off-diagonal elements of $B_0$ to test whether the data supports the exclusion restrictions. Larger shrinkage (higher prior variance) on certain parameters can test if the unrestricted model significantly deviates from these baseline assumptions.
+- **Implementing Shrinkage**: We use the Minnesota prior to differentially shrink the off-diagonal elements of $B_0$ to test whether the data supports the exclusion restrictions. Larger shrinkage (higher prior variance) on certain parameters can test if the unrestricted model significantly deviates from these baseline assumptions.
 
 ##### Steps to Follow
-1. **Specify the Prior**: Define your Minnesota prior for each element in $B_0$ based on how strongly you believe in the causal ordering and immediate impacts.
+1. **Specify the Prior**: Define the Minnesota prior for each element in $B_0$ based on how strongly our believe in the causal ordering and immediate impacts.
 2. **Fit the Model**: Use Bayesian estimation techniques. We will use the Gibbs sampling proposed by @Waggoner&Zha2003 to fit the SVAR model.
 3. **Analyze the Posterior**: Check the posterior distributions of the $B_0$ elements. If the posterior distributions of certain off-diagonal elements concentrate around zero (or within a close range), it supports the exclusion restrictions under the causal ordering.
 4. **Robustness Checks**: Consider alternative orderings or less restrictive priors to ensure robustness of the findings.
@@ -546,7 +546,7 @@ where:
 - $u_t$ is the error term assumed to be normally distributed.
 
 #### Exclusion Restrictions
-You’ve specified that each row $n$ of $B_0$ can be represented as a product of unrestricted coefficients $b_n$ and a fixed matrix $V_n$ of zeros and ones, applying structural constraints to the model.
+We have specified that each row $n$ of $B_0$ can be represented as a product of unrestricted coefficients $b_n$ and a fixed matrix $V_n$ of zeros and ones, applying structural constraints to the model.
 
 #### Likelihood Function
 The likelihood function for the model incorporates the determinants and exponentials of quadratic forms, which reflect the usual Gaussian assumptions for the innovations.
@@ -564,19 +564,19 @@ Gibbs sampling for this model involves:
 To estimate this model in R, you would generally need to:
 
 1. **Define the Model Structure:**
-   - Set up matrices $B_0$ and $B_+$ based on the given structure and exclusion restrictions.
-   - Prepare the data matrices $Y$ and $X$.
+   - We set up matrices $B_0$ and $B_+$ based on the given structure and exclusion restrictions.
+   - We prepare the data matrices $Y$ and $X$.
 
 2. **Initialize Parameters:**
-   - Initialize $B_0$, $B_+$, and any other matrices or parameters required for the Gibbs sampling.
+   - We initialize $B_0$, $B_+$, and any other matrices or parameters required for the Gibbs sampling.
 
 3. **Implement Gibbs Sampler:**
-   - Write loops to update each parameter iteratively based on its conditional posterior distribution. This includes:
+   - We write loops to update each parameter iteratively based on its conditional posterior distribution. This includes:
      - Computing residuals and other derived quantities needed to sample $b_n$ and $B_+$.
      - Drawing from the conditional distributions using function  `rmvnorm` for multivariate normal distributions.
 
 4. **Normalize and Summarize Results:**
-   - After obtaining the draws, normalize and summarize the posterior distributions to get estimates and credible intervals for the parameters.
+   - After obtaining the draws, we normalize and summarize the posterior distributions to get estimates and credible intervals for the parameters.
 
 
 ```{r L16 code for useful functions}
@@ -776,6 +776,10 @@ rnorm.ngn       = function(B0.posterior,B,Omega){
 
 ```
 
+### Model Testing Using A Random Walk 
+
+We use a random walk to generate a $Y$ matrix with one lag, and with 300 observations over four variables, to check whether the estimation algorithm is able to reproduce the random walk structure. In other words, we expect that $B_0$ will equal an identity matrix, the intercept will equal zero, and the remaining part of the $B_+$ matrix will also be an identity matrix. 
+
 
 ```{r creating Y and X matrices using a random walk}
 
@@ -824,13 +828,14 @@ V_matrices <- create_V_matrices()
 
 ```
 
+We used 100 iterations for the burn-in phase to allow the algorithm to converge, then used 5000 iteration for the estimation. 
 
 ```{r Random Walk calculate B0 and B+ for the Bayesian SVAR model}
 
 y       = Y
 
 N       = ncol(y)
-p       = 2
+p       = 1
 K       = 1+N*p
 h       = 6
 S.burnin= 100
@@ -910,6 +915,8 @@ Bp.posterior    = rnorm.ngn(B0.posterior, B=B.post,Omega=Omega.post)
 
 ```
 
+The estimated $B_0$ and $B_+$ are shown below. 
+
 ```{r Ranom Walk normalization of the B0 matrix}
 
 print("Random Walk Testing Normalized B0 matrix")
@@ -920,6 +927,11 @@ print(Bp.posterior [,,S])
 
 ```
 
+There is a clear convergence of the diagonal of each matrix towards one. The other elements in these matrices are also approaching zero. We have enough evidence to see that the algorithm is able to estimate the random walk process. 
+
+### Estimation of the Basic Model
+
+We now repeat the same steps above to estimate the $B_0$ and $B_+$ matrices for the basic model. 
 
 ```{r Building matrices Y and X from the actual data for evaluating the Bayesian SVAR model}
 
@@ -1042,3 +1054,23 @@ print("Basic Model B plus matrix")
 print(Bp.posterior [,,S])
 
 ```
+
+```{r}
+
+# Loop through each row of Bp.posterior
+for (i in 1:nrow(Bp.posterior)) {
+  # Create a new figure for each row
+  par(mfrow = c(2, 2))
+  
+  # Divide each element of the row by the corresponding diagonal element of B0.posterior
+  normalized_row <- Bp.posterior[i, ] / diag(B0.posterior)[i]
+  
+  # Plot each normalized value over time
+  for (j in 1:length(normalized_row)) {
+    plot(normalized_row[j], type = "b", main = paste("Row", i, ", Column", j), xlab = "Time", ylab = "Normalized Value")
+  }
+}
+
+```
+
+
