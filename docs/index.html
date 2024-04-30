@@ -689,19 +689,43 @@ B_0 Y_t = b_0 + B_1 Y_{t-1} + \dots + B_p Y_{t-p} + u_t
 </section>
 <section id="step-1-formulating-the-kernel-of-the-likelihood-function" class="level3">
 <h3 class="anchored" data-anchor-id="step-1-formulating-the-kernel-of-the-likelihood-function">Step 1: Formulating the Kernel of the Likelihood Function</h3>
-<p>With the error term ( u_t N(0, I_N) ), the likelihood function’s kernel, incorporating the variance parameter ( ), becomes: <span class="math display">\[
-L(B^+; B_0 \mid Y; X, \Lambda) = \lvert \text{det}(B_0) \rvert^T \exp\left(-\frac{1}{2\Lambda} \sum_{n=1}^N \|b_n V_n Y - B_n X\|^2\right)
-\]</span></p>
-<p>Here, the sum ( |b_n V_n Y - B_n X|^2 ) denotes the squared residuals for each equation in the model, weighted by ( ), reflecting the variance of the error terms.</p>
+<p>With the error term <span class="math inline">\(u_t \sim N(0, \Lambda I_N)\)</span>, the likelihood function’s kernel, incorporating the variance parameter <span class="math inline">\(\Lambda\)</span>, becomes: $$ (B_0)^T (- _{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T)</p>
+<p>$$</p>
+<p>Here, the sum <span class="math inline">\(\|b_n V_n Y - B_n X\|^2\)</span> denotes the squared residuals for each equation in the model, weighted by <span class="math inline">\(\frac{1}{2\lambda}\)</span>, reflecting the variance of the error terms.</p>
 </section>
 <section id="step-2-integrating-over" class="level3">
 <h3 class="anchored" data-anchor-id="step-2-integrating-over">Step 2: Integrating Over ( )</h3>
-<p>Since ( ) is a random variable following ( IG2(, ) ), its effect must be integrated over its distribution. The density function for ( ) is: <span class="math display">\[
-p(\Lambda) = \frac{(\nu/2)^{\nu/2}}{\Gamma(\nu/2)} \Lambda^{-(\nu/2+1)} \exp\left(-\frac{\nu}{2\Lambda}\right)
+<p>Since <span class="math inline">\(\Lambda\)</span> is a random variable following <span class="math inline">\(\lambda \sim IG2(\nu, \nu)\)</span>, its effect must be integrated over its distribution. The density function for <span class="math inline">\(\lambda\)</span> is: <span class="math display">\[
+p(\lambda) = \frac{(\nu/2)^{\nu/2}}{\Gamma(\nu/2)} \lambda^{-(\nu/2+1)} \exp\left(-\frac{\nu}{2\lambda}\right)
 \]</span></p>
-<p>The overall likelihood, integrating out ( ), becomes: <span class="math display">\[
-p(Y \mid X, B^+, B_0) = \int \lvert \text{det}(B_0) \rvert^T \exp\left(-\frac{1}{2\Lambda} \sum_{n=1}^N \|b_n V_n Y - B_n X\|^2\right) p(\Lambda) \, d\Lambda
+<p>The overall likelihood, integrating out <span class="math inline">\(\lambda\)</span>, becomes: $$ p(Y X, B^+, B_0) = (B_0)^T (- _{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T) p() , d</p>
+<p>$$</p>
+<p>To evaluate the integral, we need to combine and simplify the terms inside the exponential function, then integrate with respect to <span class="math inline">\(\lambda\)</span>. Let’s simplify the expression inside the integral first:</p>
+<p><span class="math display">\[
+\frac{1}{2\lambda} \sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \frac{\nu}{2\lambda} = \frac{1}{2\lambda} \left(\sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \nu\right)
 \]</span></p>
+<p>Now, we can rewrite the integral as:</p>
+<p><span class="math display">\[
+\int \lambda^{-(\nu/2+1)} \exp\left(-\frac{1}{2\lambda} \left(\sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \nu\right)\right) \, d\lambda
+\]</span></p>
+<p>Certainly! Let’s incorporate the gamma function into the solution provided:</p>
+<p><span class="math display">\[
+\int x^{n}e^{cx}\,dx = e^{cx} \sum_{i=0}^{n} (-1)^{i} \frac{n!}{i!c^{i+1}}x^{n-i}
+\]</span></p>
+<p>We’ll substitute the values of <span class="math inline">\(x\)</span>, <span class="math inline">\(n\)</span>, and <span class="math inline">\(c\)</span> according to the integral we’re trying to solve:</p>
+<ol type="1">
+<li><span class="math inline">\(x\)</span> corresponds to <span class="math inline">\(\frac{1}{\lambda}\)</span></li>
+<li><span class="math inline">\(n\)</span> corresponds to <span class="math inline">\(-(\nu/2 + 1)\)</span></li>
+<li><span class="math inline">\(c\)</span> corresponds to <span class="math inline">\(-\frac{1}{2} \left(\sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \nu\right)\)</span></li>
+</ol>
+<p>Using the gamma function identity <span class="math inline">\(n! = \Gamma(n+1)\)</span>, we get:</p>
+<p><span class="math display">\[
+\int \lambda^{-(\nu/2+1)} \exp\left(-\frac{1}{2\lambda} \left(\sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \nu\right)\right) \, d\lambda
+\]</span></p>
+<p><span class="math display">\[
+= \exp\left(-\frac{1}{2} \left(\sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \nu\right)\right) \sum_{i=0}^{-(\nu/2 + 1)} (-1)^{i} \frac{\Gamma(-(ν/2 + 1) + 1)}{\Gamma(i+1) \left(-\frac{1}{2} \left(\sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \nu\right)\right)^{i+1}} \lambda^{i}
+\]</span></p>
+<p>This expression represents the integral in terms of the gamma function. If you have any further questions or need additional assistance, feel free to ask!</p>
 </section>
 <section id="step-3-evaluating-the-kernel" class="level3">
 <h3 class="anchored" data-anchor-id="step-3-evaluating-the-kernel">Step 3: Evaluating the Kernel</h3>
