@@ -161,7 +161,7 @@ window.Quarto = {
   <li><a href="#estimation-of-the-basic-model" id="toc-estimation-of-the-basic-model" class="nav-link" data-scroll-target="#estimation-of-the-basic-model">Estimation of the Basic Model</a></li>
   <li><a href="#model-extension-solving-the-identification-problem-using-a-non-normality-approach" id="toc-model-extension-solving-the-identification-problem-using-a-non-normality-approach" class="nav-link" data-scroll-target="#model-extension-solving-the-identification-problem-using-a-non-normality-approach">Model Extension: Solving the Identification Problem Using a Non-Normality Approach</a></li>
   <li><a href="#step-1-formulating-the-kernel-of-the-likelihood-function" id="toc-step-1-formulating-the-kernel-of-the-likelihood-function" class="nav-link" data-scroll-target="#step-1-formulating-the-kernel-of-the-likelihood-function">Step 1: Formulating the Kernel of the Likelihood Function</a></li>
-  <li><a href="#step-2-integrating-over" id="toc-step-2-integrating-over" class="nav-link" data-scroll-target="#step-2-integrating-over">Step 2: Integrating Over ( )</a></li>
+  <li><a href="#step-2-estimate-lambda" id="toc-step-2-estimate-lambda" class="nav-link" data-scroll-target="#step-2-estimate-lambda">Step 2: Estimate <span class="math inline">\(\lambda\)</span></a></li>
   <li><a href="#step-3-evaluating-the-kernel" id="toc-step-3-evaluating-the-kernel" class="nav-link" data-scroll-target="#step-3-evaluating-the-kernel">Step 3: Evaluating the Kernel</a></li>
   <li><a href="#step-4-combining-with-the-prior" id="toc-step-4-combining-with-the-prior" class="nav-link" data-scroll-target="#step-4-combining-with-the-prior">Step 4: Combining with the Prior</a></li>
   <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
@@ -284,7 +284,7 @@ Figure&nbsp;2: ACF and PACF functions for the CPI rate
 </div>
 </div>
 </div>
-<p>From <a href="#fig-CPI" class="quarto-xref">Figure&nbsp;2</a>, an augmented DF test was conducted with 3 lags. Note that the augmented DF test (see appendix) suggests that the series is not stationary at the 95% confidence level. There was a need to take the difference of the series.</p>
+<p>From <a href="#fig-CPI" class="quarto-xref">Figure&nbsp;2</a>, an augmented DF test was conducted with 3 lags. Note that the augmented DF test suggests that the series is not stationary at the 95% confidence level. There was a need to take the difference of the series.</p>
 <p>The third series, the Australian unemployment rate, is from the Reserve Bank of Australia (RBA) output and labour Statistical tables <span class="citation" data-cites="RBA2024c">(<a href="#ref-RBA2024c" role="doc-biblioref">Reserve Bank of Australia 2024b</a>)</span>. This is a monthly series. The series was converted into a quarterly series by choosing the relevant months for the beginning of each quarter, starting from March and ending with December.</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -541,14 +541,34 @@ B_0 Y_t = b_0 + B_1 Y_{t-1} + \dots + B_p Y_{t-p} + u_t
 <p>The model uses a Normal-generalized-normal (NGN) distribution approach for the priors. The likelihood and priors are combined to form the posterior distributions, which are sampled using Gibbs sampling.</p>
 <p>Natural-Conjugate Prior</p>
 <p>The NGN distribution as a natural-conjugate prior:</p>
-<p><span class="math inline">\(p(B_+, B_0) \sim NGN \left( B, \Omega, S, \nu \right)\)</span></p>
-<p><span class="math inline">\(p(B_+, B_0) = \prod_{n=1}^N p(B_n \mid b_n) \cdot p(b_1, \ldots, b_N)\)</span></p>
-<p><span class="math inline">\(p(B_n \mid b_n) \sim N_K \left( b_n V_n B, \Omega \right)\)</span></p>
-<p><span class="math inline">\(p(b_1, \ldots, b_N) \propto \left| \det(B_0) \right|^{\nu-N} \exp \left( -\frac{1}{2} \sum_{n=1}^N b_n V_n S^{-1} V_n' b_n' \right)\)</span></p>
+<p><span class="math display">\[
+p(B_+, B_0) \sim NGN \left( B, \Omega, S, \nu \right)
+\]</span></p>
+<p><span class="math display">\[p(B_+, B_0) = \prod_{n=1}^N p(B_n \mid b_n) \cdot p(b_1, \ldots, b_N)
+\]</span></p>
+<p><span class="math display">\[p(B_n \mid b_n) \sim N_K \left( b_n V_n B, \Omega \right)
+\]</span></p>
+<p><span class="math display">\[p(b_1, \ldots, b_N) \propto \left| \det(B_0) \right|^{\nu-N} \exp \left( -\frac{1}{2} \sum_{n=1}^N b_n V_n S^{-1} V_n' b_n' \right)
+\]</span></p>
 <p>Posterior Distribution</p>
 <p>Combining the likelihood and the prior, the posterior distribution:</p>
-<p><span class="math inline">\(p(B_+, B_0 \mid Y, X) \propto L(B_+, B_0 \mid Y, X) \cdot p(B_+, B_0)\)</span></p>
-<p><span class="math inline">\(= \left| \det (B_0) \right|^{T+\nu-N} \exp \left( -\frac{1}{2} \sum_{n=1}^N \left( b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n' + b_n V_n S^{-1} V_n' b_n' + B_n \Omega^{-1} B_n' - 2 b_n V_n B \Omega^{-1} B_n' + b_n V_n B \Omega^{-1} B' V_n' b_n' \right) \right)\)</span></p>
+<p><span class="math display">\[p(B_+, B_0 \mid Y, X) \propto L(B_+, B_0 \mid Y, X) \cdot p(B_+, B_0)
+\]</span></p>
+<p><span class="math display">\[= \left| \det (B_0) \right|^{T+\nu-N} \exp \left( -\frac{1}{2} \sum_{n=1}^N \left( b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n' + b_n V_n S^{-1} V_n' b_n' + B_n \Omega^{-1} B_n' - 2 b_n V_n B \Omega^{-1} B_n' + b_n V_n B \Omega^{-1} B' V_n' b_n' \right) \right)
+\]</span></p>
+<p>The resulting posterior parameters are as follow:</p>
+<p><span class="math display">\[
+\bar{\Omega} = [XX^T+\underline{{\Omega}} \ ]^{-1}
+\]</span></p>
+<p><span class="math display">\[
+\bar{B} = [YX^T+\underline{B{\Omega}}^{-1}]\bar{\Omega}
+\]</span></p>
+<p><span class="math display">\[
+\bar{S} = [YY^T+\underline{S}^{-1}+ \underline{B{\Omega}}^{-1} \underline{B}^T - \overline{B{\Omega}}^{-1} \bar{B}]^{-1}
+\]</span> <span class="math display">\[
+\bar{\nu} = T + \underline{\nu}
+\]</span></p>
+<p>Using these formulas we can proceed to sample using the Gibbs sampling procedure.</p>
 </section>
 <section id="gibbs-sampling-procedure" class="level4">
 <h4 class="anchored" data-anchor-id="gibbs-sampling-procedure">Gibbs Sampling Procedure</h4>
@@ -633,114 +653,184 @@ B_0 Y_t = b_0 + B_1 Y_{t-1} + \dots + B_p Y_{t-p} + u_t
 [1,] -0.08736644  1.22749865 -0.002376837 -0.001360159 -0.0014801146
 [2,]  0.04812512 -0.06053591  0.917589065 -0.003300724  0.0004486878
 [3,] -0.07199967 -0.17129269  0.094137906  1.225032754 -0.0013866685
-[4,]  0.05447919  0.05359146  0.099411835 -0.030951865  0.6872969645
+[4,]  0.04013597 -0.05090140 -0.099881502  0.027274940 -0.6859252108
               [,6]        [,7]          [,8]          [,9]         [,10]
-[1,]  0.0009049469 0.002526868 -0.0004314345 -0.0008466020 -0.0009794975
-[2,] -0.0013646037 0.001316001 -0.0007518051  0.0007192185  0.0013216803
-[3,]  0.0013643983 0.002825796 -0.0014626216 -0.0022497776  0.0011948252
-[4,] -0.0013702038 0.002519200  0.0001413676  0.0005680072  0.0005325945
+[1,]  0.0009049469 0.002526868 -4.314345e-04 -0.0008466020 -0.0009794975
+[2,] -0.0013646037 0.001316001 -7.518051e-04  0.0007192185  0.0013216803
+[3,]  0.0013643983 0.002825796 -1.462622e-03 -0.0022497776  0.0011948252
+[4,] -0.0013918167 0.002360347 -6.133114e-05  0.0009591175  0.0005233422
              [,11]         [,12]         [,13]         [,14]         [,15]
 [1,]  0.0005425004 -5.542675e-05 -0.0017672649 -0.0019252703  3.937992e-06
 [2,]  0.0008030951  3.958974e-04 -0.0023191424  0.0006119985 -7.731205e-04
 [3,]  0.0011756397  5.724450e-04  0.0007177969  0.0013306382  1.018329e-04
-[4,] -0.0011965350  2.468174e-03  0.0004529472  0.0005696547 -6.196382e-05
+[4,] -0.0012674423  2.390591e-03  0.0006374780  0.0005645834 -1.058985e-04
              [,16]         [,17]         [,18]         [,19]         [,20]
 [1,] -4.347729e-04 -0.0001783017  0.0007034049  0.0003119403  0.0001076374
 [2,]  1.516231e-03 -0.0009581067 -0.0013796725 -0.0011449974 -0.0004866302
 [3,] -7.809298e-04  0.0006577612 -0.0006787151  0.0005455504  0.0000752369
-[4,] -5.924567e-05 -0.0017827596  0.0008603604 -0.0002575117 -0.0004105775
+[4,] -8.861679e-05 -0.0016940420  0.0008572115 -0.0002895783 -0.0004203787
              [,21]         [,22]         [,23]         [,24]        [,25]
-[1,] -0.0003018540  0.0001553881  3.114492e-04 -4.884049e-04 0.0003895038
-[2,]  0.0007754009 -0.0010340027 -8.247198e-05  5.230640e-04 0.0003492209
-[3,] -0.0002218670 -0.0010492016  6.794971e-04  5.744298e-04 0.0002869154
-[4,]  0.0001976096  0.0002346118 -9.115779e-05 -7.995834e-05 0.0013277688
+[1,] -0.0003018540  0.0001553881  3.114492e-04 -0.0004884049 0.0003895038
+[2,]  0.0007754009 -0.0010340027 -8.247198e-05  0.0005230640 0.0003492209
+[3,] -0.0002218670 -0.0010492016  6.794971e-04  0.0005744298 0.0002869154
+[4,]  0.0002056348  0.0002323375 -1.133325e-04 -0.0000824881 0.0013335106
              [,26]         [,27]         [,28]         [,29]         [,30]
 [1,]  0.0003885830  1.722057e-04 -5.823078e-04 -3.482132e-04 -1.788455e-04
 [2,]  0.0007508709 -3.059282e-06 -5.413324e-05  8.949184e-05  7.910030e-04
 [3,] -0.0005292040  7.411044e-04  4.312677e-05 -6.606135e-04  1.820716e-04
-[4,] -0.0003371392  5.285013e-04  1.113337e-04  3.280026e-04  5.813287e-05
+[4,] -0.0003387761  5.124873e-04  1.109870e-04  3.297719e-04  5.695769e-05
              [,31]         [,32]         [,33]         [,34]        [,35]
 [1,]  7.998501e-05 -1.554459e-04  3.303393e-04 -0.0001680234 0.0003257592
 [2,] -2.952582e-05  9.842868e-04 -6.185118e-04  0.0002264622 0.0001682155
 [3,]  1.192465e-04 -6.650047e-05  3.549999e-04  0.0002780062 0.0002405171
-[4,]  4.568473e-04 -1.245429e-05  5.866712e-05 -0.0007789159 0.0001590909
+[4,]  4.486394e-04 -1.215970e-05  6.033762e-05 -0.0007799117 0.0001553400
              [,36]         [,37]         [,38]         [,39]         [,40]
 [1,] -0.0002750264  5.925168e-05  4.331628e-04 -4.063722e-05 -0.0004504740
 [2,] -0.0000840907  6.361974e-04  4.883841e-05 -9.028920e-04  0.0003173294
 [3,]  0.0004076640  4.162658e-04 -4.722503e-04 -1.740188e-04  0.0004703427
-[4,]  0.0004128482 -1.000938e-04 -3.897022e-04 -3.396386e-04 -0.0005508719
+[4,]  0.0004136882 -9.874533e-05 -3.905337e-04 -3.406846e-04 -0.0005496640
              [,41]         [,42]         [,43]         [,44]         [,45]
 [1,]  0.0006085755  5.961227e-05 -6.922297e-05  0.0003518724 -0.0002035960
 [2,]  0.0001501598 -2.841354e-05  3.929063e-04  0.0001774182  0.0001845382
 [3,] -0.0007594066  2.015453e-04 -2.384927e-04  0.0002493386  0.0002995293
-[4,]  0.0008072002 -4.079790e-04  4.129699e-05 -0.0001958775  0.0001289826
+[4,]  0.0008048538 -4.086019e-04  4.034069e-05 -0.0001941379  0.0001275648
              [,46]         [,47]         [,48]         [,49]
 [1,]  0.0001670222 -0.0003358597  8.687213e-05  0.0003031896
 [2,] -0.0003401406  0.0005881921 -1.364651e-04  0.0001160825
 [3,]  0.0002754252  0.0001643305 -1.979167e-05 -0.0005738758
-[4,] -0.0002357547 -0.0003933606  4.891288e-04 -0.0004066022</code></pre>
+[4,] -0.0002361950 -0.0003956466  4.907073e-04 -0.0004087817</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/plots for the basic model-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
 </div>
 </div>
 </section>
 <section id="model-extension-solving-the-identification-problem-using-a-non-normality-approach" class="level3">
 <h3 class="anchored" data-anchor-id="model-extension-solving-the-identification-problem-using-a-non-normality-approach">Model Extension: Solving the Identification Problem Using a Non-Normality Approach</h3>
 <p>We use a t-distribution to model the error terms. Given difficulties with a direct estimation of the t-distribution, we proceed as follows.</p>
-<p>To evaluate the overall kernel for the extended Bayesian Structural Vector Autoregression (SVAR) model where the error term ( u_t ) follows a distribution ( N(0, I_N) ) and ( ) itself is distributed according to an Inverse Gamma Type 2 (IG2) with parameters ( , ), we need to account for the complexity added by this distribution of the error variance. This changes how the kernel of the likelihood function is formulated and combined with the prior.</p>
+<p>To evaluate the overall kernel for the extended Bayesian Structural Vector Autoregression (SVAR) model where the error term <span class="math inline">\(u_t\)</span> follows a distribution <span class="math inline">\(N(0, \Lambda I_N)\)</span> and <span class="math inline">\(\Lambda\)</span> itself is distributed according to an Inverse Gamma Type 2 (IG2) with parameters <span class="math inline">\(\nu, \nu\)</span>, we need to account for the complexity added by this distribution of the error variance. This changes how the kernel of the likelihood function is formulated and combined with the prior.</p>
 </section>
 <section id="step-1-formulating-the-kernel-of-the-likelihood-function" class="level3">
 <h3 class="anchored" data-anchor-id="step-1-formulating-the-kernel-of-the-likelihood-function">Step 1: Formulating the Kernel of the Likelihood Function</h3>
-<p>With the error term <span class="math inline">\(u_t \sim N(0, \Lambda I_N)\)</span>, the likelihood function’s kernel, incorporating the variance parameter <span class="math inline">\(\Lambda\)</span>, becomes: $$ (B_0)^T (- _{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T)</p>
-<p>$$</p>
-<p>Here, the sum <span class="math inline">\(\|b_n V_n Y - B_n X\|^2\)</span> denotes the squared residuals for each equation in the model, weighted by <span class="math inline">\(\frac{1}{2\lambda}\)</span>, reflecting the variance of the error terms.</p>
+<p>With the error term <span class="math inline">\(u_t \sim N(0, \Lambda I_N)\)</span>, the likelihood function’s kernel, incorporating the variance parameter <span class="math inline">\(\Lambda\)</span>, becomes: <span class="math display">\[
+\text{det}(B_0)^T \exp\left(-\frac{1}{2\lambda} \sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T\right)
+\]</span></p>
 </section>
-<section id="step-2-integrating-over" class="level3">
-<h3 class="anchored" data-anchor-id="step-2-integrating-over">Step 2: Integrating Over ( )</h3>
-<p>Since <span class="math inline">\(\Lambda\)</span> is a random variable following <span class="math inline">\(\lambda \sim IG2(\nu, \nu)\)</span>, its effect must be integrated over its distribution. The density function for <span class="math inline">\(\lambda\)</span> is: <span class="math display">\[
+<section id="step-2-estimate-lambda" class="level3">
+<h3 class="anchored" data-anchor-id="step-2-estimate-lambda">Step 2: Estimate <span class="math inline">\(\lambda\)</span></h3>
+<p>Since <span class="math inline">\(\Lambda\)</span> is a random variable following <span class="math inline">\(\lambda \sim IG2(\nu, \nu)\)</span>, its effect can be sampled from the density function for <span class="math inline">\(\lambda\)</span>: <span class="math display">\[
 p(\lambda) = \frac{(\nu/2)^{\nu/2}}{\Gamma(\nu/2)} \lambda^{-(\nu/2+1)} \exp\left(-\frac{\nu}{2\lambda}\right)
 \]</span></p>
-<p>The overall likelihood, integrating out <span class="math inline">\(\lambda\)</span>, becomes: $$ p(Y X, B^+, B_0) = (B_0)^T (- _{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T) p() , d</p>
-<p>$$</p>
-<p>To evaluate the integral, we need to combine and simplify the terms inside the exponential function, then integrate with respect to <span class="math inline">\(\lambda\)</span>. Let’s simplify the expression inside the integral first:</p>
-<p><span class="math display">\[
-\frac{1}{2\lambda} \sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \frac{\nu}{2\lambda} = \frac{1}{2\lambda} \left(\sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \nu\right)
-\]</span></p>
-<p>Now, we can rewrite the integral as:</p>
-<p><span class="math display">\[
-\int \lambda^{-(\nu/2+1)} \exp\left(-\frac{1}{2\lambda} \left(\sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \nu\right)\right) \, d\lambda
-\]</span></p>
-<p>Certainly! Let’s incorporate the gamma function into the solution provided:</p>
-<p><span class="math display">\[
-\int x^{n}e^{cx}\,dx = e^{cx} \sum_{i=0}^{n} (-1)^{i} \frac{n!}{i!c^{i+1}}x^{n-i}
-\]</span></p>
-<p>We’ll substitute the values of <span class="math inline">\(x\)</span>, <span class="math inline">\(n\)</span>, and <span class="math inline">\(c\)</span> according to the integral we’re trying to solve:</p>
-<ol type="1">
-<li><span class="math inline">\(x\)</span> corresponds to <span class="math inline">\(\frac{1}{\lambda}\)</span></li>
-<li><span class="math inline">\(n\)</span> corresponds to <span class="math inline">\(-(\nu/2 + 1)\)</span></li>
-<li><span class="math inline">\(c\)</span> corresponds to <span class="math inline">\(-\frac{1}{2} \left(\sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \nu\right)\)</span></li>
-</ol>
-<p>Using the gamma function identity <span class="math inline">\(n! = \Gamma(n+1)\)</span>, we get:</p>
-<p><span class="math display">\[
-\int \lambda^{-(\nu/2+1)} \exp\left(-\frac{1}{2\lambda} \left(\sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \nu\right)\right) \, d\lambda
-\]</span></p>
-<p><span class="math display">\[
-= \exp\left(-\frac{1}{2} \left(\sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \nu\right)\right) \sum_{i=0}^{-(\nu/2 + 1)} (-1)^{i} \frac{\Gamma(-(ν/2 + 1) + 1)}{\Gamma(i+1) \left(-\frac{1}{2} \left(\sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \nu\right)\right)^{i+1}} \lambda^{i}
-\]</span></p>
-<p>This expression represents the integral in terms of the gamma function. If you have any further questions or need additional assistance, feel free to ask!</p>
+<p>We can use the rinvgamma() function to sample this <span class="math inline">\(\lambda\)</span>.</p>
 </section>
 <section id="step-3-evaluating-the-kernel" class="level3">
 <h3 class="anchored" data-anchor-id="step-3-evaluating-the-kernel">Step 3: Evaluating the Kernel</h3>
-<p>To evaluate the overall kernel, we can simplify or estimate this integral, which is non-trivial in analytic terms due to the complexity of integrating over an inverse gamma distribution and an exponential function of ( ). This integral typically requires numerical methods or approximations like Laplace approximation or numerical integration.</p>
+<p>To evaluate the overall kernel, we can simplify as for the basic model.</p>
 </section>
 <section id="step-4-combining-with-the-prior" class="level3">
 <h3 class="anchored" data-anchor-id="step-4-combining-with-the-prior">Step 4: Combining with the Prior</h3>
-<p>Assuming the prior ( p(B^+; B_0) ) as given or formulated according to specific assumptions (such as independence, Gaussian priors for coefficients, etc.), the full posterior kernel combining this likelihood with the prior can be approached as: <span class="math display">\[
+<p>Assuming the prior <span class="math inline">\(p(B^+; B_0)\)</span> as given or formulated according to specific assumptions (such as independence, Gaussian priors for coefficients, etc.), the full posterior kernel combining this likelihood with the prior can be approached as: <span class="math display">\[
 p(B^+; B_0 \mid Y; X) \propto p(Y \mid X, B^+, B_0) \times p(B^+; B_0)
 \]</span></p>
-<p>This expression must often be evaluated or sampled using computational Bayesian techniques, such as Markov Chain Monte Carlo (MCMC), especially given the integrative step required for ( ).</p>
+<p>This expression must often be evaluated or sampled using computational Bayesian techniques, such as Markov Chain Monte Carlo (MCMC), especially given the integrative step required for <span class="math inline">\(\Lambda\)</span>.</p>
+<p>We can obtain the following posterior formulas similar to the basic model:</p>
+<p><span class="math display">\[
+\bar{\Omega} = [\lambda^{-1} XX^T+\underline{{\Omega}} \ ]^{-1}
+\]</span></p>
+<p><span class="math display">\[
+\bar{B} = [\lambda^{-1} YX^T+\underline{B{\Omega}}^{-1}]\bar{\Omega}
+\]</span></p>
+<p><span class="math display">\[
+\bar{S} = [\lambda^{-1} YY^T+\underline{S}^{-1}+ \underline{B{\Omega}}^{-1} \underline{B}^T - \overline{B{\Omega}}^{-1} \bar{B}]^{-1}
+\]</span> <span class="math display">\[
+\bar{\nu} = T + \underline{\nu}
+\]</span></p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Extended Model Normalized B0 matrix"</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            [,1]        [,2]      [,3]      [,4]
+[1,]  1.23671364  0.00000000 0.0000000 0.0000000
+[2,] -0.06684676  0.59146906 0.0000000 0.0000000
+[3,]  0.07778342 -0.06320132 1.0625074 0.0000000
+[4,] -0.04128222  0.14516849 0.1015246 0.4508627</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Extended Model B plus matrix"</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             [,1]        [,2]         [,3]         [,4]         [,5]
+[1,]  0.025843533 -1.23285866  0.003757373 -0.003599162 -0.005038932
+[2,] -0.032398997 -0.06920134  0.588789294  0.003033754 -0.004991533
+[3,] -0.002787348  0.08003441 -0.068322367  1.057937355 -0.004317479
+[4,] -0.024912759  0.03825958 -0.140285171 -0.102374406 -0.452696521
+              [,6]          [,7]          [,8]         [,9]         [,10]
+[1,] -0.0005900722 -0.0017163752  0.0027553749 -0.001569005 -0.0004506002
+[2,] -0.0005238204 -0.0051036988 -0.0004855013  0.001605579 -0.0008161398
+[3,] -0.0016028479 -0.0026974174 -0.0007548811 -0.001819972  0.0025299712
+[4,]  0.0012057690 -0.0008025538 -0.0006131040  0.002845041 -0.0004345090
+             [,11]         [,12]         [,13]        [,14]         [,15]
+[1,] -0.0010031483  0.0003184468 -0.0025085581 0.0003625656  8.445831e-04
+[2,]  0.0007320619 -0.0003139674 -0.0006162410 0.0004606769 -4.094583e-04
+[3,]  0.0011255875 -0.0005427482 -0.0005945881 0.0010149752 -3.413625e-05
+[4,]  0.0006269503  0.0006953212  0.0010403460 0.0018114516  4.320131e-04
+             [,16]         [,17]         [,18]        [,19]         [,20]
+[1,] -0.0002055260 -0.0003768289 -0.0004763661 0.0008137890  0.0003665066
+[2,] -0.0003120073 -0.0006106489 -0.0008948362 0.0012176351 -0.0005812526
+[3,]  0.0001280074 -0.0021109049  0.0003911862 0.0002250985  0.0013127832
+[4,]  0.0009069446  0.0018125973  0.0009283580 0.0004470949 -0.0008683325
+             [,21]         [,22]         [,23]         [,24]         [,25]
+[1,]  1.874935e-04  0.0011681359 -0.0007079834 -6.654363e-04  1.999179e-04
+[2,] -9.193179e-04 -0.0006906959 -0.0006009694  8.793945e-04  2.489727e-05
+[3,] -5.459267e-04 -0.0002316423  0.0009327188  8.236644e-05 -5.222992e-04
+[4,]  4.186868e-05 -0.0001840698 -0.0002145646 -5.903758e-04  9.191310e-05
+             [,26]         [,27]        [,28]         [,29]        [,30]
+[1,]  0.0006694042  2.276871e-04 0.0005821733 -4.140171e-05 0.0007223565
+[2,]  0.0004410041  6.960747e-05 0.0001888880  3.383834e-04 0.0001659743
+[3,] -0.0001755954 -9.419867e-05 0.0006796536 -6.188448e-04 0.0001617832
+[4,]  0.0005863359 -1.112709e-04 0.0014872709  5.146340e-05 0.0002003474
+             [,31]         [,32]         [,33]         [,34]         [,35]
+[1,] -1.848310e-04 -1.855948e-05 -1.936351e-04 -0.0004831043 -4.810261e-04
+[2,]  3.528730e-04  8.505904e-05 -1.353836e-04  0.0003656920 -2.417389e-04
+[3,]  3.682482e-04 -3.234184e-05  2.083845e-04 -0.0003361754  1.342311e-05
+[4,] -3.952199e-05  6.801520e-05 -7.078554e-05 -0.0003271451  1.552833e-04
+            [,36]         [,37]         [,38]         [,39]         [,40]
+[1,] 3.116683e-04 -0.0001851759  1.729434e-04 -0.0001318103 -0.0003017738
+[2,] 3.459682e-04  0.0001954932  5.684385e-05 -0.0007248738 -0.0001049531
+[3,] 5.482025e-05  0.0001138598 -2.543129e-04 -0.0004290577 -0.0002373132
+[4,] 5.685231e-04  0.0000860827 -6.586964e-04  0.0002836727 -0.0001493065
+             [,41]         [,42]         [,43]         [,44]         [,45]
+[1,]  1.277809e-04 -1.496545e-04  3.932271e-05 -0.0002841995 -4.930886e-04
+[2,]  6.273405e-04  4.088505e-04 -4.081631e-04  0.0004160789  3.548929e-04
+[3,] -2.967923e-04  2.718493e-04  8.592744e-05  0.0004179156  1.384770e-04
+[4,]  1.425371e-05  8.778849e-05 -4.717553e-04  0.0001340874  7.800108e-05
+             [,46]         [,47]         [,48]         [,49]
+[1,]  2.666074e-04 -2.172216e-04  2.966226e-04  2.163125e-05
+[2,]  1.536845e-04  2.890959e-05 -6.081141e-06  2.022958e-04
+[3,] -2.112102e-04 -2.837617e-04 -3.889622e-04 -1.763281e-04
+[4,]  3.488409e-05  3.742970e-05 -7.162871e-05 -1.167578e-04</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/plots for the extended model-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="conclusion" class="level3">
 <h3 class="anchored" data-anchor-id="conclusion">Conclusion</h3>
-<p>The overall kernel for this extended model encapsulates significant complexity due to the random variance ( ) and its integration. Practical implementation would leverage computational methods to handle these integrations and to sample from the posterior distributions effectively, acknowledging the complex dependencies introduced by the variable error variance in economic or financial time series modeling. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.</p>
+<p>The overall kernel for this extended model encapsulates to the random variance <span class="math inline">\(\Lambda\)</span>. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.</p>
 
 
 

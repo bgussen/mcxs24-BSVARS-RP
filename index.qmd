@@ -97,7 +97,7 @@ library(BVAR)
 library(MASS)           # For multivariate normal distributions
 library(sn)             # For skew-normal and generalized normal distributions
 library(parallel) 
-
+library(actuar)         # For sampling for an inverse gamma distribution
 ```
 
 ```{r GDP growth rate}
@@ -193,7 +193,7 @@ adf_test_result <- ur.df(CPI_rate$value, type = "drift", lags = 4, selectlags = 
 
 ```
 
-From @fig-CPI, an augmented DF test was conducted with 3 lags. Note that the augmented DF test (see appendix) suggests that the series is not stationary at the 95% confidence level. There was a need to take the difference of the series.
+From @fig-CPI, an augmented DF test was conducted with 3 lags. Note that the augmented DF test suggests that the series is not stationary at the 95% confidence level. There was a need to take the difference of the series.
 
 The third series, the Australian unemployment rate, is from the Reserve Bank of Australia (RBA) output and labour Statistical tables [@RBA2024c]. This is  a monthly series. The series was converted into a quarterly series by choosing the relevant months for the beginning of each quarter, starting from March and ending with December. 
 
@@ -563,7 +563,14 @@ $\sum_{n=1}^N \left( b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n
 
 And further: 
 
-$b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n' = b_n V_n \left( Y Y' - Y X' (X X')^{-1} X Y' \right) V_n' b_n' + (B_n - b_n V_n \hat{A}) (X X') (B_n - b_n V_n \hat{A})'$
+$$
+
+\begin{aligned}
+    b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n' &= b_n V_n \left( Y Y' - Y X' (X X')^{-1} X Y' \right) V_n' b_n' \\
+    &\quad + (B_n - b_n V_n \hat{A}) (X X') (B_n - b_n V_n \hat{A})'
+\end{aligned}
+
+$$
 
 where $\hat{A} = YX' (XX')^{-1}$.
 
@@ -581,21 +588,52 @@ Natural-Conjugate Prior
 
 The NGN distribution as a natural-conjugate prior:
 
-$p(B_+, B_0) \sim NGN \left( B, \Omega, S, \nu \right)$
+$$
+p(B_+, B_0) \sim NGN \left( B, \Omega, S, \nu \right)
+$$
 
-$p(B_+, B_0) = \prod_{n=1}^N p(B_n \mid b_n) \cdot p(b_1, \ldots, b_N)$
+$$p(B_+, B_0) = \prod_{n=1}^N p(B_n \mid b_n) \cdot p(b_1, \ldots, b_N)
+$$
 
-$p(B_n \mid b_n) \sim N_K \left( b_n V_n B, \Omega \right)$
+$$p(B_n \mid b_n) \sim N_K \left( b_n V_n B, \Omega \right)
+$$
 
-$p(b_1, \ldots, b_N) \propto \left| \det(B_0) \right|^{\nu-N} \exp \left( -\frac{1}{2} \sum_{n=1}^N b_n V_n S^{-1} V_n' b_n' \right)$
+$$p(b_1, \ldots, b_N) \propto \left| \det(B_0) \right|^{\nu-N} \exp \left( -\frac{1}{2} \sum_{n=1}^N b_n V_n S^{-1} V_n' b_n' \right)
+$$
 
 Posterior Distribution
 
 Combining the likelihood and the prior, the posterior distribution:
 
-$p(B_+, B_0 \mid Y, X) \propto L(B_+, B_0 \mid Y, X) \cdot p(B_+, B_0)$
+$$p(B_+, B_0 \mid Y, X) \propto L(B_+, B_0 \mid Y, X) \cdot p(B_+, B_0)
+$$
 
-$= \left| \det (B_0) \right|^{T+\nu-N} \exp \left( -\frac{1}{2} \sum_{n=1}^N \left( b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n' + b_n V_n S^{-1} V_n' b_n' + B_n \Omega^{-1} B_n' - 2 b_n V_n B \Omega^{-1} B_n' + b_n V_n B \Omega^{-1} B' V_n' b_n' \right) \right)$
+$$\begin{align*}
+= \left| \det (B_0) \right|^{T+\nu-N} \exp \Bigg( -\frac{1}{2} \sum_{n=1}^N \Bigg( & b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n' \\
+& + b_n V_n S^{-1} V_n' b_n' + B_n \Omega^{-1} B_n' \\
+& - 2 b_n V_n B \Omega^{-1} B_n' + b_n V_n B \Omega^{-1} B' V_n' b_n'
+\Bigg) \Bigg)
+\end{align*}$$
+
+The resulting posterior parameters are as follow: 
+
+$$
+\bar{\Omega} = [XX^T+\underline{{\Omega}} \ ]^{-1}
+$$
+
+
+$$
+\bar{B} = [YX^T+\underline{B{\Omega}}^{-1}]\bar{\Omega}
+$$
+
+$$
+\bar{S} = [YY^T+\underline{S}^{-1}+ \underline{B{\Omega}}^{-1} \underline{B}^T - \overline{B{\Omega}}^{-1} \bar{B}]^{-1}
+$$
+$$
+\bar{\nu} = T + \underline{\nu} 
+$$
+
+Using these formulas we can proceed to sample using the Gibbs sampling procedure. 
 
 #### Gibbs Sampling Procedure
 Gibbs sampling for this model involves:
@@ -1078,12 +1116,12 @@ B0.posterior        = rgn(n=S, S.inv=solve(S.post), nu=nu.post, V=V_matrices, B0
 
 # normalisation
 B0.hat              = diag(sign(diag(B0.posterior[,,S])))%*%B0.posterior[,,S]
-B0.posterior        = normalize.Gibbs.output.parallel(B0.posterior,B0.hat=B0.hat)
+B0.posterior1        = normalize.Gibbs.output.parallel(B0.posterior,B0.hat=B0.hat)
 
 
 # sample B+ from the normal conditional posterior
 
-Bp.posterior    = rnorm.ngn(B0.posterior, B=B.post,Omega=Omega.post)
+Bp.posterior1    = rnorm.ngn(B0.posterior, B=B.post,Omega=Omega.post)
 
 
 ```
@@ -1091,10 +1129,42 @@ Bp.posterior    = rnorm.ngn(B0.posterior, B=B.post,Omega=Omega.post)
 ```{r Normalization of the B0 matrix for the basic model}
 
 print("Basic Model Normalized B0 matrix")
-print(B0.posterior [,,S])
+print(B0.posterior1 [,,S])
 
 print("Basic Model B plus matrix")
-print(Bp.posterior [,,S])
+print(Bp.posterior1 [,,S])
+
+```
+
+```{r plots for the basic model}
+
+# Define lagged values for each variable
+lagged_values <- seq(2, 46, by = 4)
+
+# Plotting setup
+plot_title <- "Effect of lagged USD_Index on Australian Economic Stability"
+plot(x = NA, y = NA, xlim = c(1, length(lagged_values)), ylim = c(-0.15, 0.15), type = "n", xlab = "Lag Number", ylab = "Effect", main = plot_title)
+
+# Define variable indices and colors for plotting
+variables <- list(inflation = 2, unemployment = 3, gdp = 4)
+colors <- c("blue", "green", "red")
+names(colors) <- names(variables)
+
+# Loop through each variable and plot
+for (var_name in names(variables)) {
+  var_index <- variables[[var_name]]  # Get the correct index for each variable
+  ratio_vector <- numeric(length(lagged_values))  # Initialize vector to store ratio values
+  for (i in seq_along(lagged_values)) {
+    j <- lagged_values[i]
+    # Calculate ratio for the current variable
+    ratio_vector[i] <- Bp.posterior1[var_index, j, S] / B0.posterior1[var_index, var_index, S]
+  }
+  lines(1:length(lagged_values), ratio_vector, col = colors[var_name])  # Plot the accumulated ratios using simple lag numbers
+}
+
+# Add legend
+legend("topright", legend = names(variables), col = colors, lty = 1, title = "Variables")
+
 
 ```
 
@@ -1102,87 +1172,234 @@ print(Bp.posterior [,,S])
 
 We use a t-distribution to model the error terms. Given difficulties with a direct estimation of the t-distribution, we proceed as follows. 
 
-To evaluate the overall kernel for the extended Bayesian Structural Vector Autoregression (SVAR) model where the error term \( u_t \) follows a distribution \( N(0, \Lambda I_N) \) and \( \Lambda \) itself is distributed according to an Inverse Gamma Type 2 (IG2) with parameters \( \nu, \nu \), we need to account for the complexity added by this distribution of the error variance. This changes how the kernel of the likelihood function is formulated and combined with the prior.
+To evaluate the overall kernel for the extended Bayesian Structural Vector Autoregression (SVAR) model where the error term $u_t$ follows a distribution $N(0, \Lambda I_N)$ and $\Lambda$ itself is distributed according to an Inverse Gamma Type 2 (IG2) with parameters $\nu, \nu$, we need to account for the complexity added by this distribution of the error variance. This changes how the kernel of the likelihood function is formulated and combined with the prior.
 
 ### Step 1: Formulating the Kernel of the Likelihood Function
 
 With the error term $u_t \sim N(0, \Lambda I_N)$, the likelihood function's kernel, incorporating the variance parameter $\Lambda$, becomes:
 $$
 \text{det}(B_0)^T \exp\left(-\frac{1}{2\lambda} \sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T\right)
-
 $$
 
-Here, the sum $\|b_n V_n Y - B_n X\|^2$ denotes the squared residuals for each equation in the model, weighted by $\frac{1}{2\lambda}$, reflecting the variance of the error terms.
+### Step 2: Estimate $\lambda$ 
 
-### Step 2: Integrating Over \( \lambda \)
-
-Since $\Lambda$ is a random variable following $\lambda \sim IG2(\nu, \nu)$, its effect must be integrated over its distribution. The density function for $\lambda$ is:
+Since $\Lambda$ is a random variable following $\lambda \sim IG2(\nu, \nu)$, its effect can be sampled from the density function for $\lambda$:
 $$
 p(\lambda) = \frac{(\nu/2)^{\nu/2}}{\Gamma(\nu/2)} \lambda^{-(\nu/2+1)} \exp\left(-\frac{\nu}{2\lambda}\right)
 $$
 
-The overall likelihood, integrating out $\lambda$, becomes:
-$$
-p(Y \mid X, B^+, B_0) = \int \text{det}(B_0)^T \exp\left(-\frac{1}{2\lambda} \sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T\right) p(\lambda) \, d\lambda
-
-$$
-
-To evaluate the integral, we need to combine and simplify the terms inside the exponential function, then integrate with respect to $\lambda$. Let's simplify the expression inside the integral first:
-
-$$
-\frac{1}{2\lambda} \sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \frac{\nu}{2\lambda} = \frac{1}{2\lambda} \left(\sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \nu\right)
-$$
-
-Now, we can rewrite the integral as:
-
-$$
-\int \lambda^{-(\nu/2+1)} \exp\left(-\frac{1}{2\lambda} \left(\sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \nu\right)\right) \, d\lambda
-$$
-
-Certainly! Let's incorporate the gamma function into the solution provided:
-
-$$ 
-\int x^{n}e^{cx}\,dx = e^{cx} \sum_{i=0}^{n} (-1)^{i} \frac{n!}{i!c^{i+1}}x^{n-i}
-$$
-
-We'll substitute the values of $x$, $n$, and $c$ according to the integral we're trying to solve:
-
-1. $x$ corresponds to $\frac{1}{\lambda}$
-2. $n$ corresponds to $-(\nu/2 + 1)$
-3. $c$ corresponds to $-\frac{1}{2} \left(\sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \nu\right)$
-
-Using the gamma function identity $n! = \Gamma(n+1)$, we get:
-
-$$ 
-\int \lambda^{-(\nu/2+1)} \exp\left(-\frac{1}{2\lambda} \left(\sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \nu\right)\right) \, d\lambda
-$$
-
-
-
-$$ 
-= \exp\left(-\frac{1}{2} \left(\sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \nu\right)\right) \sum_{i=0}^{-(\nu/2 + 1)} (-1)^{i} \frac{\Gamma(-(ν/2 + 1) + 1)}{\Gamma(i+1) \left(-\frac{1}{2} \left(\sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T + \nu\right)\right)^{i+1}} \lambda^{i}
-$$
-
-
-This expression represents the integral in terms of the gamma function. If you have any further questions or need additional assistance, feel free to ask!
-
+We can use the rinvgamma() function to sample this $\lambda$.
 
 ### Step 3: Evaluating the Kernel
 
-To evaluate the overall kernel, we can simplify or estimate this integral, which is non-trivial in analytic terms due to the complexity of integrating over an inverse gamma distribution and an exponential function of \( \lambda \). This integral typically requires numerical methods or approximations like Laplace approximation or numerical integration.
+To evaluate the overall kernel, we can simplify as for the basic model. 
 
 ### Step 4: Combining with the Prior
 
-Assuming the prior \( p(B^+; B_0) \) as given or formulated according to specific assumptions (such as independence, Gaussian priors for coefficients, etc.), the full posterior kernel combining this likelihood with the prior can be approached as:
+Assuming the prior $p(B^+; B_0)$ as given or formulated according to specific assumptions (such as independence, Gaussian priors for coefficients, etc.), the full posterior kernel combining this likelihood with the prior can be approached as:
 $$
 p(B^+; B_0 \mid Y; X) \propto p(Y \mid X, B^+, B_0) \times p(B^+; B_0)
 $$
 
-This expression must often be evaluated or sampled using computational Bayesian techniques, such as Markov Chain Monte Carlo (MCMC), especially given the integrative step required for \( \Lambda \).
+This expression must often be evaluated or sampled using computational Bayesian techniques, such as Markov Chain Monte Carlo (MCMC), especially given the integrative step required for $\Lambda$.
+
+We can obtain the following posterior formulas similar to the basic model: 
+
+
+$$
+\bar{\Omega} = [\lambda^{-1} XX^T+\underline{{\Omega}} \ ]^{-1}
+$$
+
+$$
+\bar{B} = [\lambda^{-1} YX^T+\underline{B{\Omega}}^{-1}]\bar{\Omega}
+$$
+
+$$
+\bar{S} = [\lambda^{-1} YY^T+\underline{S}^{-1}+ \underline{B{\Omega}}^{-1} \underline{B}^T - \overline{B{\Omega}}^{-1} \bar{B}]^{-1}
+$$
+$$
+\bar{\nu} = T + \underline{\nu} 
+$$
+```{r Building matrices Y and X from the actual data for evaluating the extended Bayesian SVAR model}
+
+# Creating matrices Y and X
+
+# Combining the data into one data frame
+data <- data.frame(
+  USD_Index = USD_Index$value, 
+  Inflation = CPI_rate$value, 
+  Unemployment = unemp_rate$value, 
+  GDP_growth = GDP_rate$value
+)
+
+# Convert to a matrix Y
+Y <- as.matrix(data)
+
+# Define the number of lags
+lags <- 1
+
+# Manually shift the matrix to create lagged X
+X <- Y[1:(nrow(Y) - lags), ]  # Get all rows up to the last 'lags' rows
+
+# Adjust Y to match the new dimensions of X
+Y <- Y[(lags + 1):nrow(Y), ]  # Start from row 'lags+1' to end
+
+```
+
+```{r sampling the value of lambda}
+
+# Function to sample lambda from an Inverse Gamma distribution with parameters nu/2
+sample_lambda <- function(nu, num_samples) {
+  # Set alpha and beta parameters
+  alpha <- nu / 2
+  beta <- nu / 2
+  
+  # Sample lambda from the Inverse Gamma distribution
+  lambda <- rinvgamma(n = num_samples, shape = alpha, rate = beta)
+  
+  return(lambda)
+}
+
+
+# Use lambda_samples for further analysis below
+
+```
+
+
+```{r calculate B0 and B+ for the extended Bayesian SVAR model}
+
+y       = Y
+
+N       = ncol(y)
+p       = 12
+K       = 1+N*p
+h       = 6
+S.burnin= 100
+S       = 5000
+
+# create Y and X
+############################################################
+Y       = y[(p+1):nrow(y),]
+X       = matrix(1,nrow(Y),1)
+for (i in 1:p){
+  X     = cbind(X,y[((p+1):nrow(y))-i,])
+}
+
+
+Y       = t(Y)
+X       = t(X)
+
+
+# set the priors
+############################################################
+kappa1  = 0.00001   # autoregressive slope shrinkage
+kappa2  = 0.01      # constant term shrinkage 
+kappa3  = 0.01      # contemporaneous effects shrinkage
+kappa4  = 1         # VAR prior persistence
+
+priors  = list(
+  B     = cbind(rep(0,N), kappa4*diag(N), matrix(0, N, (p-1)*N)),
+  Omega = diag(c(kappa2,kappa1*((1:p)^(-2))%x%rep(1,N))),
+  # Omega = diag(c(kappa2,kappa1*rep(1,N*p))),
+  S     = kappa3*diag(N),
+  nu    = N
+)
+
+# compute posterior distribution parameters, matrices V, and starting values
+############################################################
+
+samples = sample_lambda(priors$nu, 5000)
+
+lambda = median(samples)
+
+Omega.inv   = solve(priors$Omega)
+Omega.post.inv = (lambda)^(-1) * X%*%t(X) + Omega.inv
+Omega.post  = solve( Omega.post.inv )
+B.post      = ((lambda)^(-1) * Y%*%t(X) + priors$B%*%Omega.inv) %*% Omega.post
+S.post      = solve((lambda)^(-1) * Y%*%t(Y) + solve(priors$S) + priors$B%*%Omega.inv%*%t(priors$B) - B.post%*%Omega.post.inv%*%t(B.post) )
+nu.post     = ncol(Y) + priors$nu
+
+posteriors = list(
+  B        = B.post,
+  Omega    = Omega.post,
+  S        = S.post,
+  nu       = nu.post
+)
+
+
+B0.initial = matrix(0,N,N)
+for (n in 1:N){
+  unrestricted    = apply(V_matrices[[n]],2,sum)==1
+  B0.initial[n,unrestricted] = rnorm(sum(unrestricted))
+}
+
+
+# run the posterior simulations and save their output
+############################################################
+# burn-in run: sampling B0 from the posterior distribution using Gibbs
+
+B0.posterior        = rgn(n=S.burnin, S.inv=solve(S.post), nu=nu.post, V=V_matrices, B0.initial=B0.initial)
+
+# sampling B0 from the posterior distribution using Gibbs
+
+B0.posterior        = rgn(n=S, S.inv=solve(S.post), nu=nu.post, V=V_matrices, B0.initial=B0.posterior[,,S.burnin])
+
+# normalisation
+B0.hat              = diag(sign(diag(B0.posterior[,,S])))%*%B0.posterior[,,S]
+B0.posterior2        = normalize.Gibbs.output.parallel(B0.posterior,B0.hat=B0.hat)
+
+
+# sample B+ from the normal conditional posterior
+
+Bp.posterior2    = rnorm.ngn(B0.posterior, B=B.post,Omega=Omega.post)
+
+
+```
+
+```{r Normalization of the B0 matrix for the extended model}
+
+print("Extended Model Normalized B0 matrix")
+print(B0.posterior2 [,,S])
+
+print("Extended Model B plus matrix")
+print(Bp.posterior2 [,,S])
+
+```
+
+```{r plots for the extended model}
+
+# Define lagged values for each variable
+lagged_values <- seq(2, 46, by = 4)
+
+# Plotting setup
+plot_title <- "Effect of lagged USD_Index on Australian Economic Stability"
+plot(x = NA, y = NA, xlim = c(1, length(lagged_values)), ylim = c(-0.15, 0.15), type = "n", xlab = "Lag Number", ylab = "Effect", main = plot_title)
+
+# Define variable indices and colors for plotting
+variables <- list(inflation = 2, unemployment = 3, gdp = 4)
+colors <- c("blue", "green", "red")
+names(colors) <- names(variables)
+
+# Loop through each variable and plot
+for (var_name in names(variables)) {
+  var_index <- variables[[var_name]]  # Get the correct index for each variable
+  ratio_vector <- numeric(length(lagged_values))  # Initialize vector to store ratio values
+  for (i in seq_along(lagged_values)) {
+    j <- lagged_values[i]
+    # Calculate ratio for the current variable using Bp.posterior2 and B0.posterior2
+    ratio_vector[i] <- Bp.posterior2[var_index, j, S] / B0.posterior2[var_index, var_index, S]
+  }
+  lines(1:length(lagged_values), ratio_vector, col = colors[var_name])  # Plot the accumulated ratios using simple lag numbers
+}
+
+# Add legend
+legend("topright", legend = names(variables), col = colors, lty = 1, title = "Variables")
+
+```
 
 ### Conclusion
 
-The overall kernel for this extended model encapsulates significant complexity due to the random variance \( \Lambda \) and its integration. Practical implementation would leverage computational methods to handle these integrations and to sample from the posterior distributions effectively, acknowledging the complex dependencies introduced by the variable error variance in economic or financial time series modeling. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.
+The overall kernel for this extended model encapsulates to the random variance $\Lambda$. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.
 
 
 
