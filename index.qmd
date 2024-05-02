@@ -1065,11 +1065,11 @@ Y       = t(Y)
 X       = t(X)
 
 
-# set the priors
+# set the priors - these are different from the random-walk estimation after discussing the same with TW on 2 May.
 ############################################################
-kappa1  = 0.00001   # autoregressive slope shrinkage
-kappa2  = 0.01      # constant term shrinkage 
-kappa3  = 0.01      # contemporaneous effects shrinkage
+kappa1  = 0.01      # autoregressive slope shrinkage
+kappa2  = 1         # constant term shrinkage 
+kappa3  = 100       # contemporaneous effects shrinkage
 kappa4  = 1         # VAR prior persistence
 
 priors  = list(
@@ -1136,6 +1136,34 @@ print(Bp.posterior1 [,,S])
 
 ```
 
+```{r calculating the standard deviation for the B0 matrix}
+
+# Calculate the standard deviation of Bp.posterior1 along the desired axis
+B0_sd <- apply(B0.posterior1, c(1, 2), sd)
+
+# Print or use the standard deviation matrix as needed
+
+print("Standard deviation of the basic model B0")
+
+print(B0_sd)
+
+```
+
+
+```{r calculating the standard deviation for the Bp matrix}
+
+# Calculate the standard deviation of Bp.posterior1 along the desired axis
+Bp_sd <- apply(Bp.posterior1, c(1, 2), sd)
+
+print("Standard deviation of the basic model Bp")
+
+# Print or use the standard deviation matrix as needed
+print(Bp_sd)
+
+```
+
+
+
 ```{r plots for the basic model}
 
 # Define lagged values for each variable
@@ -1143,7 +1171,7 @@ lagged_values <- seq(2, 46, by = 4)
 
 # Plotting setup
 plot_title <- "Effect of lagged USD_Index on Australian Economic Stability"
-plot(x = NA, y = NA, xlim = c(1, length(lagged_values)), ylim = c(-0.15, 0.15), type = "n", xlab = "Lag Number", ylab = "Effect", main = plot_title)
+plot(x = NA, y = NA, xlim = c(1, length(lagged_values)), ylim = c(-1, 1), type = "n", xlab = "Lag Number", ylab = "Effect", main = plot_title)
 
 # Define variable indices and colors for plotting
 variables <- list(inflation = 2, unemployment = 3, gdp = 4)
@@ -1290,11 +1318,11 @@ Y       = t(Y)
 X       = t(X)
 
 
-# set the priors
+# set the priors (same as for the basic model)
 ############################################################
-kappa1  = 0.00001   # autoregressive slope shrinkage
-kappa2  = 0.01      # constant term shrinkage 
-kappa3  = 0.01      # contemporaneous effects shrinkage
+kappa1  = 0.01      # autoregressive slope shrinkage
+kappa2  = 1         # constant term shrinkage 
+kappa3  = 100       # contemporaneous effects shrinkage
 kappa4  = 1         # VAR prior persistence
 
 priors  = list(
@@ -1366,6 +1394,31 @@ print(Bp.posterior2 [,,S])
 
 ```
 
+```{r calculating the standard deviation for the extended model B0 matrix}
+
+# Calculate the standard deviation of Bp.posterior1 along the desired axis
+B0_sd <- apply(B0.posterior2, c(1, 2), sd)
+
+# Print or use the standard deviation matrix as needed
+
+print("Standard deviation of the extended model B0")
+
+print(B0_sd)
+
+```
+
+```{r calculating the standard deviation for the extended model Bp matrix}
+
+# Calculate the standard deviation of Bp.posterior1 along the desired axis
+Bp_sd <- apply(Bp.posterior2, c(1, 2), sd)
+
+print("Standard deviation of the extended model Bp")
+
+# Print or use the standard deviation matrix as needed
+print(Bp_sd)
+
+```
+
 ```{r plots for the extended model}
 
 # Define lagged values for each variable
@@ -1373,7 +1426,7 @@ lagged_values <- seq(2, 46, by = 4)
 
 # Plotting setup
 plot_title <- "Effect of lagged USD_Index on Australian Economic Stability"
-plot(x = NA, y = NA, xlim = c(1, length(lagged_values)), ylim = c(-0.15, 0.15), type = "n", xlab = "Lag Number", ylab = "Effect", main = plot_title)
+plot(x = NA, y = NA, xlim = c(1, length(lagged_values)), ylim = c(-1, 1), type = "n", xlab = "Lag Number", ylab = "Effect", main = plot_title)
 
 # Define variable indices and colors for plotting
 variables <- list(inflation = 2, unemployment = 3, gdp = 4)
@@ -1401,6 +1454,8 @@ legend("topright", legend = names(variables), col = colors, lty = 1, title = "Va
 
 The overall kernel for this extended model encapsulates to the random variance $\Lambda$. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.
 
+The results suggest the following elasticities. According to the basic model, a weaker Dixie is likely to overheat the Australian economy: a drop of 1 per cent in the USD Index would result in roughly 1 per cent increase in inflation, roughly unchanged unemployment, and roughly 1% increase in the GDP growth rate. On the other hand, the expanded model suggests that a weakening Dixie would result in a "Goldilocks economy" in Australia: 1 per cent decrease in the USD Index would result is roughly 1 per cent decrease in inflation, roughly 1 per cent decrease in unemployment, and roughly 2.5 per cent increase in the GDP growth rate. 
+
 ```{r furnish the results for a 1% drop of the USD_Index in a table}
 
 # Load the knitr package for better table formatting
@@ -1413,11 +1468,11 @@ extended_model_results <- list()
 # Loop through each economic variable
 for (i in 2:4) {
   # Calculate the effect for the Basic model
-  basic_effect <- -B0.posterior1[i, 1, S] / B0.posterior1[i, i, S]
+  basic_effect <- B0.posterior1[i, 1, S] / B0.posterior1[i, i, S]
   basic_model_results[[i - 1]] <- basic_effect
   
   # Calculate the effect for the Extended model
-  extended_effect <-  -B0.posterior2[i, 1, S] / B0.posterior2[i, i, S]
+  extended_effect <-  B0.posterior2[i, 1, S] / B0.posterior2[i, i, S]
   extended_model_results[[i - 1]] <- extended_effect
 }
 
@@ -1429,7 +1484,7 @@ results_df <- data.frame(
 )
 
 # Print the results table using kable for better formatting
-kable(results_df, format = "html", caption = "Effect of a 1% Drop in USD_Index on Economic Indicators (in percentage)", col.names = c("Variable", "Basic Model", "Extended Model"), align = "c")
+kable(results_df, format = "html", caption = "Effect of USD_Index on Economic Indicators (in elasticities)", col.names = c("Variable (elasticity w.r.t. USD_Index)", "Basic Model", "Extended Model"), align = "c")
 
 
 
