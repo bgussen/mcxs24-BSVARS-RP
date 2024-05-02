@@ -161,7 +161,7 @@ window.Quarto = {
   <li><a href="#estimation-of-the-basic-model" id="toc-estimation-of-the-basic-model" class="nav-link" data-scroll-target="#estimation-of-the-basic-model">Estimation of the Basic Model</a></li>
   <li><a href="#model-extension-solving-the-identification-problem-using-a-non-normality-approach" id="toc-model-extension-solving-the-identification-problem-using-a-non-normality-approach" class="nav-link" data-scroll-target="#model-extension-solving-the-identification-problem-using-a-non-normality-approach">Model Extension: Solving the Identification Problem Using a Non-Normality Approach</a></li>
   <li><a href="#step-1-formulating-the-kernel-of-the-likelihood-function" id="toc-step-1-formulating-the-kernel-of-the-likelihood-function" class="nav-link" data-scroll-target="#step-1-formulating-the-kernel-of-the-likelihood-function">Step 1: Formulating the Kernel of the Likelihood Function</a></li>
-  <li><a href="#step-2-estimate-lambda" id="toc-step-2-estimate-lambda" class="nav-link" data-scroll-target="#step-2-estimate-lambda">Step 2: Estimate <span class="math inline">\(\lambda\)</span></a></li>
+  <li><a href="#step-2-estimating-lambda" id="toc-step-2-estimating-lambda" class="nav-link" data-scroll-target="#step-2-estimating-lambda">Step 2: Estimating <span class="math inline">\(\lambda\)</span></a></li>
   <li><a href="#step-3-evaluating-the-kernel" id="toc-step-3-evaluating-the-kernel" class="nav-link" data-scroll-target="#step-3-evaluating-the-kernel">Step 3: Evaluating the Kernel</a></li>
   <li><a href="#step-4-combining-with-the-prior" id="toc-step-4-combining-with-the-prior" class="nav-link" data-scroll-target="#step-4-combining-with-the-prior">Step 4: Combining with the Prior</a></li>
   <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
@@ -530,7 +530,12 @@ B_0 Y_t = b_0 + B_1 Y_{t-1} + \dots + B_p Y_{t-p} + u_t
 <p>Expanding the expression within the exponential term:</p>
 <p><span class="math inline">\(\sum_{n=1}^N \left( b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n' \right)\)</span></p>
 <p>And further:</p>
-<p><span class="math inline">\(b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n' = b_n V_n \left( Y Y' - Y X' (X X')^{-1} X Y' \right) V_n' b_n' + (B_n - b_n V_n \hat{A}) (X X') (B_n - b_n V_n \hat{A})'\)</span></p>
+<p>$$</p>
+<span class="math display">\[\begin{aligned}
+    b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n' &amp;= b_n V_n \left( Y Y' - Y X' (X X')^{-1} X Y' \right) V_n' b_n' \\
+    &amp;\quad + (B_n - b_n V_n \hat{A}) (X X') (B_n - b_n V_n \hat{A})'
+\end{aligned}\]</span>
+<p>$$</p>
 <p>where <span class="math inline">\(\hat{A} = YX' (XX')^{-1}\)</span>.</p>
 <p>Likelihood Function Simplification</p>
 <p>The simplified likelihood function can then be presented as:</p>
@@ -554,8 +559,12 @@ p(B_+, B_0) \sim NGN \left( B, \Omega, S, \nu \right)
 <p>Combining the likelihood and the prior, the posterior distribution:</p>
 <p><span class="math display">\[p(B_+, B_0 \mid Y, X) \propto L(B_+, B_0 \mid Y, X) \cdot p(B_+, B_0)
 \]</span></p>
-<p><span class="math display">\[= \left| \det (B_0) \right|^{T+\nu-N} \exp \left( -\frac{1}{2} \sum_{n=1}^N \left( b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n' + b_n V_n S^{-1} V_n' b_n' + B_n \Omega^{-1} B_n' - 2 b_n V_n B \Omega^{-1} B_n' + b_n V_n B \Omega^{-1} B' V_n' b_n' \right) \right)
-\]</span></p>
+<p><span class="math display">\[\begin{align*}
+= \left| \det (B_0) \right|^{T+\nu-N} \exp \Bigg( -\frac{1}{2} \sum_{n=1}^N \Bigg( &amp; b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n' \\
+&amp; + b_n V_n S^{-1} V_n' b_n' + B_n \Omega^{-1} B_n' \\
+&amp; - 2 b_n V_n B \Omega^{-1} B_n' + b_n V_n B \Omega^{-1} B' V_n' b_n'
+\Bigg) \Bigg)
+\end{align*}\]</span></p>
 <p>The resulting posterior parameters are as follow:</p>
 <p><span class="math display">\[
 \bar{\Omega} = [XX^T+\underline{{\Omega}} \ ]^{-1}
@@ -722,8 +731,8 @@ p(B_+, B_0) \sim NGN \left( B, \Omega, S, \nu \right)
 \text{det}(B_0)^T \exp\left(-\frac{1}{2\lambda} \sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T\right)
 \]</span></p>
 </section>
-<section id="step-2-estimate-lambda" class="level3">
-<h3 class="anchored" data-anchor-id="step-2-estimate-lambda">Step 2: Estimate <span class="math inline">\(\lambda\)</span></h3>
+<section id="step-2-estimating-lambda" class="level3">
+<h3 class="anchored" data-anchor-id="step-2-estimating-lambda">Step 2: Estimating <span class="math inline">\(\lambda\)</span></h3>
 <p>Since <span class="math inline">\(\Lambda\)</span> is a random variable following <span class="math inline">\(\lambda \sim IG2(\nu, \nu)\)</span>, its effect can be sampled from the density function for <span class="math inline">\(\lambda\)</span>: <span class="math display">\[
 p(\lambda) = \frac{(\nu/2)^{\nu/2}}{\Gamma(\nu/2)} \lambda^{-(\nu/2+1)} \exp\left(-\frac{\nu}{2\lambda}\right)
 \]</span></p>
@@ -831,6 +840,41 @@ p(B^+; B_0 \mid Y; X) \propto p(Y \mid X, B^+, B_0) \times p(B^+; B_0)
 <section id="conclusion" class="level3">
 <h3 class="anchored" data-anchor-id="conclusion">Conclusion</h3>
 <p>The overall kernel for this extended model encapsulates to the random variance <span class="math inline">\(\Lambda\)</span>. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<table data-quarto-postprocess="true" class="table table-sm table-striped small">
+<caption>Effect of a 1% Drop in USD_Index on Economic Indicators (in percentage)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">Variable</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">Basic Model</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">Extended Model</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Inflation</td>
+<td style="text-align: center;">0.0593848</td>
+<td style="text-align: center;">0.1130182</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Unemployment</td>
+<td style="text-align: center;">0.1413450</td>
+<td style="text-align: center;">-0.0732074</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">GDP Growth</td>
+<td style="text-align: center;">-0.0759637</td>
+<td style="text-align: center;">0.0915627</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</div>
 
 
 

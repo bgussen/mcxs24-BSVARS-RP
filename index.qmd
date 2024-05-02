@@ -1181,7 +1181,7 @@ $$
 \text{det}(B_0)^T \exp\left(-\frac{1}{2\lambda} \sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T\right)
 $$
 
-### Step 2: Estimate $\lambda$ 
+### Step 2: Estimating $\lambda$ 
 
 Since $\Lambda$ is a random variable following $\lambda \sim IG2(\nu, \nu)$, its effect can be sampled from the density function for $\lambda$:
 $$
@@ -1400,6 +1400,40 @@ legend("topright", legend = names(variables), col = colors, lty = 1, title = "Va
 ### Conclusion
 
 The overall kernel for this extended model encapsulates to the random variance $\Lambda$. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.
+
+```{r furnish the results for a 1% drop of the USD_Index in a table}
+
+# Load the knitr package for better table formatting
+library(knitr)
+
+# Initialize empty lists to store the results
+basic_model_results <- list()
+extended_model_results <- list()
+
+# Loop through each economic variable
+for (i in 2:4) {
+  # Calculate the effect for the Basic model
+  basic_effect <- -B0.posterior1[i, 1, S] / B0.posterior1[i, i, S]
+  basic_model_results[[i - 1]] <- basic_effect
+  
+  # Calculate the effect for the Extended model
+  extended_effect <-  -B0.posterior2[i, 1, S] / B0.posterior2[i, i, S]
+  extended_model_results[[i - 1]] <- extended_effect
+}
+
+# Create a data frame to hold the results
+results_df <- data.frame(
+  Variable = c("Inflation", "Unemployment", "GDP Growth"),
+  Basic_Model = unlist(basic_model_results),
+  Extended_Model = unlist(extended_model_results)
+)
+
+# Print the results table using kable for better formatting
+kable(results_df, format = "html", caption = "Effect of a 1% Drop in USD_Index on Economic Indicators (in percentage)", col.names = c("Variable", "Basic Model", "Extended Model"), align = "c")
+
+
+
+```
 
 
 
