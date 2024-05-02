@@ -1171,7 +1171,7 @@ lagged_values <- seq(2, 46, by = 4)
 
 # Plotting setup
 plot_title <- "Effect of lagged USD_Index on Australian Economic Stability"
-plot(x = NA, y = NA, xlim = c(1, length(lagged_values)), ylim = c(-1, 1), type = "n", xlab = "Lag Number", ylab = "Effect", main = plot_title)
+plot(x = NA, y = NA, xlim = c(1, length(lagged_values)), ylim = c(-1.5, 1.5), type = "n", xlab = "Lag Number", ylab = "Effect", main = plot_title)
 
 # Define variable indices and colors for plotting
 variables <- list(inflation = 2, unemployment = 3, gdp = 4)
@@ -1200,23 +1200,23 @@ legend("topright", legend = names(variables), col = colors, lty = 1, title = "Va
 
 We use a t-distribution to model the error terms. Given difficulties with a direct estimation of the t-distribution, we proceed as follows. 
 
-To evaluate the overall kernel for the extended Bayesian Structural Vector Autoregression (SVAR) model where the error term $u_t$ follows a distribution $N(0, \Lambda I_N)$ and $\Lambda$ itself is distributed according to an Inverse Gamma Type 2 (IG2) with parameters $\nu, \nu$, we need to account for the complexity added by this distribution of the error variance. This changes how the kernel of the likelihood function is formulated and combined with the prior.
+To evaluate the overall kernel for the extended Bayesian Structural Vector Autoregression (SVAR) model where the error term $u_t$ follows a distribution $N(0, \lambda I_N)$ and $\lambda$ itself is distributed according to an Inverse Gamma square (IG2) with parameters $\nu, \nu$, we need to account for the complexity added by this distribution of the error variance. This changes how the kernel of the likelihood function is formulated and combined with the prior.
 
 ### Step 1: Formulating the Kernel of the Likelihood Function
 
-With the error term $u_t \sim N(0, \Lambda I_N)$, the likelihood function's kernel, incorporating the variance parameter $\Lambda$, becomes:
+With the error term $u_t \sim N(0, \lambda I_N)$, the likelihood function's kernel, incorporating the variance parameter $\lambda$, becomes:
 $$
 \text{det}(B_0)^T \exp\left(-\frac{1}{2\lambda} \sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T\right)
 $$
 
 ### Step 2: Estimating $\lambda$ 
 
-Since $\Lambda$ is a random variable following $\lambda \sim IG2(\nu, \nu)$, its effect can be sampled from the density function for $\lambda$:
+Since $\lambda$ is a random variable following $\lambda \sim IG2(\nu, \nu)$, its effect can be sampled from the density function for $\lambda$:
 $$
 p(\lambda) = \frac{(\nu/2)^{\nu/2}}{\Gamma(\nu/2)} \lambda^{-(\nu/2+1)} \exp\left(-\frac{\nu}{2\lambda}\right)
 $$
 
-We can use the rinvgamma() function to sample this $\lambda$.
+We can use the rinvgamma() function to sample this $\lambda$. In the estimation process for this extended model, we sample 5000 times from the IG2 distribution and use the mean value for $\lambda$. 
 
 ### Step 3: Evaluating the Kernel
 
@@ -1338,7 +1338,7 @@ priors  = list(
 
 samples = sample_lambda(priors$nu, 5000)
 
-lambda = median(samples)
+lambda = mean(samples)
 
 Omega.inv   = solve(priors$Omega)
 Omega.post.inv = (lambda)^(-1) * X%*%t(X) + Omega.inv
@@ -1426,7 +1426,7 @@ lagged_values <- seq(2, 46, by = 4)
 
 # Plotting setup
 plot_title <- "Effect of lagged USD_Index on Australian Economic Stability"
-plot(x = NA, y = NA, xlim = c(1, length(lagged_values)), ylim = c(-1, 1), type = "n", xlab = "Lag Number", ylab = "Effect", main = plot_title)
+plot(x = NA, y = NA, xlim = c(1, length(lagged_values)), ylim = c(-3, 3), type = "n", xlab = "Lag Number", ylab = "Effect", main = plot_title)
 
 # Define variable indices and colors for plotting
 variables <- list(inflation = 2, unemployment = 3, gdp = 4)
