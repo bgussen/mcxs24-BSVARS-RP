@@ -601,6 +601,16 @@ $$
 $$p(b_1, \ldots, b_N) \propto \left| \det(B_0) \right|^{\nu-N} \exp \left( -\frac{1}{2} \sum_{n=1}^N b_n V_n S^{-1} V_n' b_n' \right)
 $$
 
+Therefore, 
+
+$$
+\begin{aligned}
+p(B^+; B_0) &= \left| \det(B_0) \right|^{\underline{\nu}-N} \exp \left\{ -\frac{1}{2} \sum_{n=1}^{N} b_n V_n \underline{S}^{-1} V_n^T b_n^T \right\} \\
+&\quad \times \exp \left\{ -\frac{1}{2} \sum_{n=1}^{N} (B_n - b_n V_n \underline{B}) \ \ \underline{\Omega}^{-1} \ \ (B_n - b_n V_n \underline{B})^T \right\}
+\end{aligned}
+
+$$
+
 Posterior Distribution
 
 Combining the likelihood and the prior, the posterior distribution:
@@ -608,12 +618,14 @@ Combining the likelihood and the prior, the posterior distribution:
 $$p(B_+, B_0 \mid Y, X) \propto L(B_+, B_0 \mid Y, X) \cdot p(B_+, B_0)
 $$
 
-$$\begin{align*}
+$$
+\begin{align*}
 = \left| \det (B_0) \right|^{T+\nu-N} \exp \Bigg( -\frac{1}{2} \sum_{n=1}^N \Bigg( & b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n' \\
 & + b_n V_n S^{-1} V_n' b_n' + B_n \Omega^{-1} B_n' \\
 & - 2 b_n V_n B \Omega^{-1} B_n' + b_n V_n B \Omega^{-1} B' V_n' b_n'
 \Bigg) \Bigg)
-\end{align*}$$
+\end{align*}
+$$
 
 The resulting posterior parameters are as follow: 
 
@@ -1200,14 +1212,32 @@ legend("topright", legend = names(variables), col = colors, lty = 1, title = "Va
 
 We use a t-distribution to model the error terms. Given difficulties with a direct estimation of the t-distribution, we proceed as follows. 
 
+The current approach is as follows: 
+
+$$
+\begin{aligned}
+p(B_0, B_+, \lambda \mid Y, X) &\propto L(Y \mid X, B_0, B_+, \lambda) \ \ p(B_0, B_+, \lambda) \\
+&= L(Y \mid X, B_0, B_+, \lambda) \ \ p(B_0, B_+) \ \ p(\lambda)
+\end{aligned}
+$$
+Where, as under the basic model: 
+
+$$
+\begin{aligned}
+p(B^+; B_0) &= \left| \det(B_0) \right|^{\underline{\nu}-N} \exp \left\{ -\frac{1}{2} \sum_{n=1}^{N} b_n V_n \underline{S}^{-1} V_n^T b_n^T \right\} \\
+&\quad \times \exp \left\{ -\frac{1}{2} \sum_{n=1}^{N} (B_n - b_n V_n \underline{B}) \ \ \underline{\Omega}^{-1} \ \ (B_n - b_n V_n \underline{B})^T \right\}
+\end{aligned}
+$$
+
 To evaluate the overall kernel for the extended Bayesian Structural Vector Autoregression (SVAR) model where the error term $u_t$ follows a distribution $N(0, \lambda I_N)$ and $\lambda$ itself is distributed according to an Inverse Gamma square (IG2) with parameters $\nu, \nu$, we need to account for the complexity added by this distribution of the error variance. This changes how the kernel of the likelihood function is formulated and combined with the prior.
 
 ### Step 1: Formulating the Kernel of the Likelihood Function
 
 With the error term $u_t \sim N(0, \lambda I_N)$, the likelihood function's kernel, incorporating the variance parameter $\lambda$, becomes:
 $$
-\text{det}(B_0)^T \exp\left(-\frac{1}{2\lambda} \sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T\right)
+L(Y \mid X, B_0, B_+, \lambda) = \text{det}(B_0)^T \exp\left(-\frac{1}{2\lambda} \sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T\right)
 $$
+
 
 ### Step 2: Estimating $\lambda$ 
 
@@ -1220,34 +1250,41 @@ We can use the rinvgamma() function to sample this $\lambda$. In the estimation 
 
 ### Step 3: Evaluating the Kernel
 
-To evaluate the overall kernel, we can simplify as for the basic model. 
+To evaluate the overall kernel, we can simplify as for the basic model. Now, however, we use the posterior degrees of freedom to estimate the posterior variance of the error terms: 
+
+$$
+\bar{\nu} = T + \underline{\nu} 
+$$
+
+$$
+\bar{\lambda} = IG2(\bar{\nu}, \bar{\nu})
+$$
 
 ### Step 4: Combining with the Prior
 
 Assuming the prior $p(B^+; B_0)$ as given or formulated according to specific assumptions (such as independence, Gaussian priors for coefficients, etc.), the full posterior kernel combining this likelihood with the prior can be approached as:
 $$
-p(B^+; B_0 \mid Y; X) \propto p(Y \mid X, B^+, B_0) \times p(B^+; B_0)
+p(B_+; B_0 \mid Y; X) \propto p(Y \mid X, B_+, B_0) \times p(B_+; B_0)
 $$
 
-This expression must often be evaluated or sampled using computational Bayesian techniques, such as Markov Chain Monte Carlo (MCMC), especially given the integrative step required for $\Lambda$.
+This expression must often be evaluated or sampled using computational Bayesian techniques, such as Markov Chain Monte Carlo (MCMC), especially given the integrative step required for $\lambda$.
 
 We can obtain the following posterior formulas similar to the basic model: 
 
 
 $$
-\bar{\Omega} = [\lambda^{-1} XX^T+\underline{{\Omega}} \ ]^{-1}
+\bar{\Omega} = [\bar{\lambda}^{-1} XX^T+\underline{{\Omega}} \ ]^{-1}
 $$
 
 $$
-\bar{B} = [\lambda^{-1} YX^T+\underline{B{\Omega}}^{-1}]\bar{\Omega}
+\bar{B} = [\bar{\lambda}^{-1}  YX^T+\underline{B{\Omega}}^{-1}]\bar{\Omega}
 $$
 
 $$
-\bar{S} = [\lambda^{-1} YY^T+\underline{S}^{-1}+ \underline{B{\Omega}}^{-1} \underline{B}^T - \overline{B{\Omega}}^{-1} \bar{B}]^{-1}
+\bar{S} = [\bar{\lambda}^{-1} YY^T+\underline{S}^{-1}+ \underline{B{\Omega}}^{-1} \underline{B}^T - \overline{B{\Omega}}^{-1} \bar{B}]^{-1}
 $$
-$$
-\bar{\nu} = T + \underline{\nu} 
-$$
+
+
 ```{r Building matrices Y and X from the actual data for evaluating the extended Bayesian SVAR model}
 
 # Creating matrices Y and X
@@ -1336,16 +1373,18 @@ priors  = list(
 # compute posterior distribution parameters, matrices V, and starting values
 ############################################################
 
-samples = sample_lambda(priors$nu, 5000)
+nu.post     = ncol(Y) + priors$nu
 
-lambda = mean(samples)
+samples = sample_lambda(nu.post, 5000)
+
+lambda.post = mean(samples)
 
 Omega.inv   = solve(priors$Omega)
-Omega.post.inv = (lambda)^(-1) * X%*%t(X) + Omega.inv
+Omega.post.inv = (lambda.post)^(-1) * X%*%t(X) + Omega.inv
 Omega.post  = solve( Omega.post.inv )
-B.post      = ((lambda)^(-1) * Y%*%t(X) + priors$B%*%Omega.inv) %*% Omega.post
-S.post      = solve((lambda)^(-1) * Y%*%t(Y) + solve(priors$S) + priors$B%*%Omega.inv%*%t(priors$B) - B.post%*%Omega.post.inv%*%t(B.post) )
-nu.post     = ncol(Y) + priors$nu
+B.post      = ((lambda.post)^(-1) * Y%*%t(X) + priors$B%*%Omega.inv) %*% Omega.post
+S.post      = solve((lambda.post)^(-1) * Y%*%t(Y) + solve(priors$S) + priors$B%*%Omega.inv%*%t(priors$B) - B.post%*%Omega.post.inv%*%t(B.post) )
+
 
 posteriors = list(
   B        = B.post,
@@ -1426,7 +1465,7 @@ lagged_values <- seq(2, 46, by = 4)
 
 # Plotting setup
 plot_title <- "Effect of lagged USD_Index on Australian Economic Stability"
-plot(x = NA, y = NA, xlim = c(1, length(lagged_values)), ylim = c(-3, 3), type = "n", xlab = "Lag Number", ylab = "Effect", main = plot_title)
+plot(x = NA, y = NA, xlim = c(1, length(lagged_values)), ylim = c(-5, 5), type = "n", xlab = "Lag Number", ylab = "Effect", main = plot_title)
 
 # Define variable indices and colors for plotting
 variables <- list(inflation = 2, unemployment = 3, gdp = 4)
@@ -1452,9 +1491,11 @@ legend("topright", legend = names(variables), col = colors, lty = 1, title = "Va
 
 ### Conclusion
 
-The overall kernel for this extended model encapsulates to the random variance $\Lambda$. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.
+The overall kernel for this extended model encapsulates to the random variance $\lambda$. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.
 
-The results suggest the following elasticities. According to the basic model, a weaker Dixie is likely to overheat the Australian economy: a drop of 1 per cent in the USD Index would result in roughly 1 per cent increase in inflation, roughly unchanged unemployment, and roughly 1% increase in the GDP growth rate. On the other hand, the expanded model suggests that a weakening Dixie would result in a "Goldilocks economy" in Australia: 1 per cent decrease in the USD Index would result is roughly 1 per cent decrease in inflation, roughly 1 per cent decrease in unemployment, and roughly 2.5 per cent increase in the GDP growth rate. 
+The results suggest the following elasticities. According to the basic model, a weaker Dixie is likely to overheat the Australian economy: a drop of 1 per cent in the USD Index would result in roughly 1 per cent increase in inflation, roughly unchanged unemployment, and roughly 1% increase in the GDP growth rate. 
+
+On the other hand, the expanded model suggests that a weakening Dixie would result in stagnation in Australia: 1 per cent decrease in the USD Index would result is roughly 0.7 per cent decrease in inflation, roughly 1 per cent decrease in unemployment, and roughly 1 per cent decrease in the GDP growth rate. 
 
 ```{r furnish the results for a 1% drop of the USD_Index in a table}
 
