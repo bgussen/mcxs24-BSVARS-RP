@@ -555,16 +555,25 @@ p(B_+, B_0) \sim NGN \left( B, \Omega, S, \nu \right)
 \]</span></p>
 <p><span class="math display">\[p(b_1, \ldots, b_N) \propto \left| \det(B_0) \right|^{\nu-N} \exp \left( -\frac{1}{2} \sum_{n=1}^N b_n V_n S^{-1} V_n' b_n' \right)
 \]</span></p>
+<p>Therefore,</p>
+$$
+<span class="math display">\[\begin{aligned}
+p(B^+; B_0) &amp;= \left| \det(B_0) \right|^{\underline{\nu}-N} \exp \left\{ -\frac{1}{2} \sum_{n=1}^{N} b_n V_n \underline{S}^{-1} V_n^T b_n^T \right\} \\
+&amp;\quad \times \exp \left\{ -\frac{1}{2} \sum_{n=1}^{N} (B_n - b_n V_n \underline{B}) \ \ \underline{\Omega}^{-1} \ \ (B_n - b_n V_n \underline{B})^T \right\}
+\end{aligned}\]</span>
+<p>$$</p>
 <p>Posterior Distribution</p>
 <p>Combining the likelihood and the prior, the posterior distribution:</p>
 <p><span class="math display">\[p(B_+, B_0 \mid Y, X) \propto L(B_+, B_0 \mid Y, X) \cdot p(B_+, B_0)
 \]</span></p>
-<p><span class="math display">\[\begin{align*}
+<p><span class="math display">\[
+\begin{align*}
 = \left| \det (B_0) \right|^{T+\nu-N} \exp \Bigg( -\frac{1}{2} \sum_{n=1}^N \Bigg( &amp; b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n' \\
 &amp; + b_n V_n S^{-1} V_n' b_n' + B_n \Omega^{-1} B_n' \\
 &amp; - 2 b_n V_n B \Omega^{-1} B_n' + b_n V_n B \Omega^{-1} B' V_n' b_n'
 \Bigg) \Bigg)
-\end{align*}\]</span></p>
+\end{align*}
+\]</span></p>
 <p>The resulting posterior parameters are as follow:</p>
 <p><span class="math display">\[
 \bar{\Omega} = [XX^T+\underline{{\Omega}} \ ]^{-1}
@@ -782,42 +791,60 @@ p(B_+, B_0) \sim NGN \left( B, \Omega, S, \nu \right)
 <section id="model-extension-solving-the-identification-problem-using-a-non-normality-approach" class="level3">
 <h3 class="anchored" data-anchor-id="model-extension-solving-the-identification-problem-using-a-non-normality-approach">Model Extension: Solving the Identification Problem Using a Non-Normality Approach</h3>
 <p>We use a t-distribution to model the error terms. Given difficulties with a direct estimation of the t-distribution, we proceed as follows.</p>
+<p>The current approach is as follows:</p>
+<p><span class="math display">\[
+\begin{aligned}
+p(B_0, B_+, \lambda \mid Y, X) &amp;\propto L(Y \mid X, B_0, B_+, \lambda) \ \ p(B_0, B_+, \lambda) \\
+&amp;= L(Y \mid X, B_0, B_+, \lambda) \ \ p(B_0, B_+) \ \ p(\lambda)
+\end{aligned}
+\]</span> Where, as under the basic model:</p>
+<p><span class="math display">\[
+\begin{aligned}
+p(B^+; B_0) &amp;= \left| \det(B_0) \right|^{\underline{\nu}-N} \exp \left\{ -\frac{1}{2} \sum_{n=1}^{N} b_n V_n \underline{S}^{-1} V_n^T b_n^T \right\} \\
+&amp;\quad \times \exp \left\{ -\frac{1}{2} \sum_{n=1}^{N} (B_n - b_n V_n \underline{B}) \ \ \underline{\Omega}^{-1} \ \ (B_n - b_n V_n \underline{B})^T \right\}
+\end{aligned}
+\]</span></p>
 <p>To evaluate the overall kernel for the extended Bayesian Structural Vector Autoregression (SVAR) model where the error term <span class="math inline">\(u_t\)</span> follows a distribution <span class="math inline">\(N(0, \lambda I_N)\)</span> and <span class="math inline">\(\lambda\)</span> itself is distributed according to an Inverse Gamma square (IG2) with parameters <span class="math inline">\(\nu, \nu\)</span>, we need to account for the complexity added by this distribution of the error variance. This changes how the kernel of the likelihood function is formulated and combined with the prior.</p>
 </section>
 <section id="step-1-formulating-the-kernel-of-the-likelihood-function" class="level3">
 <h3 class="anchored" data-anchor-id="step-1-formulating-the-kernel-of-the-likelihood-function">Step 1: Formulating the Kernel of the Likelihood Function</h3>
 <p>With the error term <span class="math inline">\(u_t \sim N(0, \lambda I_N)\)</span>, the likelihood function’s kernel, incorporating the variance parameter <span class="math inline">\(\lambda\)</span>, becomes: <span class="math display">\[
-\text{det}(B_0)^T \exp\left(-\frac{1}{2\lambda} \sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T\right)
+L(Y \mid X, B_0, B_+, \lambda) = \text{det}(B_0)^T \exp\left(-\frac{1}{2\lambda} \sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T\right)
 \]</span></p>
 </section>
 <section id="step-2-estimating-lambda" class="level3">
 <h3 class="anchored" data-anchor-id="step-2-estimating-lambda">Step 2: Estimating <span class="math inline">\(\lambda\)</span></h3>
-<p>Since <span class="math inline">\(\lambda\)</span> is a random variable following <span class="math inline">\(\lambda \sim IG2(\nu, \nu)\)</span>, its effect can be sampled from the density function for <span class="math inline">\(\lambda\)</span>: <span class="math display">\[
+<p>Since <span class="math inline">\(\lambda\)</span> is a random variable following <span class="math inline">\(\lambda \sim IG2(\nu, \nu)\)</span>, its effect can be sampled from the density function for <span class="math inline">\(\lambda\)</span>:</p>
+<p><span class="math display">\[
 p(\lambda) = \frac{(\nu/2)^{\nu/2}}{\Gamma(\nu/2)} \lambda^{-(\nu/2+1)} \exp\left(-\frac{\nu}{2\lambda}\right)
-\]</span></p>
-<p>We can use the rinvgamma() function to sample this <span class="math inline">\(\lambda\)</span>. In the estimation process for this extended model, we sample 5000 times from the IG2 distribution and use the mean value for <span class="math inline">\(\lambda\)</span>.</p>
+\]</span> We can use the rinvgamma() function to sample this <span class="math inline">\(\lambda\)</span>. In the estimation process for this extended model, we sample 5000 times from the IG2 distribution and use the mean value for <span class="math inline">\(\lambda\)</span>.</p>
 </section>
 <section id="step-3-evaluating-the-kernel" class="level3">
 <h3 class="anchored" data-anchor-id="step-3-evaluating-the-kernel">Step 3: Evaluating the Kernel</h3>
-<p>To evaluate the overall kernel, we can simplify as for the basic model.</p>
+<p>We use the posterior degrees of freedom to estimate the posterior variance of the error terms:</p>
+<p><span class="math display">\[
+\bar{\nu} = T + \underline{\nu}
+\]</span></p>
+<p><span class="math display">\[
+\bar{\lambda} = \operatorname{IG2}(\bar{\nu}, \bar{\nu})
+\]</span></p>
 </section>
 <section id="step-4-combining-with-the-prior" class="level3">
 <h3 class="anchored" data-anchor-id="step-4-combining-with-the-prior">Step 4: Combining with the Prior</h3>
-<p>Assuming the prior <span class="math inline">\(p(B^+; B_0)\)</span> as given or formulated according to specific assumptions (such as independence, Gaussian priors for coefficients, etc.), the full posterior kernel combining this likelihood with the prior can be approached as: <span class="math display">\[
-p(B^+; B_0 \mid Y; X) \propto p(Y \mid X, B^+, B_0) \times p(B^+; B_0)
-\]</span></p>
-<p>This expression must often be evaluated or sampled using computational Bayesian techniques, such as Markov Chain Monte Carlo (MCMC), especially given the integrative step required for <span class="math inline">\(\Lambda\)</span>.</p>
-<p>We can obtain the following posterior formulas similar to the basic model:</p>
+<p>Assuming the prior <span class="math inline">\(p(B^+; B_0)\)</span> as given or formulated according to specific assumptions (such as independence, Gaussian priors for coefficients, etc.), the full posterior kernel combining this likelihood with the prior can be approached as:</p>
 <p><span class="math display">\[
-\bar{\Omega} = [\lambda^{-1} XX^T+\underline{{\Omega}} \ ]^{-1}
+p(B_+; B_0 \mid Y; X) \propto p(Y \mid X, B_+, B_0) \times p(B_+; B_0)
 \]</span></p>
+<p>This expression must often be evaluated or sampled using computational Bayesian techniques, such as Markov Chain Monte Carlo (MCMC), especially given the integrative step required for <span class="math inline">\(\lambda\)</span>.</p>
+<p>We can obtain the following posterior formulas similar to the basic model. Note that we use <span class="math inline">\(\underline{\Omega} = \underline{\lambda\Omega}\)</span> in the following equations:</p>
 <p><span class="math display">\[
-\bar{B} = [\lambda^{-1} YX^T+\underline{B{\Omega}}^{-1}]\bar{\Omega}
+\bar{\Omega} = [\bar{\lambda}^{-1} XX^T+ \underline{{\Omega}} \ ]^{-1}
 \]</span></p>
 <p><span class="math display">\[
-\bar{S} = [\lambda^{-1} YY^T+\underline{S}^{-1}+ \underline{B{\Omega}}^{-1} \underline{B}^T - \overline{B{\Omega}}^{-1} \bar{B}]^{-1}
-\]</span> <span class="math display">\[
-\bar{\nu} = T + \underline{\nu}
+\bar{B} = [\bar{\lambda}^{-1}  YX^T+\underline{B{\Omega}}^{-1}]\bar{\Omega}
+\]</span></p>
+<p><span class="math display">\[
+\bar{S} = [\bar{\lambda}^{-1} YY^T+\underline{S}^{-1}+ \underline{B{\Omega}}^{-1} \underline{B}^T - \overline{B{\Omega}}^{-1} \bar{B}]^{-1}
 \]</span></p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
@@ -962,8 +989,9 @@ p(B^+; B_0 \mid Y; X) \propto p(Y \mid X, B^+, B_0) \times p(B^+; B_0)
 </section>
 <section id="conclusion" class="level3">
 <h3 class="anchored" data-anchor-id="conclusion">Conclusion</h3>
-<p>The overall kernel for this extended model encapsulates to the random variance <span class="math inline">\(\Lambda\)</span>. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.</p>
-<p>The results suggest the following elasticities. According to the basic model, a weaker Dixie is likely to overheat the Australian economy: a drop of 1 per cent in the USD Index would result in roughly 1 per cent increase in inflation, roughly unchanged unemployment, and roughly 1% increase in the GDP growth rate. On the other hand, the expanded model suggests that a weakening Dixie would result in a “Goldilocks economy” in Australia: 1 per cent decrease in the USD Index would result is roughly 1 per cent decrease in inflation, roughly 1 per cent decrease in unemployment, and roughly 2.5 per cent increase in the GDP growth rate.</p>
+<p>The overall kernel for this extended model encapsulates to the random variance <span class="math inline">\(\lambda\)</span>. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.</p>
+<p>The results suggest the following elasticities. According to the basic model, a weaker Dixie is likely to overheat the Australian economy: a drop of 1 per cent in the USD Index would result in roughly 1 per cent increase in inflation, roughly unchanged unemployment, and roughly 1% increase in the GDP growth rate.</p>
+<p>On the other hand, the expanded model suggests that a weakening Dixie would result in stagnation in Australia: 1 per cent decrease in the USD Index would result is roughly 0.7 per cent decrease in inflation, roughly 1 per cent decrease in unemployment, and roughly 1 per cent decrease in the GDP growth rate.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
