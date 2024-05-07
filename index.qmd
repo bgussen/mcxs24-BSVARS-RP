@@ -1173,7 +1173,7 @@ rnorm.ngn       = function(B0.posterior,B,Omega){
 
 ### Model Testing Using A Random Walk
 
-We use a random walk to generate a $Y$ matrix with one lag, and with 300
+We use a random walk to generate a $Y$ matrix with one lag, and with 100
 observations over four variables, to check whether the estimation
 algorithm is able to reproduce the random walk structure. In other
 words, we expect that $B_0$ will equal an identity matrix, the intercept
