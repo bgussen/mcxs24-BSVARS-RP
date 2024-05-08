@@ -1,167 +1,78 @@
 ---
 title: "Dixie Effect on Economic Stability in Australia"
+
 author: "Ben Gussen"
+
 execute:
-  
   echo: false
+  
 bibliography: references.bib
-editor: 
-  markdown: 
-    wrap: 72
 ---
 
-> **Abstract.** This research project investigates the dynamic effects
-> of the U.S. Dollar (USD) on the Australian economy, with a focus on
-> economic stability. By employing Bayesian Structural Vector
-> Autoregression (SVAR) analysis. This study aims to elucidate the
-> transmission mechanisms of USD fluctuations through three channels:
-> GDP growth, inflation, and unemployment. The findings are expected to
-> provide nuanced insights into the macroeconomic interdependencies
-> between the USD and the Australian economy, offering valuable
-> perspectives for policymakers and economic analysts.
+> **Abstract.** This research project investigates the dynamic effects of the U.S. Dollar (USD) on the Australian economy, with a focus on economic stability. By employing Bayesian Structural Vector Autoregression (SVAR) analysis. This study aims to elucidate the transmission mechanisms of USD fluctuations through three channels: GDP growth, inflation, and unemployment. The findings are expected to provide nuanced insights into the macroeconomic interdependencies between the USD and the Australian economy, offering valuable perspectives for policymakers and economic analysts.
 >
-> **Keywords.** Bayesian SVAR, USD, Australian economy, inflation,
-> economic stability
+> **Keywords.** Bayesian SVAR, USD, Australian economy, inflation, economic stability
 
 ### Introduction
 
-This document presents the design and implementation of a Bayesian
-Structural Vector Autoregression (SVAR) model. Our focus is on
-understanding the impact of the Trade Weighted Index (TWI) of the USD on
-Australian economic indicators: unemployment, inflation, and GDP rate.
+This document presents the design and implementation of a Bayesian Structural Vector Autoregression (SVAR) model. Our focus is on understanding the impact of the Trade Weighted Index (TWI) of the USD on Australian economic indicators: unemployment, inflation, and GDP rate.
 
 ### Research Proposal Structure
 
 #### The Question, Objective, and Motivation
 
-**Objective:** To examine the dynamic effects of a weakening USD on the
-Australian economy, focusing on changes to the GDP, inflation and
-unemployment.
+**Objective:** To examine the dynamic effects of a weakening USD on the Australian economy, focusing on changes to the GDP, inflation and unemployment.
 
-**Research Question:** How does a weakening United States Dollar (USD)
-influence overall economic stability in Australia?
+**Research Question:** How does a weakening United States Dollar (USD) influence overall economic stability in Australia?
 
-**Motivation:** The relationship between the USD and the Australian
-economy is crucial, given the extensive trade links and financial
-interactions between the two nations. In light of recent global
-financial uncertainties, understanding this interplay is essential for
-crafting informed economic policies and strategies. This research
-endeavors to dissect the complexities of this economic relationship,
-aiming to provide insights that could inform both policymakers and
-market participants.
+**Motivation:** The relationship between the USD and the Australian economy is crucial, given the extensive trade links and financial interactions between the two nations. In light of recent global financial uncertainties, understanding this interplay is essential for crafting informed economic policies and strategies. This research endeavors to dissect the complexities of this economic relationship, aiming to provide insights that could inform both policymakers and market participants.
 
 #### The US dollar trade weighted index or the USD/AUD exchange rate?
 
-@Chen2004 explores the impact of exchange rate movements on firm values
-in New Zealand, suggesting broader macroeconomic implications. Extending
-this analysis, @Chen2024 discusses the U.S. Dollar Index (USDX, DXY,
-"Dixie"), which measures the U.S. dollar's strength against a basket of
-major trading partner currencies. This index is vital for understanding
-the U.S. dollar's overall economic health and its global trade
-competitiveness.
+@Chen2004 explores the impact of exchange rate movements on firm values in New Zealand, suggesting broader macroeconomic implications. Extending this analysis, @Chen2024 discusses the U.S. Dollar Index (USDX, DXY, "Dixie"), which measures the U.S. dollar's strength against a basket of major trading partner currencies. This index is vital for understanding the U.S. dollar's overall economic health and its global trade competitiveness.
 
-Using the USD Index is preferred over the USD/AUD exchange rate because
-it provides a more comprehensive view of the US dollar's strength by
-comparing it against a basket of currencies from major trading partners.
-This broader perspective reflects overall trade competitiveness and
-economic impacts more accurately than the USD/AUD rate, which only
-measures the exchange value between two currencies. The USD Index,
-therefore, offers a better gauge of the US dollar's performance on a
-global scale, making it more suitable for analyzing its effect on the
-economic health of the Australian economy.
+Using the USD Index is preferred over the USD/AUD exchange rate because it provides a more comprehensive view of the US dollar's strength by comparing it against a basket of currencies from major trading partners. This broader perspective reflects overall trade competitiveness and economic impacts more accurately than the USD/AUD rate, which only measures the exchange value between two currencies. The USD Index, therefore, offers a better gauge of the US dollar's performance on a global scale, making it more suitable for analyzing its effect on the economic health of the Australian economy.
 
 #### What is economic stability?
 
-Economic stability indicates a nation's economy is in a healthy state,
-characterized by low and stable inflation, allowing for future financial
-planning without significant loss of purchasing power. It also involves
-a moderate unemployment rate, ensuring sufficient employment
-opportunities without causing wage inflation due to a limited labor
-pool. Additionally, the economy should experience steady growth with
-minor fluctuations in output, avoiding major booms and busts.
-Governments and central banks strive to maintain this stability using
-fiscal policies, such as taxation and spending, and monetary policies,
-including adjusting interest rates. Achieving economic stability is
-challenging as it requires maintaining a balance across various economic
-indicators. This stability is crucial as it enhances business
-confidence, boosts consumer spending, and supports overall economic
-health, with metrics like inflation, unemployment, and GDP growth
-serving as indicators of economic stability.
+Economic stability indicates a nation's economy is in a healthy state, characterized by low and stable inflation, allowing for future financial planning without significant loss of purchasing power. It also involves a moderate unemployment rate, ensuring sufficient employment opportunities without causing wage inflation due to a limited labor pool. Additionally, the economy should experience steady growth with minor fluctuations in output, avoiding major booms and busts. Governments and central banks strive to maintain this stability using fiscal policies, such as taxation and spending, and monetary policies, including adjusting interest rates. Achieving economic stability is challenging as it requires maintaining a balance across various economic indicators. This stability is crucial as it enhances business confidence, boosts consumer spending, and supports overall economic health, with metrics like inflation, unemployment, and GDP growth serving as indicators of economic stability.
 
 #### Effect of a weak US dollar on the Australian economy
 
-A weaker US Dollar Index typically strengthens the Australian dollar,
-impacting the Australian economy in several ways:
+A weaker US Dollar Index typically strengthens the Australian dollar, impacting the Australian economy in several ways:
 
-1.  **Inflation:** A stronger Australian dollar makes exports less
-    competitive and imports cheaper, potentially decreasing export
-    volumes while reducing inflation through lower import costs.
+1. **Inflation:** A stronger Australian dollar makes exports less competitive and imports cheaper, potentially decreasing export volumes while reducing inflation through lower import costs.
 
-2.  **Unemployment:** Reduced foreign investment due to a stronger
-    Australian dollar could slow economic growth and potentially
-    increase unemployment if businesses scale back expansion.
+2. **Unemployment:** Reduced foreign investment due to a stronger Australian dollar could slow economic growth and potentially increase unemployment if businesses scale back expansion.
 
-3.  **GDP Growth:** The trade balance may suffer if reduced export
-    revenues outweigh the benefits of cheaper imports, negatively
-    impacting GDP growth.
+3. **GDP Growth:** The trade balance may suffer if reduced export revenues outweigh the benefits of cheaper imports, negatively impacting GDP growth.
 
 ### Data and Their Properties
 
-In order to conduct a thorough analysis of the impact of USD
-fluctuations on the Australian economy, this study will utilize a set of
-time-series data that encapsulates three economic indicators:
+In order to conduct a thorough analysis of the impact of USD fluctuations on the Australian economy, this study will utilize a set of time-series data that encapsulates three economic indicators:
 
--   **Growth Rate in the Australian Gross Domestic Product:** Quarterly
-    GDP figures representing the overall economic activity within
-    Australia.
+- **Growth Rate in the Australian Gross Domestic Product:** Quarterly GDP figures representing the overall economic activity within Australia.
 
--   **Unemployment Rate:** Percentage of the labor force that is
-    currently unemployed and actively seeking employment.
+- **Unemployment Rate:** Percentage of the labor force that is currently unemployed and actively seeking employment.
 
--   **Inflation Rate:** Measured by the change in the Consumer Price
-    Index (CPI), reflecting the changes in prices for goods and
-    services.
+- **Inflation Rate:** Measured by the change in the Consumer Price Index (CPI), reflecting the changes in prices for goods and services.
 
-These indicators will be analyzed against one proxy for the strength of
-the USD dollar as an international currency.
+These indicators will be analyzed against one proxy for the strength of the USD dollar as an international currency. 
 
--   **USD Trade Weighted Index:** monthly index of US dollar major
-    currency trade-weighted index.
+- **USD Trade Weighted Index:** monthly index of US dollar major currency trade-weighted index. 
+
 
 #### Motivation for Data Choice:
 
-The selected variables offer a detailed insight into the economic
-interactions between the US dollar and the Australian economy, focusing
-on how trade-weighted indices affect the competitiveness of Australian
-goods and services internationally. Changes in the US dollar's strength
-can significantly impact Australia's GDP growth, given the substantial
-trade relations with the United States. Additionally, fluctuations in
-this index are likely to alter inflation and unemployment rates, key
-indicators of economic stability that affect purchasing power and
-consumer spending. This comprehensive approach enables a thorough
-examination of the international economic dynamics and the overall
-stability of the Australian economy.
+The selected variables offer a detailed insight into the economic interactions between the US dollar and the Australian economy, focusing on how trade-weighted indices affect the competitiveness of Australian goods and services internationally. Changes in the US dollar's strength can significantly impact Australia's GDP growth, given the substantial trade relations with the United States. Additionally, fluctuations in this index are likely to alter inflation and unemployment rates, key indicators of economic stability that affect purchasing power and consumer spending. This comprehensive approach enables a thorough examination of the international economic dynamics and the overall stability of the Australian economy.
 
 ### Data Acquisition and Transformation:
 
-The project will analyze data from 1980 to 2019 sourced from official
-Australian databases, particularly the Reserve Bank of Australia,
-focusing on the effects of a weakening USD on the Australian economy.
-Data from before 1980 and post-2019 are excluded due to their
-irrelevance to current trade relations and distortions from the COVID-19
-crisis, respectively. The analysis will use time series data at
-different frequencies within a Bayesian Structural Vector Autoregression
-(SVAR) model, requiring preprocessing to match data frequencies.
+The project will analyze data from 1980 to 2019 sourced from official Australian databases, particularly the Reserve Bank of Australia, focusing on the effects of a weakening USD on the Australian economy. Data from before 1980 and post-2019 are excluded due to their irrelevance to current trade relations and distortions from the COVID-19 crisis, respectively. The analysis will use time series data at different frequencies within a Bayesian Structural Vector Autoregression (SVAR) model, requiring preprocessing to match data frequencies.
 
-For our purposes in this initial proposal, the required data will be
-sourced from official Australian government databases using the
-`readrba` R packages. Based on the preliminary results from the project,
-it might become necessary to entertain a mixed frequency approach.
+For our purposes in this initial proposal, the required data will be sourced from official Australian government databases using the `readrba` R packages. Based on the preliminary results from the project, it might become necessary to entertain a mixed frequency approach. 
 
-The first series, the year-end Australian real GDP growth rate, is from
-the Reserve Bank of Australia (RBA) output and labour statistical tables
-[@RBA2024a]. This is a quarterly series, and will not need to be treated
-for frequency alignment.
+The first series, the year-end Australian real GDP growth rate, is from the Reserve Bank of Australia (RBA) output and labour statistical tables [@RBA2024a]. This is a quarterly series, and will not need to be treated for frequency alignment. 
 
 ```{r setup, include=FALSE}
 #| echo: false
@@ -222,9 +133,7 @@ pacf(GDP_rate$value, main = "PACF for GDP Rate", lag.max = 10)
 par(mfrow=c(1, 1))
 ```
 
-As seen in @fig-GDP, the PACF above, the optimal lag for conducting the
-augmented Dicky-Fuller (DF) test is 4. A summary of the results of this
-test can be found in the table below.
+As seen in @fig-GDP, the PACF above, the optimal lag for conducting the augmented Dicky-Fuller (DF) test is 4. A summary of the results of this test can be found in the table below. 
 
 ```{r}
 #| echo: false
@@ -235,17 +144,9 @@ test can be found in the table below.
 adf_test_result <- ur.df(GDP_rate$value, type = "drift", lags = 4, selectlags = "AIC")
 ```
 
-Note that the augmented DF test suggests that the series is stationary
-at the 95% level. There is no need to modify the series. From the DF
-test results, its is safe to conclude that the GDP_rate series is
-stationary.
+Note that the augmented DF test suggests that the series is stationary at the 95% level. There is no need to modify the series. From the DF test results, its is safe to conclude that the GDP_rate series is stationary. 
 
-The second series, the year-end change in Australian inflation rate, is
-from the Reserve Bank of Australia (RBA) inflation and inflation
-expectations statistical tables (@RBA2024b). This series has been
-converted from a monthly series into a quarterly series by choosing the
-relevant months for the beginning of each quarter, starting from March
-and ending with December.
+The second series, the year-end change in Australian inflation rate, is from the Reserve Bank of Australia (RBA) inflation and inflation expectations statistical tables (@RBA2024b). This series has been converted from a monthly series into a quarterly series by choosing the relevant months for the beginning of each quarter, starting from March and ending with December. 
 
 ```{r CPI rate}
 #| echo: false 
@@ -292,16 +193,9 @@ adf_test_result <- ur.df(CPI_rate$value, type = "drift", lags = 4, selectlags = 
 
 ```
 
-From @fig-CPI, an augmented DF test was conducted with 3 lags. Note that
-the augmented DF test suggests that the series is not stationary at the
-95% confidence level. There was a need to take the difference of the
-series.
+From @fig-CPI, an augmented DF test was conducted with 3 lags. Note that the augmented DF test suggests that the series is not stationary at the 95% confidence level. There was a need to take the difference of the series.
 
-The third series, the Australian unemployment rate, is from the Reserve
-Bank of Australia (RBA) output and labour Statistical tables
-[@RBA2024c]. This is a monthly series. The series was converted into a
-quarterly series by choosing the relevant months for the beginning of
-each quarter, starting from March and ending with December.
+The third series, the Australian unemployment rate, is from the Reserve Bank of Australia (RBA) output and labour Statistical tables [@RBA2024c]. This is  a monthly series. The series was converted into a quarterly series by choosing the relevant months for the beginning of each quarter, starting from March and ending with December. 
 
 ```{r unemp_rate}
 #| echo: false 
@@ -350,16 +244,9 @@ adf_test_result <- ur.df(unemp_rate$value, type = "drift", lags = 4, selectlags 
 
 ```
 
-@fig-unemp above explains that a lag 4 should be used for the augmented
-DF test. Note that this test (see Appendix) suggests that the series is
-not stationary at the 95% confidence level. We therefore use the
-differenced series.
+@fig-unemp above explains that a lag 4 should be used for the augmented DF test. Note that this test (see Appendix) suggests that the series is not stationary at the 95% confidence level. We therefore use the differenced series.
 
-The fourth series, the USD Index, is also from the Reserve Bank of
-Australia (RBA) exchange rates statistical tables [@RBA2024d]. This is a
-monthly series. The series was converted into a quarterly series by
-choosing the relevant months for the beginning of each quarter, starting
-from March and ending with December.
+The fourth series, the USD Index, is also from the Reserve Bank of Australia (RBA) exchange rates statistical tables [@RBA2024d]. This is  a monthly series. The series was converted into a quarterly series by choosing the relevant months for the beginning of each quarter, starting from March and ending with December.
 
 ```{r USD Index}
 #| echo: false
@@ -413,13 +300,11 @@ adf_test_result <- ur.df(USD_Index$value, type = "drift", lags = 4, selectlags =
 
 ```
 
-@fig-Index above indicates that a lag 4 should be used for the augmented
-DF test. The results suggest that the series is not stationary at the
-95% confidence level. We therefore use the differenced series.
+@fig-Index above indicates that a lag 4 should be used for the augmented DF test. The results suggest that the series is not stationary at the 95% confidence level. We therefore use the differenced series.
 
 ### Augmented Dicky-Fuller test results for the USD Index
 
-```{r}
+```{r} 
 
 # Load necessary libraries
 library(tseries)
@@ -507,110 +392,44 @@ grid.arrange(grobs = plot_list, ncol = 2)
 
 ```
 
+
+
 ### Model Specification
 
-The above selection and treatment of the data is pivotal to answering
-the research question: How does a weakening United States Dollar (USD)
-influence overall economic stability in Australia? By focusing on key
-economic indicators like the GDP growth rate, unemployment rate, and
-inflation rate, and comparing these against the USD Trade Weighted Index
-(TWI), the study strategically addresses the multifaceted impact of USD
-fluctuations on the Australian economy. The chosen data encapsulate the
-essential aspects of economic stability, allowing for a nuanced analysis
-of the interdependencies between the USD's value and Australian economic
-health.
 
-This approach is vital for constructing a comprehensive Bayesian
-Structural Vector Autoregression (SVAR) model. The SVAR model, designed
-to elucidate the transmission mechanisms of USD fluctuations, relies on
-accurate, time-aligned, and contextually relevant data to provide
-meaningful insights. By ensuring the data are stationary and
-appropriately preprocessed for the chosen analysis timeframe
-(1980-2019), excluding periods of atypical economic disruption like the
-COVID-19 crisis, the document ensures that the model's outputs are
-reflective of standard economic interactions, enhancing the reliability
-of the findings.
+The above selection and treatment of the data is pivotal to answering the research question: How does a weakening United States Dollar (USD) influence overall economic stability in Australia? By focusing on key economic indicators like the GDP growth rate, unemployment rate, and inflation rate, and comparing these against the USD Trade Weighted Index (TWI), the study strategically addresses the multifaceted impact of USD fluctuations on the Australian economy. The chosen data encapsulate the essential aspects of economic stability, allowing for a nuanced analysis of the interdependencies between the USD's value and Australian economic health.
 
-Furthermore, the data treatment, including the conversion of series to
-quarterly frequencies and addressing stationarity, directly informs the
-model equations by ensuring that the inputs reflect genuine economic
-trends devoid of seasonal or non-stationary noise. This data preparation
-not only strengthens the study’s methodological framework but also
-ensures that the SVAR model's findings will offer actionable insights,
-enabling policymakers and analysts to base decisions on solid empirical
-evidence, thereby underlining the importance of investigating the
-specified problem.
+This approach is vital for constructing a comprehensive Bayesian Structural Vector Autoregression (SVAR) model. The SVAR model, designed to elucidate the transmission mechanisms of USD fluctuations, relies on accurate, time-aligned, and contextually relevant data to provide meaningful insights. By ensuring the data are stationary and appropriately preprocessed for the chosen analysis timeframe (1980-2019), excluding periods of atypical economic disruption like the COVID-19 crisis, the document ensures that the model's outputs are reflective of standard economic interactions, enhancing the reliability of the findings.
 
-Next, we employ a Bayesian Structural Vector Autoregression (SVAR) model
-to understand the dynamic relationships among various economic
-indicators influenced by fluctuations in the United States Dollar (USD)
-against the Australian Dollar (AUD)
-[@wozniakBsvarsBayesianEstimation2022]. In particular, we follow
-@Bhuiyan2012 who introduces a Bayesian structural VAR model tailored for
-Canada, focusing on evaluating the impact of monetary policy shocks,
-utilizing the overnight rate target as the main policy tool. However,
-our model differs in that it does not directly account for any fiscal
-and monetary policy, rather it evaluates the potential of using the US
-Index to predict the stability of the Australian economy.
+Furthermore, the data treatment, including the conversion of series to quarterly frequencies and addressing stationarity, directly informs the model equations by ensuring that the inputs reflect genuine economic trends devoid of seasonal or non-stationary noise. This data preparation not only strengthens the study’s methodological framework but also ensures that the SVAR model's findings will offer actionable insights, enabling policymakers and analysts to base decisions on solid empirical evidence, thereby underlining the importance of investigating the specified problem.
+
+Next, we employ a Bayesian Structural Vector Autoregression (SVAR) model to understand the dynamic relationships among various economic indicators influenced by fluctuations in the United States Dollar (USD) against the Australian Dollar (AUD) [@wozniakBsvarsBayesianEstimation2022]. In particular, we follow @Bhuiyan2012 who introduces a Bayesian structural VAR model tailored for Canada, focusing on evaluating the impact of monetary policy shocks, utilizing the overnight rate target as the main policy tool. However, our model differs in that it does not directly account for any fiscal and monetary policy,  rather it evaluates the potential of using the US Index to predict the stability of the Australian economy. 
 
 #### Justification for the Selection of the Bayesian SVAR Model
 
-In addressing the dynamics between the United States Dollar (USD) and
-the Australian economy, we opt for a Bayesian Structural Vector
-Autoregression (SVAR) model over alternative econometric methodologies
-for several reasons. Firstly, the SVAR model allows us to incorporate
-prior knowledge and uncertainties into our analysis, an advantage not
-readily available in traditional VAR models. This Bayesian approach is
-particularly beneficial in economic studies where historical data and
-expert judgment play crucial roles in shaping analysis and expectations.
+In addressing the dynamics between the United States Dollar (USD) and the Australian economy, we opt for a Bayesian Structural Vector Autoregression (SVAR) model over alternative econometric methodologies for several reasons. Firstly, the SVAR model allows us to incorporate prior knowledge and uncertainties into our analysis, an advantage not readily available in traditional VAR models. This Bayesian approach is particularly beneficial in economic studies where historical data and expert judgment play crucial roles in shaping analysis and expectations.
 
-Furthermore, SVAR models enable us to decipher the structural impacts of
-economic shocks, such as fluctuations in the USD, on various indicators
-of economic stability within Australia, including GDP growth, inflation,
-and unemployment rates. Unlike standard VAR models that treat all
-innovations as endogenously generated within the system, SVAR models
-allow us to impose structural restrictions based on economic theory.
-This is critical for understanding the directionality and magnitude of
-relationships between variables, thereby offering a more nuanced
-analysis of economic interdependencies.
+Furthermore, SVAR models enable us to decipher the structural impacts of economic shocks, such as fluctuations in the USD, on various indicators of economic stability within Australia, including GDP growth, inflation, and unemployment rates. Unlike standard VAR models that treat all innovations as endogenously generated within the system, SVAR models allow us to impose structural restrictions based on economic theory. This is critical for understanding the directionality and magnitude of relationships between variables, thereby offering a more nuanced analysis of economic interdependencies.
 
 #### Interpretation of the $B_0$ Matrix in the Bayesian SVAR Model
 
-In our Bayesian SVAR model, the matrix $B_0$ is pivotal as it
-encapsulates the contemporaneous relationships between the endogenous
-variables. Each entry $b_{ij}$ in the $B_0$ matrix can be interpreted as
-the immediate impact of a one-unit shock in variable $j$ on variable $i$
-within the same time period, holding all other factors constant. This
-interpretation allows us to understand the intricate web of interactions
-within the economic system, such as how a sudden change in the USD Index
-might immediately affect Australia's GDP growth, inflation, or
-unemployment rate.
+In our Bayesian SVAR model, the matrix $B_0$ is pivotal as it encapsulates the contemporaneous relationships between the endogenous variables. Each entry $b_{ij}$ in the $B_0$ matrix can be interpreted as the immediate impact of a one-unit shock in variable $j$ on variable $i$ within the same time period, holding all other factors constant. This interpretation allows us to understand the intricate web of interactions within the economic system, such as how a sudden change in the USD Index might immediately affect Australia's GDP growth, inflation, or unemployment rate.
 
-For instance, a positive entry in the row of the GDP growth and in the
-column of the USD Index would indicate that an instantaneous increase in
-the USD Index (reflecting a strengthening of the USD) has a positive
-impact on Australian GDP growth within the same period. Such insights
-are invaluable for policymakers and analysts seeking to anticipate and
-mitigate the effects of international monetary fluctuations on domestic
-economic stability.
+For instance, a positive entry in the row of the GDP growth and in the column of the USD Index would indicate that an instantaneous increase in the USD Index (reflecting a strengthening of the USD) has a positive impact on Australian GDP growth within the same period. Such insights are invaluable for policymakers and analysts seeking to anticipate and mitigate the effects of international monetary fluctuations on domestic economic stability.
 
 This is a 4x1 vector of endogenous variables at time t, where:
 
--   $USD\_Index$ : Log of the Trade Weighted Index of the US Dollar.
--   $Unemployment\_rate$ : unemployment rate.
--   $Inflation\_rate$ : inflation rate.
--   $GDP\_growth$ : growth rate of GDP.
+- $USD\_Index$ : Log of the Trade Weighted Index of the US Dollar.
+- $Unemployment\_rate$ : unemployment rate.
+- $Inflation\_rate$ : inflation rate.
+- $GDP\_growth$ : growth rate of GDP.
+
 
 The SVAR model structure:
 
--   $B_0$ is a 4X4 matrix representing the contemporaneous relationships
-    between the variables.
--   $B_i$ (for i = 0,1,...,p) are 4x4 matrices representing the lagged
-    effects (where p is the lag order).
--   $u_t$ is a vector of innovations at time $t$, assumed to follow
-    $u_t \mid Y_{t-1} \sim N(0, I_N)$, where $I_N$ is the identity
-    matrix. This implies that shocks are independently and identically
-    distributed with no correlation and a standard normal distribution.
+- $B_0$ is a 4X4 matrix representing the contemporaneous relationships between the variables.
+- $B_i$ (for i = 0,1,...,p) are 4x4 matrices representing the lagged effects (where p is the lag order).
+- $u_t$ is a vector of innovations at time $t$, assumed to follow $u_t \mid Y_{t-1} \sim N(0, I_N)$, where $I_N$ is the identity matrix. This implies that shocks are independently and identically distributed with no correlation and a standard normal distribution.
 
 LaTe
 
@@ -624,231 +443,115 @@ Y_t =
 \end{bmatrix}
 $$
 
-The Bayesian Structural VAR model can then be written as:
 
-The Bayesian Structural Vector Autoregression (SVAR) model is given by
-the equation:
+The Bayesian Structural VAR model can then be written as: 
+
+The Bayesian Structural Vector Autoregression (SVAR) model is given by the equation:
 
 $$
 B_0 Y_t = b_0 + B_1 Y_{t-1} + \dots + B_p Y_{t-p} + u_t
 $$
 
+
 #### Model Notations:
 
-$Y_t$: This represents the vector of endogenous variables at time tt. In
-this context, the vector consists of the Trade Weighted Index of the US
-Dollar (USD_Index), the unemployment rate, the inflation rate, and the
-GDP growth rate. These variables are chosen because they represent key
-indicators of economic stability.
+$Y_t$: This represents the vector of endogenous variables at time tt. In this context, the vector consists of the Trade Weighted Index of the US Dollar (USD_Index), the unemployment rate, the inflation rate, and the GDP growth rate. These variables are chosen because they represent key indicators of economic stability.
 
-$B_0$: This is a matrix representing the contemporaneous relationships
-between the variables in $Y_t$. In an SVAR model, this matrix helps to
-understand how shocks to one variable (e.g., USD_Index) can
-contemporaneously affect other variables (e.g., unemployment, inflation,
-GDP growth).
+$B_0$: This is a matrix representing the contemporaneous relationships between the variables in $Y_t$. In an SVAR model, this matrix helps to understand how shocks to one variable (e.g., USD_Index) can contemporaneously affect other variables (e.g., unemployment, inflation, GDP growth).
 
-$B_i$ (for i=0,1,...,pi=0,1,...,p): These are matrices representing the
-lagged effects of the variables on each other. The subscript ii
-represents the lag order, showing how past values (lags) of each
-variable in $Y_t$ influence the current values. In time series analysis,
-this captures dynamics such as how past economic conditions influence
-current outcomes.
+$B_i$ (for i=0,1,...,pi=0,1,...,p): These are matrices representing the lagged effects of the variables on each other. The subscript ii represents the lag order, showing how past values (lags) of each variable in $Y_t$ influence the current values. In time series analysis, this captures dynamics such as how past economic conditions influence current outcomes.
 
-$u_t$: This is the vector of errors or shocks at time tt. In the SVAR
-framework, these are considered unobservable random shocks that affect
-the endogenous variables. In Bayesian SVAR models, these shocks are also
-subjected to prior distributions reflecting our beliefs or assumptions
-before observing the data.
+$u_t$: This is the vector of errors or shocks at time tt. In the SVAR framework, these are considered unobservable random shocks that affect the endogenous variables. In Bayesian SVAR models, these shocks are also subjected to prior distributions reflecting our beliefs or assumptions before observing the data.
 
 #### Using the Model to Answer the Research Question:
 
-The model will be used to analyze how fluctuations in the US Trade
-Weighted Index (representing a weakening or strengthening USD) impact
-the Australian economy's stability, specifically through GDP growth,
-inflation, and unemployment rates. By examining the contemporaneous and
-lagged relationships between these variables, we can understand the
-transmission mechanisms of US dollar fluctuations.
+The model will be used to analyze how fluctuations in the US Trade Weighted Index (representing a weakening or strengthening USD) impact the Australian economy's stability, specifically through GDP growth, inflation, and unemployment rates. By examining the contemporaneous and lagged relationships between these variables, we can understand the transmission mechanisms of US dollar fluctuations.
 
-To address the research objectives, we will assess the dynamic effects
-of the USD_Index on Australia's economic indicators. This involves
-looking at the impulse response functions (IRFs) and variance
-decompositions derived from the SVAR model. The IRFs will show how a
-shock to the US dollar index impacts Australian GDP growth, inflation,
-and unemployment over time. This directly speaks to the study's aim to
-elucidate the transmission mechanisms of such fluctuations.
+To address the research objectives, we will assess the dynamic effects of the USD_Index on Australia's economic indicators. This involves looking at the impulse response functions (IRFs) and variance decompositions derived from the SVAR model. The IRFs will show how a shock to the US dollar index impacts Australian GDP growth, inflation, and unemployment over time. This directly speaks to the study's aim to elucidate the transmission mechanisms of such fluctuations.
 
 This analysis will be conducted using a stepwise approach:
 
--   Lag Selection: Optimal lags for the variables will be determined
-    based on the general approach in the literature for quarterly data,
-    namely, 12 lags.
+- Lag Selection: Optimal lags for the variables will be determined based on the general approach in the literature for quarterly data, namely, 12 lags.
 
--   Model Estimation: The extended SVAR model, incorporating the
-    selected lags, will be estimated to analyze the interactions between
-    the USD Index and Australian economic indicators.
+- Model Estimation: The extended SVAR model, incorporating the selected lags, will be estimated to analyze the interactions between the USD Index and Australian economic indicators.
 
 #### Estimation Outputs for Interpreting the Research Question:
 
-**Posterior Distributions**: These reflect the updated beliefs about the
-model's parameters after considering the data. We would examine the
-posterior distributions of the SVAR model parameters, particularly
-focusing on the coefficients that measure the impact of USD_Index
-changes on the economic indicators.
+**Posterior Distributions**: These reflect the updated beliefs about the model's parameters after considering the data. We would examine the posterior distributions of the SVAR model parameters, particularly focusing on the coefficients that measure the impact of USD_Index changes on the economic indicators.
 
-**Impulse Response Functions (IRFs)**: IRFs trace the effects of a
-one-time shock to one of the innovations on the current and future
-values of the endogenous variables. By analyzing the IRFs, we can
-interpret how an unexpected change in the US dollar's value affects
-Australian economic conditions over time.
+**Impulse Response Functions (IRFs)**: IRFs trace the effects of a one-time shock to one of the innovations on the current and future values of the endogenous variables. By analyzing the IRFs, we can interpret how an unexpected change in the US dollar's value affects Australian economic conditions over time.
 
-**Variance Decompositions**: These help us understand the proportion of
-the forecast variance of each endogenous variable that can be attributed
-to shocks to each variable in the model, including shocks to the
-USD_Index. This is crucial for assessing the significance of US dollar
-fluctuations compared to other domestic factors.
+**Variance Decompositions**: These help us understand the proportion of the forecast variance of each endogenous variable that can be attributed to shocks to each variable in the model, including shocks to the USD_Index. This is crucial for assessing the significance of US dollar fluctuations compared to other domestic factors.
 
-**Credibility Intervals**: Unlike classical confidence intervals,
-credibility intervals in Bayesian analysis offer a probability statement
-about the parameter values. Examining these intervals for the effects of
-interest will provide insights into the certainty of our estimates.
+**Credibility Intervals**: Unlike classical confidence intervals, credibility intervals in Bayesian analysis offer a probability statement about the parameter values. Examining these intervals for the effects of interest will provide insights into the certainty of our estimates.
 
-In terms of economic context, understanding the relationship between the
-US dollar index and Australian economic indicators is vital for
-policymakers and economic analysts, especially considering the
-significant trade and financial ties between the two countries. The
-model helps address the research objectives by providing a structured
-way to quantify these relationships, thereby informing decisions that
-could enhance economic stability in response to international currency
-movements.
+In terms of economic context, understanding the relationship between the US dollar index and Australian economic indicators is vital for policymakers and economic analysts, especially considering the significant trade and financial ties between the two countries. The model helps address the research objectives by providing a structured way to quantify these relationships, thereby informing decisions that could enhance economic stability in response to international currency movements.
 
-For your Bayesian SVAR model examining the impact of the U.S. Dollar on
-the Australian economy, applying exclusionary restrictions to the $B_0$
-matrix can be guided by economic theory concerning the likely immediate
-(contemporaneous) effects of one variable on another. In the context of
-your study, focusing on GDP growth, inflation, and unemployment as
-responses to changes in the USD Trade Weighted Index, here are some
-suggestions for structuring these restrictions:
+For your Bayesian SVAR model examining the impact of the U.S. Dollar on the Australian economy, applying exclusionary restrictions to the $B_0$ matrix can be guided by economic theory concerning the likely immediate (contemporaneous) effects of one variable on another. In the context of your study, focusing on GDP growth, inflation, and unemployment as responses to changes in the USD Trade Weighted Index, here are some suggestions for structuring these restrictions:
 
 #### Considerations for $B_0$ Matrix Exclusionary Restrictions
 
-Using a lower triangular matrix for $B_0$ in our Bayesian Structural
-Vector Autoregression (SVAR) model is a common approach in identifying
-the model. This approach can help ensure that the model is identified
-under the assumption that the contemporaneous relationships between the
-variables follow a specific causal ordering. Here's how we implement and
-justify this approach along with leveraging the Minnesota prior for
-testing and imposing restrictions:
+Using a lower triangular matrix for $B_0$ in our Bayesian Structural Vector Autoregression (SVAR) model is a common approach in identifying the model. This approach can help ensure that the model is identified under the assumption that the contemporaneous relationships between the variables follow a specific causal ordering. Here's how we  implement and justify this approach along with leveraging the Minnesota prior for testing and imposing restrictions:
 
 #### Using a Lower Triangular Matrix for $B_0$
 
 ##### Advantages
-
--   **Causality Assumption**: A lower triangular matrix implies that a
-    variable does not contemporaneously affect any variables that come
-    before it in the ordering. This reflects a causal hierarchy among
-    the variables, where earlier variables can affect later ones within
-    the same time period, but not vice versa.
--   **Model Identification**: SVAR models often suffer from
-    identification issues due to the symmetric nature of the covariance
-    matrix of the errors. Using a lower triangular $B_0$ can help in
-    uniquely determining the model by providing a clear causal path
-    among variables.
+- **Causality Assumption**: A lower triangular matrix implies that a variable does not contemporaneously affect any variables that come before it in the ordering. This reflects a causal hierarchy among the variables, where earlier variables can affect later ones within the same time period, but not vice versa.
+- **Model Identification**: SVAR models often suffer from identification issues due to the symmetric nature of the covariance matrix of the errors. Using a lower triangular $B_0$ can help in uniquely determining the model by providing a clear causal path among variables.
 
 ##### How to Implement
+- **Ordering of Variables**: Decide the ordering of variables based on economic theory or empirical evidence. For our analysis on the effects of a weakening USD:
+  1. **USD Index**: As the exogenous shock.
+  2. **Inflation Rate**: Likely responds quickly to currency value changes due to import prices.
+  3. **Unemployment Rate**: Might react to changes in economic conditions that are influenced by inflation adjustments.
+  4. **GDP Growth**: Often considered to respond over a longer period to changes in broader economic indicators.
+- **Matrix Structure**: With this ordering, our $B_0$ matrix would look like:
 
--   **Ordering of Variables**: Decide the ordering of variables based on
-    economic theory or empirical evidence. For our analysis on the
-    effects of a weakening USD:
+  $B_0 =$ 
+  \begin{bmatrix}
+    b_{11} & 0 & 0 & 0 \\
+    b_{21} & b_{22} & 0 & 0 \\
+    b_{31} & b_{32} & b_{33} & 0 \\
+    b_{41} & b_{42} & b_{43} & b_{44}
+  \end{bmatrix}
 
-    1.  **USD Index**: As the exogenous shock.
-    2.  **Inflation Rate**: Likely responds quickly to currency value
-        changes due to import prices.
-    3.  **Unemployment Rate**: Might react to changes in economic
-        conditions that are influenced by inflation adjustments.
-    4.  **GDP Growth**: Often considered to respond over a longer period
-        to changes in broader economic indicators.
-
--   **Matrix Structure**: With this ordering, our $B_0$ matrix would
-    look like:
-
-    $B_0 =$
-
-    ```{=tex}
-    \begin{bmatrix}
-      b_{11} & 0 & 0 & 0 \\
-      b_{21} & b_{22} & 0 & 0 \\
-      b_{31} & b_{32} & b_{33} & 0 \\
-      b_{41} & b_{42} & b_{43} & b_{44}
-    \end{bmatrix}
-    ```
-    Here, $b_{ij}$ are parameters to be estimated, with non-zero entries
-    allowed only in the lower triangle, reflecting the immediate impacts
-    as per the assumed causality.
+  Here, $b_{ij}$ are parameters to be estimated, with non-zero entries allowed only in the lower triangle, reflecting the immediate impacts as per the assumed causality.
 
 #### Testing Restrictions Using the Minnesota Prior
 
 ##### Minnesota Prior and Shrinkage
-
--   **Role of Minnesota Prior**: In Bayesian SVARs, the Minnesota prior
-    typically imposes shrinkage on the parameters, pulling them towards
-    some baseline values (often zero or a random walk hypothesis for
-    autoregressive parameters). This can be particularly useful in
-    imposing and testing exclusion restrictions implicitly through the
-    prior distribution.
--   **Implementing Shrinkage**: We use the Minnesota prior to
-    differentially shrink the off-diagonal elements of $B_0$ to test
-    whether the data supports the exclusion restrictions. Larger
-    shrinkage (higher prior variance) on certain parameters can test if
-    the unrestricted model significantly deviates from these baseline
-    assumptions.
+- **Role of Minnesota Prior**: In Bayesian SVARs, the Minnesota prior typically imposes shrinkage on the parameters, pulling them towards some baseline values (often zero or a random walk hypothesis for autoregressive parameters). This can be particularly useful in imposing and testing exclusion restrictions implicitly through the prior distribution.
+- **Implementing Shrinkage**: We use the Minnesota prior to differentially shrink the off-diagonal elements of $B_0$ to test whether the data supports the exclusion restrictions. Larger shrinkage (higher prior variance) on certain parameters can test if the unrestricted model significantly deviates from these baseline assumptions.
 
 ##### Steps to Follow
+1. **Specify the Prior**: Define the Minnesota prior for each element in $B_0$ based on how strongly our believe in the causal ordering and immediate impacts.
+2. **Fit the Model**: Use Bayesian estimation techniques. We will use the Gibbs sampling proposed by @Waggoner&Zha2003 to fit the SVAR model.
+3. **Analyze the Posterior**: Check the posterior distributions of the $B_0$ elements. If the posterior distributions of certain off-diagonal elements concentrate around zero (or within a close range), it supports the exclusion restrictions under the causal ordering.
+4. **Robustness Checks**: Consider alternative orderings or less restrictive priors to ensure robustness of the findings.
 
-1.  **Specify the Prior**: Define the Minnesota prior for each element
-    in $B_0$ based on how strongly our believe in the causal ordering
-    and immediate impacts.
-2.  **Fit the Model**: Use Bayesian estimation techniques. We will use
-    the Gibbs sampling proposed by @Waggoner&Zha2003 to fit the SVAR
-    model.
-3.  **Analyze the Posterior**: Check the posterior distributions of the
-    $B_0$ elements. If the posterior distributions of certain
-    off-diagonal elements concentrate around zero (or within a close
-    range), it supports the exclusion restrictions under the causal
-    ordering.
-4.  **Robustness Checks**: Consider alternative orderings or less
-    restrictive priors to ensure robustness of the findings.
+This approach not only aids in model identification and ensures adherence to theoretical expectations but also leverages the flexibility of Bayesian methods to incorporate and test economic theory effectively.
 
-This approach not only aids in model identification and ensures
-adherence to theoretical expectations but also leverages the flexibility
-of Bayesian methods to incorporate and test economic theory effectively.
+### Derivation of the Estimation Algorithm 
 
-### Derivation of the Estimation Algorithm
-
-For the basic model as described above, we will proceed as follows:
+For the basic model as described above, we will proceed as follows: 
 
 #### Model Structure
 
-The SVAR model is expressed as: $B_0 Y_t = B_+ X_t + u_t$ where: - $B_0$
-contains contemporaneous effects with certain zero restrictions
-(exclusion restrictions). - $B_+$ is the matrix comprising the intercept
-and coefficients of lagged variables. - $X_t$includes a constant and
-lagged values of ( Y ). - $u_t$ is the error term assumed to be normally
-distributed.
+The SVAR model is expressed as:
+$B_0 Y_t = B_+ X_t + u_t$
+where:
+- $B_0$ contains contemporaneous effects with certain zero restrictions (exclusion restrictions).
+- $B_+$ is the matrix comprising the intercept and coefficients of lagged variables.
+- $X_t$includes a constant and lagged values of \( Y \).
+- $u_t$ is the error term assumed to be normally distributed.
 
 #### Exclusion Restrictions
-
-We have specified that each row $n$ of $B_0$ can be represented as a
-product of unrestricted coefficients $b_n$ and a fixed matrix $V_n$ of
-zeros and ones, applying structural constraints to the model.
+We have specified that each row $n$ of $B_0$ can be represented as a product of unrestricted coefficients $b_n$ and a fixed matrix $V_n$ of zeros and ones, applying structural constraints to the model.
 
 #### Likelihood Function
+The likelihood function for the model incorporates the determinants and exponentials of quadratic forms, which reflect the usual Gaussian assumptions for the innovations.
 
-The likelihood function for the model incorporates the determinants and
-exponentials of quadratic forms, which reflect the usual Gaussian
-assumptions for the innovations.
-
-The likelihood function usning the Normal-Generalized-Normal (NGN)
-distribution is detailed below:
+The likelihood function usning the Normal-Generalized-Normal (NGN) distribution is detailed below: 
 
 $L(B_+, B_0 \mid Y, X) = \left| \det (B_0) \right|^T \exp \left( -\frac{1}{2} \sum_{n=1}^N \left( b_n V_n Y - B_n X \right) \left( b_n V_n Y - B_n X \right)' \right)$
 
@@ -858,14 +561,17 @@ Expanding the expression within the exponential term:
 
 $\sum_{n=1}^N \left( b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n' \right)$
 
-And further:
+And further: 
 
-```{=tex}
+$$
+
 \begin{aligned}
     b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n' &= b_n V_n \left( Y Y' - Y X' (X X')^{-1} X Y' \right) V_n' b_n' \\
     &\quad + (B_n - b_n V_n \hat{A}) (X X') (B_n - b_n V_n \hat{A})'
 \end{aligned}
-```
+
+$$
+
 where $\hat{A} = YX' (XX')^{-1}$.
 
 Likelihood Function Simplification
@@ -874,11 +580,9 @@ The simplified likelihood function can then be presented as:
 
 $L(B_+, B_0 \mid Y, X) \sim NGN \left( \hat{A}, (X X')^{-1}, (Y Y' - Y X' (X X')^{-1} X Y')^{-1}, T + N \right)$
 
-#### Prior and Posterior Distributions
 
-The model uses a Normal-generalized-normal (NGN) distribution approach
-for the priors. The likelihood and priors are combined to form the
-posterior distributions, which are sampled using Gibbs sampling.
+#### Prior and Posterior Distributions
+The model uses a Normal-generalized-normal (NGN) distribution approach for the priors. The likelihood and priors are combined to form the posterior distributions, which are sampled using Gibbs sampling.
 
 Natural-Conjugate Prior
 
@@ -897,14 +601,15 @@ $$
 $$p(b_1, \ldots, b_N) \propto \left| \det(B_0) \right|^{\nu-N} \exp \left( -\frac{1}{2} \sum_{n=1}^N b_n V_n S^{-1} V_n' b_n' \right)
 $$
 
-Therefore,
+Therefore, 
 
-```{=tex}
+$$
 \begin{aligned}
 p(B^+; B_0) &= \left| \det(B_0) \right|^{\underline{\nu}-N} \exp \left\{ -\frac{1}{2} \sum_{n=1}^{N} b_n V_n \underline{S}^{-1} V_n^T b_n^T \right\} \\
 &\quad \times \exp \left\{ -\frac{1}{2} \sum_{n=1}^{N} (B_n - b_n V_n \underline{B}) \ \ \underline{\Omega}^{-1} \ \ (B_n - b_n V_n \underline{B})^T \right\}
 \end{aligned}
-```
+
+$$
 
 Posterior Distribution
 
@@ -922,11 +627,12 @@ $$
 \end{align*}
 $$
 
-The resulting posterior parameters are as follow:
+The resulting posterior parameters are as follow: 
 
 $$
 \bar{\Omega} = [XX^T+\underline{{\Omega}} \ ]^{-1}
 $$
+
 
 $$
 \bar{B} = [YX^T+\underline{B{\Omega}}^{-1}]\bar{\Omega}
@@ -934,42 +640,37 @@ $$
 
 $$
 \bar{S} = [YY^T+\underline{S}^{-1}+ \underline{B{\Omega}}^{-1} \underline{B}^T - \overline{B{\Omega}}^{-1} \bar{B}]^{-1}
-$$ $$
+$$
+$$
 \bar{\nu} = T + \underline{\nu} 
 $$
 
-Using these formulas we can proceed to sample using the Gibbs sampling
-procedure.
+Using these formulas we can proceed to sample using the Gibbs sampling procedure. 
 
 #### Gibbs Sampling Procedure
-
-Gibbs sampling for this model involves: 1. **Sampling the unrestricted
-coefficients** $b_n$ from their conditional distributions given the data
-and all other parameters. 2. **Sampling** $B_+$, considering the latest
-draws of $b_n$ and the data.
+Gibbs sampling for this model involves:
+1. **Sampling the unrestricted coefficients $b_n$** from their conditional distributions given the data and all other parameters.
+2. **Sampling $B_+$**, considering the latest draws of $b_n$ and the data.
 
 #### Steps to Implement in R
 
 To estimate this model in R, you would generally need to:
 
-1.  **Define the Model Structure:**
-    -   We set up matrices $B_0$ and $B_+$ based on the given structure
-        and exclusion restrictions.
-    -   We prepare the data matrices $Y$ and $X$.
-2.  **Initialize Parameters:**
-    -   We initialize $B_0$, $B_+$, and any other matrices or parameters
-        required for the Gibbs sampling.
-3.  **Implement Gibbs Sampler:**
-    -   We write loops to update each parameter iteratively based on its
-        conditional posterior distribution. This includes:
-        -   Computing residuals and other derived quantities needed to
-            sample $b_n$ and $B_+$.
-        -   Drawing from the conditional distributions using function
-            `rmvnorm` for multivariate normal distributions.
-4.  **Normalize and Summarize Results:**
-    -   After obtaining the draws, we normalize and summarize the
-        posterior distributions to get estimates and credible intervals
-        for the parameters.
+1. **Define the Model Structure:**
+   - We set up matrices $B_0$ and $B_+$ based on the given structure and exclusion restrictions.
+   - We prepare the data matrices $Y$ and $X$.
+
+2. **Initialize Parameters:**
+   - We initialize $B_0$, $B_+$, and any other matrices or parameters required for the Gibbs sampling.
+
+3. **Implement Gibbs Sampler:**
+   - We write loops to update each parameter iteratively based on its conditional posterior distribution. This includes:
+     - Computing residuals and other derived quantities needed to sample $b_n$ and $B_+$.
+     - Drawing from the conditional distributions using function  `rmvnorm` for multivariate normal distributions.
+
+4. **Normalize and Summarize Results:**
+   - After obtaining the draws, we normalize and summarize the posterior distributions to get estimates and credible intervals for the parameters.
+
 
 ```{r L16 code for useful functions}
 
@@ -1168,14 +869,10 @@ rnorm.ngn       = function(B0.posterior,B,Omega){
 
 ```
 
-### Model Testing Using A Random Walk
+### Model Testing Using A Random Walk 
 
-We use a random walk to generate a $Y$ matrix with one lag, and with 100
-observations over four variables, to check whether the estimation
-algorithm is able to reproduce the random walk structure. In other
-words, we expect that $B_0$ will equal an identity matrix, the intercept
-will equal zero, and the remaining part of the $B_+$ matrix will also be
-an identity matrix.
+We use a random walk to generate a $Y$ matrix with one lag, and with 300 observations over four variables, to check whether the estimation algorithm is able to reproduce the random walk structure. In other words, we expect that $B_0$ will equal an identity matrix, the intercept will equal zero, and the remaining part of the $B_+$ matrix will also be an identity matrix. 
+
 
 ```{r creating Y and X matrices using a random walk}
 
@@ -1200,7 +897,8 @@ Y <- simulate_random_walk(n, initial_values, sigma)
 
 ```
 
-```{r defining the Vn matrices for the exclusion restrictions on B0}
+
+```{r defining the Vn matrices for the exclusion restrictions on B0} 
 
 # Create a list V with predefined fixed matrices
 create_V_matrices <- function() {
@@ -1223,8 +921,7 @@ V_matrices <- create_V_matrices()
 
 ```
 
-We used 100 iterations for the burn-in phase to allow the algorithm to
-converge, then used 5000 iteration for the estimation.
+We used 100 iterations for the burn-in phase to allow the algorithm to converge, then used 5000 iteration for the estimation. 
 
 ```{r Random Walk calculate B0 and B+ for the Bayesian SVAR model}
 
@@ -1311,7 +1008,7 @@ Bp.posterior    = rnorm.ngn(B0.posterior, B=B.post,Omega=Omega.post)
 
 ```
 
-The estimated $B_0$ and $B_+$ are shown below.
+The estimated $B_0$ and $B_+$ are shown below. 
 
 ```{r Ranom Walk normalization of the B0 matrix}
 
@@ -1323,15 +1020,11 @@ print(Bp.posterior [,,S])
 
 ```
 
-There is a clear convergence of the diagonal of each matrix towards one.
-The other elements in these matrices are also approaching zero. We have
-enough evidence to see that the algorithm is able to estimate the random
-walk process.
+There is a clear convergence of the diagonal of each matrix towards one. The other elements in these matrices are also approaching zero. We have enough evidence to see that the algorithm is able to estimate the random walk process. 
 
 ### Estimation of the Basic Model
 
-We now repeat the same steps above to estimate the $B_0$ and $B_+$
-matrices for the basic model.
+We now repeat the same steps above to estimate the $B_0$ and $B_+$ matrices for the basic model. 
 
 ```{r Building matrices Y and X from the actual data for evaluating the Bayesian SVAR model}
 
@@ -1358,6 +1051,7 @@ X <- Y[1:(nrow(Y) - lags), ]  # Get all rows up to the last 'lags' rows
 Y <- Y[(lags + 1):nrow(Y), ]  # Start from row 'lags+1' to end
 
 ```
+
 
 ```{r calculate B0 and B+ for the Bayesian SVAR model}
 
@@ -1467,6 +1161,7 @@ print(B0_sd)
 
 ```
 
+
 ```{r calculating the standard deviation for the Bp matrix}
 
 # Calculate the standard deviation of Bp.posterior1 along the desired axis
@@ -1478,6 +1173,8 @@ print("Standard deviation of the basic model Bp")
 print(Bp_sd)
 
 ```
+
+
 
 ```{r plots for the basic model}
 
@@ -1513,17 +1210,17 @@ legend("topright", legend = names(variables), col = colors, lty = 1, title = "Va
 
 ### Model Extension: Solving the Identification Problem Using a Non-Normality Approach
 
-We use a t-distribution to model the error terms. Given difficulties
-with a direct estimation of the t-distribution, we proceed as follows.
+We use a t-distribution to model the error terms. Given difficulties with a direct estimation of the t-distribution, we proceed as follows. 
 
-The current approach is as follows:
+The current approach is as follows: 
 
 $$
 \begin{aligned}
 p(B_0, B_+, \lambda \mid Y, X) &\propto L(Y \mid X, B_0, B_+, \lambda) \ \ p(B_0, B_+, \lambda) \\
 &= L(Y \mid X, B_0, B_+, \lambda) \ \ p(B_0, B_+) \ \ p(\lambda)
 \end{aligned}
-$$ Where, as under the basic model:
+$$
+Where, as under the basic model: 
 
 $$
 \begin{aligned}
@@ -1532,38 +1229,28 @@ p(B^+; B_0) &= \left| \det(B_0) \right|^{\underline{\nu}-N} \exp \left\{ -\frac{
 \end{aligned}
 $$
 
-To evaluate the overall kernel for the extended Bayesian Structural
-Vector Autoregression (SVAR) model where the error term $u_t$ follows a
-distribution $N(0, \lambda I_N)$ and $\lambda$ itself is distributed
-according to an Inverse Gamma square (IG2) with parameters $\nu, \nu$,
-we need to account for the complexity added by this distribution of the
-error variance. This changes how the kernel of the likelihood function
-is formulated and combined with the prior.
+To evaluate the overall kernel for the extended Bayesian Structural Vector Autoregression (SVAR) model where the error term $u_t$ follows a distribution $N(0, \lambda I_N)$ and $\lambda$ itself is distributed according to an Inverse Gamma square (IG2) with parameters $\nu, \nu$, we need to account for the complexity added by this distribution of the error variance. This changes how the kernel of the likelihood function is formulated and combined with the prior.
 
 ### Step 1: Formulating the Kernel of the Likelihood Function
 
-With the error term $u_t \sim N(0, \lambda I_N)$, the likelihood
-function's kernel, incorporating the variance parameter $\lambda$,
-becomes: $$
+With the error term $u_t \sim N(0, \lambda I_N)$, the likelihood function's kernel, incorporating the variance parameter $\lambda$, becomes:
+$$
 L(Y \mid X, B_0, B_+, \lambda) = \text{det}(B_0)^T \exp\left(-\frac{1}{2\lambda} \sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T\right)
 $$
 
-### Step 2: Estimating $\lambda$
 
-Since $\lambda$ is a random variable following
-$\lambda \sim IG2(\nu, \nu)$, its effect can be sampled from the density
-function for $\lambda$:
+### Step 2: Estimating $\lambda$ 
+
+Since $\lambda$ is a random variable following $\lambda \sim IG2(\nu, \nu)$, its effect can be sampled from the density function for $\lambda$:
 
 $$
 p(\lambda) = \frac{(\nu/2)^{\nu/2}}{\Gamma(\nu/2)} \lambda^{-(\nu/2+1)} \exp\left(-\frac{\nu}{2\lambda}\right)
-$$ We can use the rinvgamma() function to sample this $\lambda$. In the
-estimation process for this extended model, we sample 5000 times from
-the IG2 distribution and use the mean value for $\lambda$.
+$$
+We can use the rinvgamma() function to sample this $\lambda$. In the estimation process for this extended model, we sample 5000 times from the IG2 distribution and use the mean value for $\lambda$. 
 
 ### Step 3: Evaluating the Kernel
 
-We use the posterior degrees of freedom to estimate the posterior
-variance of the error terms:
+We use the posterior degrees of freedom to estimate the posterior variance of the error terms: 
 
 $$
 \bar{\nu} = T + \underline{\nu} 
@@ -1575,22 +1262,15 @@ $$
 
 ### Step 4: Combining with the Prior
 
-Assuming the prior $p(B^+; B_0)$ as given or formulated according to
-specific assumptions (such as independence, Gaussian priors for
-coefficients, etc.), the full posterior kernel combining this likelihood
-with the prior can be approached as:
+Assuming the prior $p(B^+; B_0)$ as given or formulated according to specific assumptions (such as independence, Gaussian priors for coefficients, etc.), the full posterior kernel combining this likelihood with the prior can be approached as:
 
 $$
 p(B_+; B_0 \mid Y; X) \propto p(Y \mid X, B_+, B_0) \times p(B_+; B_0)
 $$
 
-This expression must often be evaluated or sampled using computational
-Bayesian techniques, such as Markov Chain Monte Carlo (MCMC), especially
-given the integrative step required for $\lambda$.
+This expression must often be evaluated or sampled using computational Bayesian techniques, such as Markov Chain Monte Carlo (MCMC), especially given the integrative step required for $\lambda$.
 
-We can obtain the following posterior formulas similar to the basic
-model. Note that we use $\underline{\Omega} = \underline{\lambda\Omega}$
-in the following equations:
+We can obtain the following posterior formulas similar to the basic model. Note that we use $\underline{\Omega} = \underline{\lambda\Omega}$ in the following equations: 
 
 $$
 \bar{\Omega} = [\bar{\lambda}^{-1} XX^T+ \underline{{\Omega}} \ ]^{-1}
@@ -1603,6 +1283,8 @@ $$
 $$
 \bar{S} = [\bar{\lambda}^{-1} YY^T+\underline{S}^{-1}+ \underline{B{\Omega}}^{-1} \underline{B}^T - \overline{B{\Omega}}^{-1} \bar{B}]^{-1}
 $$
+
+
 
 ```{r Building matrices Y and X from the actual data for evaluating the extended Bayesian SVAR model}
 
@@ -1649,6 +1331,7 @@ sample_lambda <- function(nu, num_samples) {
 
 ```
 
+
 ```{r calculate B0 and B+ for the extended Bayesian SVAR model}
 
 y       = Y
@@ -1694,7 +1377,7 @@ priors  = list(
 
 nu.post     = ncol(Y) + priors$nu
 
-samples = sample_lambda(nu.post, 2000)
+samples = sample_lambda(nu.post, 5000)
 
 lambda.post = mean(samples)
 
@@ -1808,9 +1491,11 @@ legend("topright", legend = names(variables), col = colors, lty = 1, title = "Va
 
 ```
 
-### Exteions II: Estimating the $\nu$ parameter
 
-We use a Metropolis-Hastings Algorithm to estimate the $\nu$ parameter before using it to obtain the updated $\lambda$ for simulating error terms with a t-distribution. 
+### Second Extension: Extimating $\nu$
+
+Following @Lee2022 we use a Metropolis-Hastings Algorithm to estimate $\nu$ and impose a vmode value corresponding to the t-distribution range $(0, 25)$. 
+
 
 ```{r this code uses a Metropolis-Hastings Algorithm to find the value of the prior nu}
 
@@ -1859,10 +1544,12 @@ sample_nu_svar <- function(y, mu, Sigma, initial_nu, iterations, proposal_sd) {
 ```
 
 
-```{r}
+```{r calculate nu for the Extension II Bayesian SVAR model}
+
 
 # compute posterior distribution parameters, matrices V, and starting values
 ############################################################
+
 
 mu <- colMeans(y)  # Mean for each variable
 Sigma <- cov(y)  # Compute covariance matrix of transposed y
@@ -1899,7 +1586,7 @@ print(selected_nu_mode)
 
 ```
 
-```{r calculate B0 and B+ for Extension II Bayesian SVAR model}
+```{r calculate B0 and B+ for the Extension II Bayesian SVAR model}
 
 N       = ncol(y)
 p       = 12
@@ -1907,8 +1594,6 @@ K       = 1+N*p
 h       = 6
 S.burnin= 100
 S       = 5000
-
-
 
 # set the priors (same as for the basic model)
 ############################################################
@@ -1922,7 +1607,7 @@ priors  = list(
   Omega = diag(c(kappa2,kappa1*((1:p)^(-2))%x%rep(1,N))),
   # Omega = diag(c(kappa2,kappa1*rep(1,N*p))),
   S     = kappa3*diag(N),
-  nu    = selected_nu_mode*(12.5/4)
+  nu    = selected_nu_mode *(12.5/4)
 )
 
 # compute posterior distribution parameters, matrices V, and starting values
@@ -1980,22 +1665,22 @@ Bp.posterior3    = rnorm.ngn(B0.posterior, B=B.post,Omega=Omega.post)
 
 ```{r Normalization of the B0 matrix for the Extension II model}
 
-print("Extension II Model Normalized B0 matrix")
-print(B0.posterior3 [,,S])
+print("Extended Model Normalized B0 matrix")
+print(B0.posterior2 [,,S])
 
-print("Extension II Model B plus matrix")
-print(Bp.posterior3 [,,S])
+print("Extended Model B plus matrix")
+print(Bp.posterior2 [,,S])
 
 ```
 
 ```{r calculating the standard deviation for the Extension II model B0 matrix}
 
 # Calculate the standard deviation of Bp.posterior1 along the desired axis
-B0_sd <- apply(B0.posterior3, c(1, 2), sd)
+B0_sd <- apply(B0.posterior2, c(1, 2), sd)
 
 # Print or use the standard deviation matrix as needed
 
-print("Standard deviation of the Extension II model B0")
+print("Standard deviation of the extended model B0")
 
 print(B0_sd)
 
@@ -2004,9 +1689,9 @@ print(B0_sd)
 ```{r calculating the standard deviation for the Extension II model Bp matrix}
 
 # Calculate the standard deviation of Bp.posterior1 along the desired axis
-Bp_sd <- apply(Bp.posterior3, c(1, 2), sd)
+Bp_sd <- apply(Bp.posterior2, c(1, 2), sd)
 
-print("Standard deviation of the Extension II model Bp")
+print("Standard deviation of the extended model Bp")
 
 # Print or use the standard deviation matrix as needed
 print(Bp_sd)
@@ -2044,29 +1729,17 @@ legend("topright", legend = names(variables), col = colors, lty = 1, title = "Va
 
 ```
 
+
+
 ### Conclusion
 
-The overall kernel for this extended model encapsulates to the random
-variance $\lambda$. This allows for a more robust handling of
-heteroscedasticity and potential non-stationarities in the error terms,
-offering nuanced insights into the dynamics under study.
+The overall kernel for this extended model encapsulates to the random variance $\lambda$. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.
 
-In the basic model, all USD Index contemporaneous coefficients are not
-statistically significant at the standard levels. On the other hand, all
-these coefficients in the extended model are statistically significant
-at the 5% level.
+In the basic model, all USD Index contemporaneous coefficients are not statistically significant at the standard levels. On the other hand, all these coefficients in the extended model are statistically significant at the 5% level. 
 
-The results suggest the following elasticities. According to the basic
-model, a weaker Dixie is likely to overheat the Australian economy: a
-drop of 1 per cent in the USD Index would result in roughly 1 per cent
-increase in inflation, roughly unchanged unemployment, and roughly 1%
-increase in the GDP growth rate.
+The results suggest the following elasticities. According to the basic model, a weaker Dixie is likely to overheat the Australian economy: a drop of 1 per cent in the USD Index would result in roughly 1 per cent increase in inflation, roughly unchanged unemployment, and roughly 1% increase in the GDP growth rate. 
 
-On the other hand, the expanded model suggests that a weakening Dixie
-would result in stagnation in Australia: 1 per cent decrease in the USD
-Index would result is roughly 0.7 per cent decrease in inflation,
-roughly 1 per cent decrease in unemployment, and roughly 1 per cent
-decrease in the GDP growth rate.
+On the other hand, the expanded model suggests that a weakening Dixie would result in stagnation in Australia: 1 per cent decrease in the USD Index would result is roughly 0.7 per cent decrease in inflation, roughly 1 per cent decrease in unemployment, and roughly 1 per cent decrease in the GDP growth rate. 
 
 
 ```{r furnish the results for a 1% drop of the USD_Index in a table}
@@ -2088,10 +1761,10 @@ for (i in 2:4) {
   # Calculate the effect for the Extended model
   extended_effect <-  B0.posterior2[i, 1, S] / B0.posterior2[i, i, S]
   extended_model_results[[i - 1]] <- extended_effect
-
-  # Calculate the effect for the second extension model
+  
+    # Calculate the effect for the Second Extension model
   extended_effect <-  B0.posterior3[i, 1, S] / B0.posterior3[i, i, S]
-  second_extension_results[[i - 1]] <- extended_effect
+  extended_model_results[[i - 1]] <- extended_effect
 }
 
 # Create a data frame to hold the results
@@ -2099,11 +1772,11 @@ results_df <- data.frame(
   Variable = c("Inflation", "Unemployment", "GDP Growth"),
   Basic_Model = unlist(basic_model_results),
   Extended_Model = unlist(extended_model_results),
-  Second_extension = unlist(second_extension_results)
+  Second_Extension = unlist(second_extension_results)
 )
 
 # Print the results table using kable for better formatting
-kable(results_df, format = "html", caption = "Effect of USD_Index on Economic Indicators (in elasticities)", col.names = c("Variable (elasticity w.r.t. USD_Index)", "Basic Model", "Extended Model", "Second Extension"), align = "c")
+kable(results_df, format = "html", caption = "Effect of USD_Index on Economic Indicators (in elasticities)", col.names = c("Variable (elasticity w.r.t. USD_Index)", "Basic Model", "Extended Model", "Second Extension Model"), align = "c")
 
 ```
 
