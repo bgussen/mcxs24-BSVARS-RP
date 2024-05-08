@@ -345,7 +345,7 @@ kable(adf_summary_df, caption = "ADF Test Results Summary") %>%
 
 ### Do we need to use stationary data series
 
-After consultations with Thomaz Wozniak, my understanding is that it is possible to use unit-root nonstationary variables in dynamic modeling. Based, on this, all rates are used without differencing, and the USD Index is used in logged form, also without differencing.
+After consultations with Dr. Thomaz Wozniak, my understanding is that it is possible to use unit-root nonstationary variables in dynamic modeling. Based, on this, all rates are used without differencing, and the USD Index is used in logged form, also without differencing.
 
 ```{r plotting all four series}
 #| echo: false
@@ -1377,7 +1377,7 @@ priors  = list(
 
 nu.post     = ncol(Y) + priors$nu
 
-samples = sample_lambda(nu.post, 5000)
+samples = sample_lambda(nu.post, 2000)
 
 lambda.post = mean(samples)
 
@@ -1491,6 +1491,242 @@ legend("topright", legend = names(variables), col = colors, lty = 1, title = "Va
 
 ```
 
+### Exteions II: Estimating the $\nu$ parameter
+
+We use a Metropolis-Hastings Algorithm to estimate the $\nu$ parameter before using it to obtain the updated $\lambda$ for simulating error terms with a t-distribution. 
+
+```{r this code uses a Metropolis-Hastings Algorithm to find the value of the prior nu}
+
+# Function to sample from posterior of degrees of freedom (DoF) for the structural Bayesian SVAR
+sample_nu_svar <- function(y, mu, Sigma, initial_nu, iterations, proposal_sd) {
+  
+  # Nested posterior function: Posterior log density of nu for SVAR
+  log_posterior_nu <- function(nu, y, mu, Sigma) {
+    
+    # Convert matrix y to ensure correct dimensions for the following operation 
+    
+  # Adjusting n and d based on the transposed structure
+  n <- nrow(y)  # Number of rows represents the number of observations
+  d <- ncol(y)  # Number of columns represents the number of variables
+
+    
+    log_lik <- -n * lgamma(nu / 2) + (nu / 2) * sum(log(diag(Sigma)))
+    for (i in 1:n) {
+      res <- y[i, ] - mu
+      log_lik <- log_lik - (nu + d) / 2 * log(1 + t(res) %*% solve(Sigma) %*% res / nu)
+    }
+    log_prior <- 0
+    return(log_lik + log_prior)
+  }
+
+  # Initialize the chain
+  nu <- initial_nu
+  samples <- numeric(iterations)
+
+  # Metropolis-Hastings Algorithm: 
+  for (iter in 1:iterations) {
+    proposed_nu <- nu + rnorm(1, 0, proposal_sd)
+    if (proposed_nu <= 0) next
+
+    log_acceptance_ratio <- log_posterior_nu(proposed_nu, y, mu, Sigma) - log_posterior_nu(nu, y, mu, Sigma)
+    if (log(runif(1)) < log_acceptance_ratio) {
+      nu <- proposed_nu
+    }
+
+    samples[iter] <- nu
+  }
+
+  return(samples)
+}
+
+```
+
+
+```{r}
+
+# compute posterior distribution parameters, matrices V, and starting values
+############################################################
+
+mu <- colMeans(y)  # Mean for each variable
+Sigma <- cov(y)  # Compute covariance matrix of transposed y
+
+
+# Check the dimensions of the resulting matrix
+print(dim(Sigma))
+
+
+# Adjust the proposal_sd based on the data variance
+variable_sd <- apply(y, 2, sd)  # Standard deviation for each column (variable)
+proposal_sd_adjusted <- mean(variable_sd) / 10  # Adjusted proposal standard deviation
+
+initial_nu <- ncol(y) # The number of variables in the Bayesian SVAR model, this is based on the set up of the normal-generalized-normal distribution from the basic model. 
+
+print("initial_nu")
+print(initial_nu)
+
+iterations <- 2000
+
+# Sample DoF for Bayesian SVAR model
+nu_samples <- sample_nu_svar(y, mu, Sigma, initial_nu, iterations, proposal_sd_adjusted)
+
+# Analyze results
+summary(nu_samples)
+hist(nu_samples, main = "Posterior Distribution of Degrees of Freedom", xlab = "Degrees of Freedom (ν)")
+
+# Choose the mode nu from the histogram
+# Create histogram of the samples
+hist_data <- hist(nu_samples, breaks = 30, plot = FALSE)
+# Find the bin with the maximum count
+selected_nu_mode <- hist_data$mids[which.max(hist_data$counts)]
+print(selected_nu_mode)
+
+```
+
+```{r calculate B0 and B+ for Extension II Bayesian SVAR model}
+
+N       = ncol(y)
+p       = 12
+K       = 1+N*p
+h       = 6
+S.burnin= 100
+S       = 5000
+
+
+
+# set the priors (same as for the basic model)
+############################################################
+kappa1  = 0.01      # autoregressive slope shrinkage
+kappa2  = 1         # constant term shrinkage 
+kappa3  = 100       # contemporaneous effects shrinkage
+kappa4  = 1         # VAR prior persistence
+
+priors  = list(
+  B     = cbind(rep(0,N), kappa4*diag(N), matrix(0, N, (p-1)*N)),
+  Omega = diag(c(kappa2,kappa1*((1:p)^(-2))%x%rep(1,N))),
+  # Omega = diag(c(kappa2,kappa1*rep(1,N*p))),
+  S     = kappa3*diag(N),
+  nu    = selected_nu_mode*(12.5/4)
+)
+
+# compute posterior distribution parameters, matrices V, and starting values
+############################################################
+
+nu.post     = ncol(Y) + priors$nu
+
+samples = sample_lambda(nu.post, 2000)
+
+lambda.post = mean(samples)
+
+Omega.inv   = solve(priors$Omega)
+Omega.post.inv = (lambda.post)^(-1) * X%*%t(X) + Omega.inv
+Omega.post  = solve( Omega.post.inv )
+B.post      = ((lambda.post)^(-1) * Y%*%t(X) + priors$B%*%Omega.inv) %*% Omega.post
+S.post      = solve((lambda.post)^(-1) * Y%*%t(Y) + solve(priors$S) + priors$B%*%Omega.inv%*%t(priors$B) - B.post%*%Omega.post.inv%*%t(B.post) )
+
+
+posteriors = list(
+  B        = B.post,
+  Omega    = Omega.post,
+  S        = S.post,
+  nu       = nu.post
+)
+
+
+B0.initial = matrix(0,N,N)
+for (n in 1:N){
+  unrestricted    = apply(V_matrices[[n]],2,sum)==1
+  B0.initial[n,unrestricted] = rnorm(sum(unrestricted))
+}
+
+
+# run the posterior simulations and save their output
+############################################################
+# burn-in run: sampling B0 from the posterior distribution using Gibbs
+
+B0.posterior        = rgn(n=S.burnin, S.inv=solve(S.post), nu=nu.post, V=V_matrices, B0.initial=B0.initial)
+
+# sampling B0 from the posterior distribution using Gibbs
+
+B0.posterior        = rgn(n=S, S.inv=solve(S.post), nu=nu.post, V=V_matrices, B0.initial=B0.posterior[,,S.burnin])
+
+# normalisation
+B0.hat              = diag(sign(diag(B0.posterior[,,S])))%*%B0.posterior[,,S]
+B0.posterior3        = normalize.Gibbs.output.parallel(B0.posterior,B0.hat=B0.hat)
+
+
+# sample B+ from the normal conditional posterior
+
+Bp.posterior3    = rnorm.ngn(B0.posterior, B=B.post,Omega=Omega.post)
+
+
+```
+
+```{r Normalization of the B0 matrix for the Extension II model}
+
+print("Extension II Model Normalized B0 matrix")
+print(B0.posterior3 [,,S])
+
+print("Extension II Model B plus matrix")
+print(Bp.posterior3 [,,S])
+
+```
+
+```{r calculating the standard deviation for the Extension II model B0 matrix}
+
+# Calculate the standard deviation of Bp.posterior1 along the desired axis
+B0_sd <- apply(B0.posterior3, c(1, 2), sd)
+
+# Print or use the standard deviation matrix as needed
+
+print("Standard deviation of the Extension II model B0")
+
+print(B0_sd)
+
+```
+
+```{r calculating the standard deviation for the Extension II model Bp matrix}
+
+# Calculate the standard deviation of Bp.posterior1 along the desired axis
+Bp_sd <- apply(Bp.posterior3, c(1, 2), sd)
+
+print("Standard deviation of the Extension II model Bp")
+
+# Print or use the standard deviation matrix as needed
+print(Bp_sd)
+
+```
+
+```{r plots for the Extension II model}
+
+# Define lagged values for each variable
+lagged_values <- seq(2, 46, by = 4)
+
+# Plotting setup
+plot_title <- "Effect of lagged USD_Index on Australian Economic Stability"
+plot(x = NA, y = NA, xlim = c(1, length(lagged_values)), ylim = c(-5, 5), type = "n", xlab = "Lag Number", ylab = "Effect", main = plot_title)
+
+# Define variable indices and colors for plotting
+variables <- list(inflation = 2, unemployment = 3, gdp = 4)
+colors <- c("blue", "green", "red")
+names(colors) <- names(variables)
+
+# Loop through each variable and plot
+for (var_name in names(variables)) {
+  var_index <- variables[[var_name]]  # Get the correct index for each variable
+  ratio_vector <- numeric(length(lagged_values))  # Initialize vector to store ratio values
+  for (i in seq_along(lagged_values)) {
+    j <- lagged_values[i]
+    # Calculate ratio for the current variable using Bp.posterior2 and B0.posterior2
+    ratio_vector[i] <- Bp.posterior3[var_index, j, S] / B0.posterior3[var_index, var_index, S]
+  }
+  lines(1:length(lagged_values), ratio_vector, col = colors[var_name])  # Plot the accumulated ratios using simple lag numbers
+}
+
+# Add legend
+legend("topright", legend = names(variables), col = colors, lty = 1, title = "Variables")
+
+```
+
 ### Conclusion
 
 The overall kernel for this extended model encapsulates to the random variance $\lambda$. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.
@@ -1501,6 +1737,7 @@ The results suggest the following elasticities. According to the basic model, a 
 
 On the other hand, the expanded model suggests that a weakening Dixie would result in stagnation in Australia: 1 per cent decrease in the USD Index would result is roughly 0.7 per cent decrease in inflation, roughly 1 per cent decrease in unemployment, and roughly 1 per cent decrease in the GDP growth rate. 
 
+
 ```{r furnish the results for a 1% drop of the USD_Index in a table}
 
 # Load the knitr package for better table formatting
@@ -1509,6 +1746,7 @@ library(knitr)
 # Initialize empty lists to store the results
 basic_model_results <- list()
 extended_model_results <- list()
+second_extension_results <- list()
 
 # Loop through each economic variable
 for (i in 2:4) {
@@ -1519,19 +1757,27 @@ for (i in 2:4) {
   # Calculate the effect for the Extended model
   extended_effect <-  B0.posterior2[i, 1, S] / B0.posterior2[i, i, S]
   extended_model_results[[i - 1]] <- extended_effect
+
+  # Calculate the effect for the second extension model
+  extended_effect <-  B0.posterior3[i, 1, S] / B0.posterior3[i, i, S]
+  second_extension_results[[i - 1]] <- extended_effect
 }
 
 # Create a data frame to hold the results
 results_df <- data.frame(
   Variable = c("Inflation", "Unemployment", "GDP Growth"),
   Basic_Model = unlist(basic_model_results),
-  Extended_Model = unlist(extended_model_results)
+  Extended_Model = unlist(extended_model_results),
+  Second_extension = unlist(second_extension_results)
 )
 
 # Print the results table using kable for better formatting
-kable(results_df, format = "html", caption = "Effect of USD_Index on Economic Indicators (in elasticities)", col.names = c("Variable (elasticity w.r.t. USD_Index)", "Basic Model", "Extended Model"), align = "c")
+kable(results_df, format = "html", caption = "Effect of USD_Index on Economic Indicators (in elasticities)", col.names = c("Variable (elasticity w.r.t. USD_Index)", "Basic Model", "Extended Model", "Second Extension"), align = "c")
 
 ```
+
+
+
 
 
 
