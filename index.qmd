@@ -507,7 +507,6 @@ grid.arrange(grobs = plot_list, ncol = 2)
 
 ```
 
-
 ### Model Specification
 
 The above selection and treatment of the data is pivotal to answering
