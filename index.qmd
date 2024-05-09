@@ -1375,9 +1375,7 @@ priors  = list(
 # compute posterior distribution parameters, matrices V, and starting values
 ############################################################
 
-nu.post     = ncol(Y) + priors$nu
-
-samples = sample_lambda(nu.post, 5000)
+samples = sample_lambda(nrow(y)-1, 2000)
 
 lambda.post = mean(samples)
 
@@ -1386,7 +1384,7 @@ Omega.post.inv = (lambda.post)^(-1) * X%*%t(X) + Omega.inv
 Omega.post  = solve( Omega.post.inv )
 B.post      = ((lambda.post)^(-1) * Y%*%t(X) + priors$B%*%Omega.inv) %*% Omega.post
 S.post      = solve((lambda.post)^(-1) * Y%*%t(Y) + solve(priors$S) + priors$B%*%Omega.inv%*%t(priors$B) - B.post%*%Omega.post.inv%*%t(B.post) )
-
+nu.post     = nrow(y) + priors$nu
 
 posteriors = list(
   B        = B.post,
@@ -1492,7 +1490,7 @@ legend("topright", legend = names(variables), col = colors, lty = 1, title = "Va
 ```
 
 
-### Second Extension: Extimating $\nu$
+### Second Extension: Estimating $\nu$
 
 Following @Lee2022 we use a Metropolis-Hastings Algorithm to estimate $\nu$ and impose a vmode value corresponding to the t-distribution range $(0, 25)$. 
 
@@ -1563,7 +1561,7 @@ print(dim(Sigma))
 variable_sd <- apply(y, 2, sd)  # Standard deviation for each column (variable)
 proposal_sd_adjusted <- mean(variable_sd) / 10  # Adjusted proposal standard deviation
 
-initial_nu <- ncol(y) # The number of variables in the Bayesian SVAR model, this is based on the set up of the normal-generalized-normal distribution from the basic model. 
+initial_nu <- ncol(y) + nrow(y) # The number of variables in the Bayesian SVAR model, this is based on the set up of the normal-generalized-normal distribution from the basic model. 
 
 print("initial_nu")
 print(initial_nu)
@@ -1607,15 +1605,13 @@ priors  = list(
   Omega = diag(c(kappa2,kappa1*((1:p)^(-2))%x%rep(1,N))),
   # Omega = diag(c(kappa2,kappa1*rep(1,N*p))),
   S     = kappa3*diag(N),
-  nu    = selected_nu_mode *(12.5/4)
+  nu    = N
 )
 
 # compute posterior distribution parameters, matrices V, and starting values
 ############################################################
 
-nu.post     = ncol(Y) + priors$nu
-
-samples = sample_lambda(nu.post, 2000)
+samples = sample_lambda(selected_nu_mode, 2000)
 
 lambda.post = mean(samples)
 
@@ -1624,7 +1620,7 @@ Omega.post.inv = (lambda.post)^(-1) * X%*%t(X) + Omega.inv
 Omega.post  = solve( Omega.post.inv )
 B.post      = ((lambda.post)^(-1) * Y%*%t(X) + priors$B%*%Omega.inv) %*% Omega.post
 S.post      = solve((lambda.post)^(-1) * Y%*%t(Y) + solve(priors$S) + priors$B%*%Omega.inv%*%t(priors$B) - B.post%*%Omega.post.inv%*%t(B.post) )
-
+nu.post     = nrow(y) + priors$nu
 
 posteriors = list(
   B        = B.post,
@@ -1739,7 +1735,9 @@ In the basic model, all USD Index contemporaneous coefficients are not statistic
 
 The results suggest the following elasticities. According to the basic model, a weaker Dixie is likely to overheat the Australian economy: a drop of 1 per cent in the USD Index would result in roughly 1 per cent increase in inflation, roughly unchanged unemployment, and roughly 1% increase in the GDP growth rate. 
 
-On the other hand, the expanded model suggests that a weakening Dixie would result in stagnation in Australia: 1 per cent decrease in the USD Index would result is roughly 0.7 per cent decrease in inflation, roughly 1 per cent decrease in unemployment, and roughly 1 per cent decrease in the GDP growth rate. 
+On the other hand, the expanded model suggests that a weakening Dixie would result in an untraditional condition in the Australian economy: 1 per cent decrease in the USD Index would result is roughly 0.7 per cent increase in inflation, roughly 1 per cent increase in unemployment, and roughly 1 per cent increase in the GDP growth rate. 
+
+As to the second extension, where $\nu$ is a hyperparameter, this model suggests that a weakening Dixie would result in stagflation in Australia: 1 per cent decrease in the USD Index would result is roughly 3 per cent increase in inflation, roughly 0.7 per cent increase in unemployment, and roughly 3 per cent decrease in the GDP growth rate. 
 
 
 ```{r furnish the results for a 1% drop of the USD_Index in a table}
@@ -1762,9 +1760,9 @@ for (i in 2:4) {
   extended_effect <-  B0.posterior2[i, 1, S] / B0.posterior2[i, i, S]
   extended_model_results[[i - 1]] <- extended_effect
   
-    # Calculate the effect for the Second Extension model
-  extended_effect <-  B0.posterior3[i, 1, S] / B0.posterior3[i, i, S]
-  extended_model_results[[i - 1]] <- extended_effect
+  # Calculate the effect for the Second Extension model
+  second_extension_effect <-  B0.posterior3[i, 1, S] / B0.posterior3[i, i, S]
+  second_extension_results[[i - 1]] <- second_extension_effect
 }
 
 # Create a data frame to hold the results
@@ -1777,6 +1775,7 @@ results_df <- data.frame(
 
 # Print the results table using kable for better formatting
 kable(results_df, format = "html", caption = "Effect of USD_Index on Economic Indicators (in elasticities)", col.names = c("Variable (elasticity w.r.t. USD_Index)", "Basic Model", "Extended Model", "Second Extension Model"), align = "c")
+
 
 ```
 
