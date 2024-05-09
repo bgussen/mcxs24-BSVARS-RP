@@ -1375,7 +1375,9 @@ priors  = list(
 # compute posterior distribution parameters, matrices V, and starting values
 ############################################################
 
-samples = sample_lambda(nrow(y)-1, 2000)
+nu.post     = nrow(y) + priors$nu
+
+samples = sample_lambda(nu.post, 2000)
 
 lambda.post = mean(samples)
 
@@ -1384,7 +1386,7 @@ Omega.post.inv = (lambda.post)^(-1) * X%*%t(X) + Omega.inv
 Omega.post  = solve( Omega.post.inv )
 B.post      = ((lambda.post)^(-1) * Y%*%t(X) + priors$B%*%Omega.inv) %*% Omega.post
 S.post      = solve((lambda.post)^(-1) * Y%*%t(Y) + solve(priors$S) + priors$B%*%Omega.inv%*%t(priors$B) - B.post%*%Omega.post.inv%*%t(B.post) )
-nu.post     = nrow(y) + priors$nu
+
 
 posteriors = list(
   B        = B.post,
@@ -1561,7 +1563,7 @@ print(dim(Sigma))
 variable_sd <- apply(y, 2, sd)  # Standard deviation for each column (variable)
 proposal_sd_adjusted <- mean(variable_sd) / 10  # Adjusted proposal standard deviation
 
-initial_nu <- ncol(y) + nrow(y) # The number of variables in the Bayesian SVAR model, this is based on the set up of the normal-generalized-normal distribution from the basic model. 
+initial_nu <- ncol(y) # The number of variables in the Bayesian SVAR model, this is based on the set up of the normal-generalized-normal distribution from the basic model. 
 
 print("initial_nu")
 print(initial_nu)
@@ -1611,7 +1613,7 @@ priors  = list(
 # compute posterior distribution parameters, matrices V, and starting values
 ############################################################
 
-samples = sample_lambda(selected_nu_mode, 2000)
+samples = sample_lambda(selected_nu_mode * 25, 2000)
 
 lambda.post = mean(samples)
 
