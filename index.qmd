@@ -39,6 +39,10 @@ library(MASS)           # For multivariate normal distributions
 library(sn)             # For skew-normal and generalized normal distributions
 library(parallel) 
 library(actuar)         # For sampling for an inverse gamma distribution
+library(plot3D)         # For the IRF plots
+library(HDInterval)     # For the IRF plots
+
+
 
 ```
 
@@ -46,9 +50,13 @@ library(actuar)         # For sampling for an inverse gamma distribution
 
 #Define global variables
 
-  S_burnin <- 500
-  S <- 1000
-
+  S_burnin <- 100   # number of discarded iterations from the Gibbs sampler
+  S <- 200          # number of iterations used to calculate B0 and Bp
+  p <- 12           # number of lags in the Baysian SVAR model 
+  N <- 4.           # number of variables in the Bayesian SVAR model
+  K <-  1+N*p
+  h <- 10            # horizon for IRF plots 
+  
 ```
 
 ```{r L16 code for useful functions}
@@ -245,16 +253,48 @@ rnorm.ngn       = function(B0.posterior,B,Omega){
 
 ```
 
+```{r function to create the Y and X matrices for the Bayesian SVAR model}
+
+create_matrices <- function() {
+  # Assuming USD_Index, CPI_rate, unemp_rate, and GDP_rate are available in the global environment
+
+  # Combining the data into one data frame
+  data <- data.frame(
+    USD_Index = USD_Index$value, 
+    Inflation = CPI_rate$value, 
+    Unemployment = unemp_rate$value, 
+    GDP_growth = GDP_rate$value
+  )
+
+  # Convert to a matrix Y
+  Y <- as.matrix(data)
+
+  # Define the number of lags
+  lags <- p
+
+  # Manually shift the matrix to create lagged X
+  X <- Y[1:(nrow(Y) - lags), ]  # Get all rows up to the last 'lags' rows
+
+  # Adjust Y to match the new dimensions of X
+  Y <- Y[(lags + 1):nrow(Y), ]  # Start from row 'lags+1' to end
+
+  # Returning both matrices
+  return(list(X = X, Y = Y))
+}
+
+
+```
+
 
 ```{r function to calculate B0 and B+ for the Bayesian SVAR model}
 
 generate_posteriors <- function(lambda_posterior, Y, V_matrices, psi) {
 
-  y   = Y 
+  y   = Y
   
   # Basic settings and model dimensions
   N <- ncol(y)
-  p <- 12
+  p <- 12   # This is the number of lags in the model
   K <- 1 + N * p
   h <- 6
 
@@ -289,7 +329,7 @@ X       = t(X)
   Omega.inv <- solve(priors$Omega)
   Omega.post.inv <- lambda_posterior * (X %*% t(X) + Omega.inv)
   Omega.post <- solve(Omega.post.inv)
-  B.post <- lambda_posterior * (Y %*% t(X) + priors$B %*% Omega.inv) %*% Omega.post
+  B.post <-  (Y %*% t(X) + priors$B %*% Omega.inv) %*% Omega.post
   S.post <- lambda_posterior * solve(Y %*% t(Y) + solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post) + psi)
   nu.post <- nrow(y) + priors$nu
   
@@ -318,13 +358,6 @@ X       = t(X)
   # Sample B+ from the normal conditional posterior
   Bp_posterior <- rnorm.ngn(B0_posterior, B = B.post, Omega = Omega.post)
   
-  # Print final matrices
-  cat("Model Normalized B0 matrix\n")
-  print(B0_posterior[,,S])
-  
-  cat("Model B plus matrix\n")
-  print(Bp_posterior[,,S])
-  
   # Return posteriors
   return(list(B0 = B0_posterior, Bp = Bp_posterior))
 }
@@ -334,7 +367,7 @@ X       = t(X)
 
 ```{r Function for plotting Bp lagged parameters}
 
-plot_lagged_effects <- function(B0_posterior) {
+plot_lagged_effects <- function(Bp_posterior) {
 
 # Define lagged values for each variable
 lagged_values <- seq(2, 46, by = 4)
@@ -1012,7 +1045,8 @@ Expanded Expression
 
 Expanding the expression within the exponential term:
 
-$$\sum_{n=1}^N \left( b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n' \right)
+$$
+\sum_{n=1}^N \left( b_n V_n Y Y' V_n' b_n' - 2 b_n V_n Y X' B_n' + B_n X X' B_n' \right)
 $$
 
 And further: 
@@ -1190,8 +1224,8 @@ psi = 0
 posterior_results <- generate_posteriors(lambda_posterior, Y, V_matrices, psi)
 
 # The function returns a list containing B0 and Bp posteriors which can be accessed as follows:
-B0_posterior <- posterior_results$B0
-Bp_posterior <- posterior_results$Bp
+B0_posterior0 <- posterior_results$B0
+Bp_posterior0 <- posterior_results$Bp
 
 ```
 
@@ -1200,10 +1234,10 @@ The estimated $B_0$ and $B_+$ are shown below.
 ```{r Ranom Walk  B0 & Bp matrix, echo=FALSE, eval=FALSE}
 
 print("Random Walk Testing Normalized B0 matrix")
-print(B0.posterior [,,S])
+print(B0.posterior0 [,,S])
 
 print("Random Walk Testing Bp matrix")
-print(Bp.posterior [,,S])
+print(Bp.posterior0 [,,S])
 
 ```
 
@@ -1213,73 +1247,56 @@ There is a clear convergence of the diagonal of each matrix towards one. The oth
 
 We now repeat the same steps above to estimate the $B_0$ and $B_+$ matrices for the basic model. 
 
-```{r Building matrices Y and X from the actual data for evaluating the Bayesian SVAR model}
+```{r Building matrices Y and X from the actual data for evaluating the Basic Bayesian SVAR model, echo=FALSE, eval=FALSE}
 
-# Creating matrices Y and X
+matrices <- create_matrices()
 
-# Combining the data into one data frame
-data <- data.frame(
-  USD_Index = USD_Index$value, 
-  Inflation = CPI_rate$value, 
-  Unemployment = unemp_rate$value, 
-  GDP_growth = GDP_rate$value
-)
+Y = matrices$Y
 
-# Convert to a matrix Y
-Y <- as.matrix(data)
-
-# Define the number of lags
-lags <- 1
-
-# Manually shift the matrix to create lagged X
-X <- Y[1:(nrow(Y) - lags), ]  # Get all rows up to the last 'lags' rows
-
-# Adjust Y to match the new dimensions of X
-Y <- Y[(lags + 1):nrow(Y), ]  # Start from row 'lags+1' to end
 
 ```
 
-```{r calculate B0 and B+ for the Basic Bayesian SVAR model}
+```{r calculate B0 and B+ for the Basic Bayesian SVAR model, echo=FALSE, eval=FALSE}
 
 # Call the function
 posterior_results <- generate_posteriors(lambda_posterior = 1, Y, V_matrices, psi = 0)
 
 # The function returns a list containing B0 and Bp posteriors which can be accessed as follows:
-B0_posterior <- posterior_results$B0
-Bp_posterior <- posterior_results$Bp
+B0_posterior1 <- posterior_results$B0
+Bp_posterior1 <- posterior_results$Bp
 
 ```
 
-```{r printing B0 & Bp for the Basic model}
+```{r printing B0 & Bp for the Basic model, echo=FALSE, eval=FALSE}
 
 print("Basic Model Normalized B0 matrix")
-print(B0_posterior[ , , S])
+print(B0_posterior1[ , , S])
 
 print("Basic Model B plus matrix")
-print(Bp_posterior[ , ,S])
+print(Bp_posterior1[ , ,S])
 
 ```
 
 
-```{r calculating the standard deviation for the B0 & Bp matrices}
+```{r calculating the standard deviation for the Basic Model B0 & Bp matrices, echo=FALSE, eval=FALSE}
 
-calculate_and_print_B0sd(B0_posterior)
+calculate_and_print_B0sd(B0_posterior1)
   
-calculate_and_print_Bpsd(Bp_posterior) 
+calculate_and_print_Bpsd(Bp_posterior1) 
 
 ```
 
-```{r lagged Bp plots for the Basic model}
+```{r lagged Bp plots for the Basic model, echo=FALSE, eval=FALSE}
 
-plot_lagged_effects(B0_posterior)
+plot_lagged_effects(B0_posterior1)
 
 ```
 
-```{r calculate the significance levels for B0 and Bp}
+```{r calculate the significance levels for the Basic Model B0 and Bp, echo=FALSE, eval=FALSE}
 
 # Calculate significance for B0 and Bp matrices
-B0_significance <- calculate_significance(B0_posterior)
-Bp_significance <- calculate_significance(Bp_posterior)
+B0_significance <- calculate_significance(B0_posterior1)
+Bp_significance <- calculate_significance(Bp_posterior1)
 
 # Print significance matrices
 print("Significance for B0 Matrix:")
@@ -1290,9 +1307,499 @@ print(Bp_significance)
 
 ```
 
-```{r Plotting the IRF response}
+```{r Plotting the IRF response for the Basic Model, echo=FALSE, eval=FALSE}
 
 calculate_and_plot_irfs(horizon = 12, B0_posterior)
 
 ```
+
+### Model Extension I: Solving the Identification Problem Using a Non-Normality Approach
+
+We use a t-distribution to model the error terms. Given difficulties with a direct estimation of the t-distribution, we proceed as follows. 
+
+The current approach is as follows: 
+
+$$
+\begin{aligned}
+p(B_0, B_+, \lambda \mid Y, X) &\propto L(Y \mid X, B_0, B_+, \lambda) \ \ p(B_0, B_+, \lambda) \\
+&= L(Y \mid X, B_0, B_+, \lambda) \ \ p(B_0, B_+) \ \ p(\lambda)
+\end{aligned}
+$$
+
+Where, as under the basic model: 
+
+$$
+\begin{aligned}
+p(B^+; B_0) &= \left| \det(B_0) \right|^{\underline{\nu}-N} \exp \left\{ -\frac{1}{2} \sum_{n=1}^{N} b_n V_n \underline{S}^{-1} V_n^T b_n^T \right\} \\
+&\quad \times \exp \left\{ -\frac{1}{2} \sum_{n=1}^{N} (B_n - b_n V_n \underline{B}) \ \ \underline{\Omega}^{-1} \ \ (B_n - b_n V_n \underline{B})^T \right\}
+\end{aligned}
+$$
+
+To evaluate the overall kernel for the extended Bayesian Structural Vector Autoregression (SVAR) model where the error term $u_t$ follows a distribution $N(0, \lambda I_N)$ and $\lambda$ itself is distributed according to an Inverse Gamma square (IG2) with parameters $\nu, \nu$, we need to account for the complexity added by this distribution of the error variance. This changes how the kernel of the likelihood function is formulated and combined with the prior.
+
+### Step 1: Formulating the Kernel of the Likelihood Function
+
+With the error term $u_t \sim N(0, \lambda I_N)$, the likelihood function's kernel, incorporating the variance parameter $\lambda$, becomes:
+$$
+L(Y \mid X, B_0, B_+, \lambda) = \text{det}(B_0)^T \exp\left(-\frac{1}{2\lambda} \sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T\right)
+$$
+
+
+### Step 2: Estimating $\lambda$ 
+
+Since $\lambda$ is a random variable following $\lambda \sim IG2(\nu, \nu)$, its effect can be sampled from the density function for $\lambda$:
+
+$$
+p(\lambda) = \frac{(\psi/2)^{\psi/2}}{\Gamma(\psi/2)} \lambda^{-(\psi/2+1)} \exp\left(-\frac{\psi}{2\lambda}\right)
+$$
+
+We can use the rinvgamma() function to sample this $\lambda$. In the estimation process for this extended model, we sample 5000 times from the IG2 distribution and use the mean value for $\lambda$. 
+
+### Step 3: Evaluating the Kernel
+
+We use the posterior degrees of freedom to estimate the posterior variance of the error terms: 
+
+$$
+\bar{\nu} = T + \underline{\nu} 
+$$
+
+$$
+\bar{\lambda} = \operatorname{IG2}({\psi}, {\psi})
+$$
+
+### Step 4: Combining with the Prior
+
+Assuming the prior $p(B^+; B_0)$ as given or formulated according to specific assumptions (such as independence, Gaussian priors for coefficients, etc.), the full posterior kernel combining this likelihood with the prior can be approached as:
+
+$$
+p(B_+; B_0; \lambda \mid Y; X) \propto p(Y \mid X, B_+, B_0, \lambda) \times p(B_+; B_0 \mid \lambda) \times p(\lambda \mid \nu) p
+$$
+
+This expression must often be evaluated or sampled using computational Bayesian techniques, such as Markov Chain Monte Carlo (MCMC), especially given the integrative step required for $\lambda$.
+
+We can obtain the following posterior formulas similar to the basic model. Note that we use $\underline{\Omega} = \underline{\lambda\Omega}$ in the following equations: 
+
+$$
+\bar{\Omega} = \bar{\lambda} \ [XX^T+ \underline{{\Omega}} \ ]^{-1}
+$$
+
+$$
+\bar{B} = \bar{\lambda}^{-1} \  [YX^T+\underline{B{\Omega}}^{-1}] \ \bar{\Omega}
+$$
+
+$$
+\bar{S} = \bar{\lambda} \ [YY^T+\underline{S}^{-1}+ \underline{B{\Omega}}^{-1} \underline{B}^T - \overline{B{\Omega}}^{-1} \bar{B} + \underline{\psi}]^{-1}
+$$
+
+
+```{r Building matrices Y and X from the actual data for evaluating the Extension I Bayesian SVAR model}
+
+matrices <- create_matrices()
+
+Y = matrices$Y
+
+head(Y)
+
+```
+
+```{r sampling the value of lambda}
+
+# Function to sample lambda from an Inverse Gamma distribution with parameters psi
+sample_lambda <- function(psi, num_samples) {
+  # Set alpha and beta parameters
+  alpha <- psi
+  beta <- psi
+  
+  # Sample lambda from the Inverse Gamma distribution
+  lambda <- rinvgamma(n = num_samples, shape = alpha, rate = beta)
+  
+  # Calculate the analytical mean of lambda if alpha > 1
+  if (alpha > 1) {
+    lambda_mean <- beta / (alpha - 1)
+  } else {
+    lambda_mean <- NA  # Return NA if mean does not exist
+  }
+  
+  # Return both the samples and the analytical mean of lambda
+  return(list(samples = lambda, mean = lambda_mean))
+}
+
+
+
+# Use lambda_samples for further analysis below
+
+```
+
+```{r calculate B0 and B+ for the Extension I Bayesian SVAR model, echo=FALSE, eval=TRUE}
+
+Y = matrices$Y
+
+psi = 5
+
+# Call to the function with psi = 5 and 100 samples
+result <- sample_lambda(psi, num_samples = 100)
+# Accessing the mean from the results
+lambda_mean <- result$mean
+lambda.post = lambda_mean
+
+print("lambda2 =")
+print(lambda.post)
+
+# Call the function
+posterior_results <- generate_posteriors(lambda_posterior = lambda.post, Y, V_matrices, psi)
+
+# The function returns a list containing B0 and Bp posteriors which can be accessed as follows:
+B0_posterior2 <- posterior_results$B0
+Bp_posterior2 <- posterior_results$Bp
+
+print(B0_posterior2[ , , S])
+
+```
+
+```{r calculating the standard deviation for the Extension I B0 & Bp matrices, echo=FALSE, eval=FALSE}
+
+calculate_and_print_B0sd(B0_posterior2)
+
+calculate_and_print_Bpsd(Bp_posterior2)
+
+```
+
+```{r plots for the Extension I model, echo=FALSE, eval=FALSE }
+
+plot_lagged_effects(Bp_posterior2)
+
+```
+
+
+```{r printing B0 & Bp for the Extension I Model, echo=FALSE, eval=FALSE}
+
+print("Basic Model Normalized B0 matrix")
+print(B0_posterior2[ , , S])
+
+print("Basic Model B plus matrix")
+print(Bp_posterior2[ , ,S])
+
+```
+
+
+```{r calculate the significance levels for the Extension I model B0 and Bp, echo=FALSE, eval=FALSE}
+
+# Calculate significance for B0 and Bp matrices
+B0_significance <- calculate_significance(B0_posterior2)
+Bp_significance <- calculate_significance(Bp_posterior2)
+
+# Print significance matrices
+print("Significance for B0 Matrix:")
+print(B0_significance)
+print("Significance for Bp Matrix:")
+print(Bp_significance)
+
+
+```
+
+```{r Plotting the IRF response for the Extension I model, echo=FALSE, eval=FALSE}
+
+calculate_and_plot_irfs(horizon = 12, B0_posterior2)
+
+```
+
+### Second Extension: Estimating $\nu$
+
+Following @Lee2022 we use a Metropolis-Hastings Algorithm to estimate $\nu$ and impose a vmode value corresponding to the t-distribution range $(0, 25)$. 
+
+
+```{r this code uses a Metropolis-Hastings Algorithm to find the value of the prior nu, echo=FALSE, eval=FALSE}
+
+# Function to sample from posterior of degrees of freedom (DoF) for the structural Bayesian SVAR
+sample_nu_svar <- function(y, mu, Sigma, initial_nu, iterations, proposal_sd) {
+  
+  # Nested posterior function: Posterior log density of nu for SVAR
+  log_posterior_nu <- function(nu, y, mu, Sigma) {
+    
+    # Convert matrix y to ensure correct dimensions for the following operation 
+    
+  # Adjusting n and d based on the transposed structure
+  n <- nrow(y)  # Number of rows represents the number of observations
+  d <- ncol(y)  # Number of columns represents the number of variables
+
+    
+    log_lik <- -n * lgamma(nu / 2) + (nu / 2) * sum(log(diag(Sigma)))
+    for (i in 1:n) {
+      res <- y[i, ] - mu
+      log_lik <- log_lik - (nu + d) / 2 * log(1 + t(res) %*% solve(Sigma) %*% res / nu)
+    }
+    log_prior <- 0
+    return(log_lik + log_prior)
+  }
+
+  # Initialize the chain
+  nu <- initial_nu
+  samples <- numeric(iterations)
+
+  # Metropolis-Hastings Algorithm: 
+  for (iter in 1:iterations) {
+    proposed_nu <- nu + rnorm(1, 0, proposal_sd)
+    if (proposed_nu <= 0) next
+
+    log_acceptance_ratio <- log_posterior_nu(proposed_nu, y, mu, Sigma) - log_posterior_nu(nu, y, mu, Sigma)
+    if (log(runif(1)) < log_acceptance_ratio) {
+      nu <- proposed_nu
+    }
+
+    samples[iter] <- nu
+  }
+
+  return(samples)
+}
+
+```
+
+
+```{r calculate nu for the Extension II Bayesian SVAR model, echo=FALSE, eval=FALSE}
+
+
+# compute posterior distribution parameters, matrices V, and starting values
+############################################################
+
+
+mu <- colMeans(y)  # Mean for each variable
+Sigma <- cov(y)  # Compute covariance matrix of transposed y
+
+
+# Check the dimensions of the resulting matrix
+print(dim(Sigma))
+
+
+# Adjust the proposal_sd based on the data variance
+variable_sd <- apply(y, 2, sd)  # Standard deviation for each column (variable)
+proposal_sd_adjusted <- mean(variable_sd) / 10  # Adjusted proposal standard deviation
+
+initial_nu <- 5 # To ensure the fourth moment exists. 
+
+print("initial_nu")
+print(initial_nu)
+
+iterations <- 2000
+
+# Sample DoF for Bayesian SVAR model
+nu_samples <- sample_nu_svar(y, mu, Sigma, initial_nu, iterations, proposal_sd_adjusted)
+
+# Analyze results
+summary(nu_samples)
+hist(nu_samples, main = "Posterior Distribution of Degrees of Freedom", xlab = "Degrees of Freedom (ν)")
+
+# Choose the mode nu from the histogram
+# Create histogram of the samples
+hist_data <- hist(nu_samples, breaks = 30, plot = FALSE)
+# Find the bin with the maximum count
+selected_nu_mode <- hist_data$mids[which.max(hist_data$counts)]
+print(selected_nu_mode)
+
+```
+
+```{r calculate B0 and B+ for the Extension II Bayesian SVAR model, echo=FALSE, eval=FALSE}
+
+psi = selected_nu_mode
+
+# Call to the function with psi and 100 samples
+result <- sample_lambda(psi, num_samples = 100)
+# Accessing the mean from the results
+lambda_mean <- result$mean
+lambda.post = lambda_mean
+
+print("lambda3 =")
+print(lambda.post)
+
+
+# Call the function
+posterior_results <- generate_posteriors(lambda.post, Y, V_matrices, psi)
+
+# The function returns a list containing B0 and Bp posteriors which can be accessed as follows:
+B0_posterior3 <- posterior_results$B0
+Bp_posterior3 <- posterior_results$Bp
+
+```
+
+```{r print the B0 & BP matrices for the Extension II model, echo=FALSE, eval=FALSE}
+
+print("Extension II Model Normalized B0 matrix")
+print(B0.posterior3[,,S])
+
+print("Extension II Model B plus matrix")
+print(Bp.posterior3[,,S])
+
+```
+
+```{r calculating the standard deviation for the Extension II model B0 matrix, echo=FALSE, eval=FALSE}
+
+calculate_and_print_B0sd(B0_posterior3)
+
+```
+
+```{r calculating the standard deviation for the Extension II model Bp matrix, echo=FALSE, eval=FALSE}
+
+calculate_and_print_Bpsd(Bp_posterior3)
+
+```
+
+```{r plot lagged Bp for the Extension II model, echo=FALSE, eval=FALSE}
+
+plot_lagged_effects(Bp_posterior3)
+
+```
+
+```{r calculate the significance levels for the Extension II B0 and Bp, echo=FALSE, eval=FALSE}
+
+# Calculate significance for B0 and Bp matrices
+B0_significance <- calculate_significance(B0_posterior3)
+Bp_significance <- calculate_significance(Bp_posterior3)
+
+# Print significance matrices
+print("Significance for B0 Matrix:")
+print(B0_significance)
+print("Significance for Bp Matrix:")
+print(Bp_significance)
+
+
+```
+
+```{r Plotting the IRF response for the Extension II model, echo=FALSE, eval=FALSE}
+
+calculate_and_plot_irfs(horizon = 12, B0_posterior3)
+
+```
+
+```{r Plotting the IRF response for the model, echo=FALSE, eval=TRUE}
+
+
+B0_posterior4 <- posterior_results$B0
+Bp_posterior4 <- posterior_results$Bp
+
+# B0_posterior and Bp_posterior of dimensions [4, 4, S] and [4, 49, S] respectively
+
+# Assuming you have the matrices B0_posterior and Bp_posterior of dimensions [4, 4, S] and [4, 49, S] respectively
+
+N <- 4  # Number of variables
+p <- 12  # Number of lags
+S <- 200  # Number of iterations
+h <- 10  # Number of periods for IRFs
+shock_size <- -1  # Negative one SD shock
+
+# Initialize the array to store IRFs
+IRFs <- array(NA, dim = c(N, h + 1, S))
+
+# Calculate IRFs for each iteration
+for (s in 1:S) {
+    B0_inv <- solve(B0_posterior4[, , s])
+    Bp <- Bp_posterior4[, , s]
+    
+    # Initializing the shock: shock to the first variable, USD_Index
+    shock <- rep(0, N)
+    shock[1] <- shock_size * sqrt(B0_inv[1, 1])  # Assuming variance of USD_Index is in (1,1) of B0_inv
+
+    # State vector including lags and intercept
+    response <- matrix(0, (N * p) + 1, 1)  # Initialize a state vector with zeros for lags and intercept
+    response[1:N, 1] <- B0_inv %*% shock  # Apply the shock
+
+    # Store initial response
+    IRFs[, 1, s] <- response[1:N]
+
+    # Propagate the shock for h periods
+    for (t in 2:(h + 1)) {
+        # Propagate using the VAR coefficients in Bp
+       response[1:N, 1]<- Bp %*% response
+       IRFs[, t, s] <- response[1:N, 1]
+    }
+}
+
+# Plotting the IRFs for each variable except the first (USD_Index)
+par(mfrow=c(2, 2), mar=c(4, 4, 2, 1))
+variables <- c("Inflation", "Unemployment", "GDP Growth")
+time_vector <- 0:h  # Time horizon for IRFs
+
+for (i in 2:N) {
+    # Extract IRFs for the i-th variable
+    IRF_data <- IRFs[i, , ]  # This extracts all time points for the i-th variable across all iterations
+    IRF_median <- apply(IRF_data, 2, median)  # Calculate median across the second dimension (time)
+
+    # Check lengths match
+    if (length(time_vector) != length(IRF_median)) {
+        stop(paste("Mismatch in vector lengths for", variables[i-1], ": time_vector has", length(time_vector), "elements; IRF_median has", length(IRF_median), "elements."))
+    }
+
+    # Plot the median IRF with time on the x-axis and IRF on the y-axis
+    plot(time_vector, IRF_median, type = "l", lwd = 2, col = "blue", xlab = "Time (quarters)", ylab = "Response", main = paste("IRF for", variables[i-1]))
+
+    # Calculate confidence intervals
+    lower <- apply(IRF_data, 2, quantile, probs = 0.025)
+    upper <- apply(IRF_data, 2, quantile, probs = 0.975)
+
+    # Plot confidence intervals
+    polygon(c(time_vector, rev(time_vector)), c(lower, rev(upper)), col = rgb(0, 0, 0, 0.1), border = NA)
+    lines(time_vector, IRF_median, col = "blue")  # Re-draw the median line for clarity
+    abline(h = 0, lty = 2)
+}
+
+
+```
+
+### Conclusion
+
+The overall kernel for this extended model encapsulates to the random variance $\lambda$. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.
+
+In the basic model, all USD Index contemporaneous coefficients are not statistically significant at the standard levels. On the other hand, all these coefficients in the extended model are statistically significant at the 5% level. 
+
+The results suggest the following elasticities. According to the basic model, a weaker Dixie is likely to overheat the Australian economy: a drop of 1 per cent in the USD Index would result in roughly 1 per cent increase in inflation, roughly unchanged unemployment, and roughly 1% increase in the GDP growth rate. 
+
+On the other hand, the expanded model suggests that a weakening Dixie would result in an untraditional condition in the Australian economy: 1 per cent decrease in the USD Index would result is roughly 0.7 per cent increase in inflation, roughly 1 per cent increase in unemployment, and roughly 1 per cent increase in the GDP growth rate. 
+
+As to the second extension, where $\nu$ is a hyperparameter, this model suggests that a weakening Dixie would result in stagflation in Australia: 1 per cent decrease in the USD Index would result is roughly 3 per cent increase in inflation, roughly 0.7 per cent increase in unemployment, and roughly 3 per cent decrease in the GDP growth rate. 
+
+
+```{r furnish the results for a 1% drop of the USD_Index in a table, echo=FALSE, eval=FALSE}
+
+# Load the knitr package for better table formatting
+library(knitr)
+
+# Initialize empty lists to store the results
+basic_model_results <- list()
+extended_model_results <- list()
+second_extension_results <- list()
+
+# Loop through each economic variable
+for (i in 2:4) {
+  # Calculate the effect for the Basic model
+  basic_effect <- B0.posterior1[i, i, S] / B0.posterior1[i, 1, S] 
+  basic_model_results[[i - 1]] <- basic_effect
+  
+  # Calculate the effect for the Extended model
+  extended_effect <-   B0.posterior2[i, i, S] / B0.posterior2[i, 1, S] 
+  extended_model_results[[i - 1]] <- extended_effect
+  
+  # Calculate the effect for the Second Extension model
+  second_extension_effect <-   B0.posterior3[i, i, S] / B0.posterior3[i, 1, S] 
+  second_extension_results[[i - 1]] <- second_extension_effect
+}
+
+# Create a data frame to hold the results
+results_df <- data.frame(
+  Variable = c("Inflation", "Unemployment", "GDP Growth"),
+  Basic_Model = unlist(basic_model_results),
+  Extended_Model = unlist(extended_model_results),
+  Second_Extension = unlist(second_extension_results)
+)
+
+# Print the results table using kable for better formatting
+kable(results_df, format = "html", caption = "Effect of a weaker USD_Index on Economic Indicators (in elasticities)", col.names = c("Variable (elasticity w.r.t. USD_Index)", "Basic Model", "Extended Model", "Second Extension Model"), align = "c")
+
+```
+
+
+
+
+
+
+
+
+
 
