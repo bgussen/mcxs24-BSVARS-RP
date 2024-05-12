@@ -1472,7 +1472,7 @@ plot_lagged_effects(Bp_posterior2)
 
 ```{r printing B0 & Bp for the Extension I Model, echo=FALSE, eval=TRUE}
 
-print("Basic Model Normalized B0 matrix")
+print("Extension I Model Normalized B0 matrix")
 print(B0_posterior2[ , , S])
 
 #print("Basic Model B plus matrix")
