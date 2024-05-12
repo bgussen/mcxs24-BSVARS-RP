@@ -50,8 +50,8 @@ library(HDInterval)     # For the IRF plots
 
 #Define global variables
 
-  S_burnin <- 5000   # number of discarded iterations from the Gibbs sampler
-  S <- 50000          # number of iterations used to calculate B0 and Bp
+  S_burnin <- 10000   # number of discarded iterations from the Gibbs sampler
+  S <- 100000          # number of iterations used to calculate B0 and Bp
   p <- 12           # number of lags in the Baysian SVAR model 
   N <- 4.           # number of variables in the Bayesian SVAR model
   K <-  1+N*p
@@ -1399,7 +1399,7 @@ matrices <- create_matrices()
 
 Y = matrices$Y
 
-head(Y)
+#head(Y)
 
 ```
 
@@ -1443,8 +1443,8 @@ result <- sample_lambda(psi, num_samples = 100)
 lambda_mean <- result$mean
 lambda.post = lambda_mean
 
-print("lambda2 =")
-print(lambda.post)
+#print("lambda2 =")
+#print(lambda.post)
 
 # Call the function
 posterior_results <- generate_posteriors(lambda_posterior = lambda.post, Y, V_matrices)
@@ -1453,15 +1453,13 @@ posterior_results <- generate_posteriors(lambda_posterior = lambda.post, Y, V_ma
 B0_posterior2 <- posterior_results$B0
 Bp_posterior2 <- posterior_results$Bp
 
-print(B0_posterior2[ , , S])
-
 ```
 
-```{r calculating the standard deviation for the Extension I B0 & Bp matrices, echo=FALSE, eval=FALSE}
+```{r calculating the standard deviation for the Extension I B0 & Bp matrices, echo=FALSE, eval=TRUE}
 
 calculate_and_print_B0sd(B0_posterior2)
 
-calculate_and_print_Bpsd(Bp_posterior2)
+#calculate_and_print_Bpsd(Bp_posterior2)
 
 ```
 
@@ -1472,18 +1470,18 @@ plot_lagged_effects(Bp_posterior2)
 ```
 
 
-```{r printing B0 & Bp for the Extension I Model, echo=FALSE, eval=FALSE}
+```{r printing B0 & Bp for the Extension I Model, echo=FALSE, eval=TRUE}
 
 print("Basic Model Normalized B0 matrix")
 print(B0_posterior2[ , , S])
 
-print("Basic Model B plus matrix")
-print(Bp_posterior2[ , ,S])
+#print("Basic Model B plus matrix")
+#print(Bp_posterior2[ , ,S])
 
 ```
 
 
-```{r calculate the significance levels for the Extension I model B0 and Bp, echo=FALSE, eval=FALSE}
+```{r calculate the significance levels for the Extension I model B0 and Bp, echo=FALSE, eval=TRUE}
 
 # Calculate significance for B0 and Bp matrices
 B0_significance <- calculate_significance(B0_posterior2)
@@ -1492,15 +1490,9 @@ Bp_significance <- calculate_significance(Bp_posterior2)
 # Print significance matrices
 print("Significance for B0 Matrix:")
 print(B0_significance)
-print("Significance for Bp Matrix:")
-print(Bp_significance)
+#print("Significance for Bp Matrix:")
+#print(Bp_significance)
 
-
-```
-
-```{r Plotting the IRF response for the Extension I model, echo=FALSE, eval=FALSE}
-
-calculate_and_plot_irfs(horizon = 12, B0_posterior2)
 
 ```
 
