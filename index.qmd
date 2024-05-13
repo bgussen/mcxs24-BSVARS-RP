@@ -50,8 +50,8 @@ library(HDInterval)     # For the IRF plots
 
 #Define global variables
 
-  S_burnin <- 10000   # number of discarded iterations from the Gibbs sampler
-  S <- 50000          # number of iterations used to calculate B0 and Bp
+  S_burnin <- 200   # number of discarded iterations from the Gibbs sampler
+  S <- 1000          # number of iterations used to calculate B0 and Bp
   p <- 12           # number of lags in the Baysian SVAR model 
   N <- 4.           # number of variables in the Bayesian SVAR model
   K <-  1+N*p
@@ -429,38 +429,44 @@ print(Bp_sd)
 
 ```{r Function to calculate and represent the significance levels for B0.posterior}
 
-# Function to calculate significance
+# Function to calculate significance of the last matrix elements against zero, with NA handling
 calculate_significance <- function(matrix_posterior) {
   n_vars <- dim(matrix_posterior)[1]
   n_periods <- dim(matrix_posterior)[2]
   n_draws <- dim(matrix_posterior)[3]
   
-  # Initialize matrices to store the significance symbols
+  # Get the last matrix
+  last_matrix <- matrix_posterior[, , n_draws]
+  
+  # Initialize matrix to store the significance symbols
   significance_matrix <- matrix("", nrow = n_vars, ncol = n_periods)
   
   # Loop over each element of the matrix
   for (i in 1:n_vars) {
     for (j in 1:n_periods) {
-      # Extract the posterior distribution for each element
-      element_posterior <- matrix_posterior[i, j, ]
+      # Calculate standard deviation for each element across all draws
+      element_std_dev <- sd(matrix_posterior[i, j, ], na.rm = TRUE)
       
-      # Calculate the 90%, 95%, and 99% confidence intervals
-      ci_90 <- quantile(element_posterior, probs = c(0.05, 0.95))
-      ci_95 <- quantile(element_posterior, probs = c(0.025, 0.975))
-      ci_99 <- quantile(element_posterior, probs = c(0.005, 0.995))
+      # Get the value from the last matrix
+      last_value <- last_matrix[i, j]
       
-# Check for zero inclusion
-      if (ci_90[1] > 0 | ci_90[2] < 0) {
-        # Significant at 10%
-        significance_matrix[i, j] <- "*"
-      }
-      if (ci_95[1] > 0 | ci_95[2] < 0) {
-        # Significant at 5%
-        significance_matrix[i, j] <- "**"
-      }
-      if (ci_99[1] > 0 | ci_99[2] < 0) {
-        # Significant at 1%
-        significance_matrix[i, j] <- "***"
+      # Check if standard deviation is zero or NA - which would lead to NA in z-score
+      if (is.na(element_std_dev) || element_std_dev == 0) {
+        significance_matrix[i, j] <- "NA"  # Indicate non-applicable significance due to constant/NA values
+      } else {
+        # Calculate the z-score assuming mean is zero for the null hypothesis
+        z_score <- last_value / element_std_dev
+        
+        # Determine significance based on z-score (typical critical z values for two-tailed tests)
+        if (abs(z_score) > 1.64) {  # Approximately 10% significance level (two-tailed)
+          significance_matrix[i, j] <- "*"
+        }
+        if (abs(z_score) > 1.96) {  # 5% significance level (two-tailed)
+          significance_matrix[i, j] <- "**"
+        }
+        if (abs(z_score) > 2.58) {  # 1% significance level (two-tailed)
+          significance_matrix[i, j] <- "***"
+        }
       }
     }
   }
@@ -469,68 +475,6 @@ calculate_significance <- function(matrix_posterior) {
 }
 
 ```
-
-```{r Function for calculating and plotting IRFs}
-
-calculate_and_plot_irfs <- function(horizon, B0_posterior) {
-  var_indices <- c(Inflation = 2, Unemployment = 3, GDP_growth = 4)
-
-  num_samples <- dim(B0_posterior)[3]
-  shock_size <- -sd(B0_posterior[1, 1, ])  # Assuming the first element captures USD_Index variance
-  
-  # Initialize arrays to store results
-  irf_samples <- array(0, dim = c(horizon, length(var_indices), num_samples))
-
-  # Calculate IRFs for each posterior sample
-  for (sample in 1:num_samples) {
-    shock <- rep(0, nrow(B0_posterior))
-    shock[1] <- shock_size  # Apply shock to USD_Index
-    current_response <- shock
-    
-    for (t in 1:horizon) {
-      current_response <- B0_posterior[, , sample] %*% current_response
-      # Store only the responses of the variables of interest
-      irf_samples[t, , sample] <- current_response[unname(var_indices)]
-    }
-  }
-
-  # Calculate mean and confidence intervals
-  irf_mean <- apply(irf_samples, 1:2, mean)
-  irf_ci_lower <- apply(irf_samples, 1:2, quantile, probs = 0.025)
-  irf_ci_upper <- apply(irf_samples, 1:2, quantile, probs = 0.975)
-
-  # Plot results
-  plot_list <- list()
-  for (var_name in names(var_indices)) {
-    index <- which(names(var_indices) == var_name)
-    irf_df <- data.frame(
-      Time = 1:horizon,
-      IRF = irf_mean[, index],
-      Lower_CI = irf_ci_lower[, index],
-      Upper_CI = irf_ci_upper[, index]
-    )
-    
-    plot <- ggplot(irf_df, aes(x = Time, y = IRF)) +
-      geom_ribbon(aes(ymin = Lower_CI, ymax = Upper_CI), fill = "blue", alpha = 0.2) +
-      geom_line() +
-      labs(title = paste("Impulse Response Function for", var_name),
-           subtitle = "Response to a Negative One SD Shock in USD_Index",
-           x = "Period",
-           y = "Response") +
-      theme_minimal() +
-      theme(plot.title = element_text(size = 12))
-    
-    plot_list[[var_name]] <- plot
-  }
-
-  return(plot_list)
-}
-
-
-```
-
-
-
 
 
 > **Abstract.** This research project investigates the dynamic effects of the U.S. Dollar (USD) on the Australian economy, with a focus on economic stability. By employing Bayesian Structural Vector Autoregression (SVAR) analysis. This study aims to elucidate the transmission mechanisms of USD fluctuations through three channels: GDP growth, inflation, and unemployment. The findings are expected to provide nuanced insights into the macroeconomic interdependencies between the USD and the Australian economy, offering valuable perspectives for policymakers and economic analysts.
@@ -1389,7 +1333,7 @@ $$
 $$
 
 $$
-\bar{S} = [\bar{\lambda}^{-1} \ YY^T+\underline{S}^{-1}+ \underline{B{\Omega}}^{-1} \underline{B}^T - \overline{B{\Omega}}^{-1} \bar{B}]^{-1}
+\bar{S} = [\bar{\lambda}^{-1} \ YY^T+\underline{S}^{-1}+ \underline{B{\Omega}}^{-1} \underline{B}^T - \overline{B{\Omega}}^{-1} \bar{B} + \psi]^{-1}
 $$
 
 
