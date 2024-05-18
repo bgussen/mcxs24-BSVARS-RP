@@ -526,7 +526,7 @@ B_0 Y_t = b_0 + B_1 Y_{t-1} + \dots + B_p Y_{t-p} + u_t
 <p>The likelihood function for the model incorporates the determinants and exponentials of quadratic forms, which reflect the usual Gaussian assumptions for the innovations.</p>
 <p>The likelihood function usning the Normal-Generalized-Normal (NGN) distribution is detailed below:</p>
 <p><span class="math display">\[
-L(B_+, B_0 \mid Y, X) = \left| \det (B_0) \right|^T \exp \left( -\frac{1}{2} \sum_{n=1}^N \left( b_n V_n Y - B_n X \right) \left( b_n V_n Y - B_n X \right)' \right)
+\mathcal{L}(B_+, B_0 \mid Y, X) = \left| \det (B_0) \right|^T \exp \left( -\frac{1}{2} \sum_{n=1}^N \left( b_n V_n Y - B_n X \right) \left( b_n V_n Y - B_n X \right)' \right)
 \]</span></p>
 <p>Expanded Expression</p>
 <p>Expanding the expression within the exponential term:</p>
@@ -544,7 +544,7 @@ L(B_+, B_0 \mid Y, X) = \left| \det (B_0) \right|^T \exp \left( -\frac{1}{2} \su
 <p>Likelihood Function Simplification</p>
 <p>The simplified likelihood function can then be presented as:</p>
 <p><span class="math display">\[
-L(B_+, B_0 \mid Y, X) \sim \mathcal{NGN} \left( \hat{A}, (X X')^{-1}, (Y Y' - Y X' (X X')^{-1} X Y')^{-1}, T + N \right)
+\mathcal{L}(B_+, B_0 \mid Y, X) \sim \mathcal{NGN} \left( \hat{A}, (X X')^{-1}, (Y Y' - Y X' (X X')^{-1} X Y')^{-1}, T + N \right)
 \]</span></p>
 </section>
 <section id="prior-and-posterior-distributions" class="level4">
@@ -571,7 +571,7 @@ p(B^+; B_0) &amp;= \left| \det(B_0) \right|^{\underline{\nu}-N} \exp \left\{ -\f
 <p>Posterior Distribution</p>
 <p>Combining the likelihood and the prior, the posterior distribution:</p>
 <p><span class="math display">\[
-p(B_+, B_0 \mid Y, X) \propto L(Y \mid B_+, B_0, X) \cdot p(B_+, B_0)
+p(B_+, B_0 \mid Y, X) \propto \mathcal{L}(Y \mid B_+, B_0, X) \cdot p(B_+, B_0)
 \]</span></p>
 <p><span class="math display">\[
 \begin{align*}
@@ -644,8 +644,8 @@ p(B_+, B_0 \mid Y, X) \propto L(Y \mid B_+, B_0, X) \cdot p(B_+, B_0)
 <p>The current approach is as follows:</p>
 <p><span class="math display">\[
 \begin{aligned}
-p(B_0, B_+, \lambda \mid Y, X) &amp;\propto L(Y \mid X, B_0, B_+, \lambda) \ \ p(B_0, B_+, \lambda) \\
-&amp;= L(Y \mid X, B_0, B_+, \lambda) \ \ p(B_0, B_+) \ \ p(\lambda)
+p(B_0, B_+, \lambda \mid Y, X) &amp;\propto \mathcal{L}(Y \mid X, B_0, B_+, \lambda) \ \ p(B_0, B_+, \lambda) \\
+&amp;= \mathcal{L}(Y \mid X, B_0, B_+, \lambda) \ \ p(B_0, B_+) \ \ p(\lambda)
 \end{aligned}
 \]</span></p>
 <p>Where, as under the basic model:</p>
@@ -690,14 +690,48 @@ p(B_+; B_0; \lambda \mid Y; X) \propto p(Y \mid X, B_+, B_0, \lambda) \times p(B
 <p>This expression must often be evaluated or sampled using computational Bayesian techniques, such as Markov Chain Monte Carlo (MCMC), especially given the integrative step required for <span class="math inline">\(\lambda\)</span>.</p>
 <p>We can obtain the following posterior formulas similar to the basic model. Note that we use <span class="math inline">\(\underline{\Omega} = \underline{\lambda\Omega}\)</span> in the following equations:</p>
 <p><span class="math display">\[
-\bar{\Omega} =  [\bar{\lambda}^{-1} \ XX^T+ \underline{{\Omega}} \ ]^{-1}
+\bar{\Omega} = \bar{\lambda} \  [\bar{\lambda}^{-1} \ XX^T+ \underline{{\Omega}} \ ]^{-1}
 \]</span></p>
 <p><span class="math display">\[
-\bar{B} =  [\bar{\lambda}^{-1} \ YX^T+\underline{B{\Omega}}^{-1}] \ \bar{\Omega}
+\bar{B} = \bar{\lambda} \  [\bar{\lambda}^{-1} \ YX^T+\underline{B{\Omega}}^{-1}] \ \bar{\Omega}
 \]</span></p>
 <p><span class="math display">\[
-\bar{S} = [\bar{\lambda}^{-1} \ YY^T+\underline{S}^{-1}+ \underline{B{\Omega}}^{-1} \underline{B}^T - \overline{B{\Omega}}^{-1} \bar{B} + \psi]^{-1}
+\bar{S} = \bar{\lambda} \ [\bar{\lambda}^{-1} \ YY^T+\underline{S}^{-1}+ \underline{B{\Omega}}^{-1} \underline{B}^T - \overline{B{\Omega}}^{-1} \bar{B}]^{-1}
 \]</span></p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Standard deviation of the model B0:
+           [,1]       [,2]       [,3]       [,4]
+[1,] 0.02965426 0.00000000 0.00000000 0.00000000
+[2,] 0.19345683 0.36697214 0.00000000 0.00000000
+[3,] 0.10737599 0.20184157 0.17346181 0.00000000
+[4,] 0.13999794 0.06831865 0.08592387 0.05587193</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Extension I Model Normalized B0 matrix"</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           [,1]        [,2]         [,3]     [,4]
+[1,]  0.5301825  0.00000000  0.000000000 0.000000
+[2,] -0.6367366  0.11782312  0.000000000 0.000000
+[3,] -1.5045957 -0.08334525  1.072401389 0.000000
+[4,] -0.5449991 -0.18924621 -0.008981025 1.003526</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Significance for B0 Matrix:"</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1]  [,2]  [,3]  [,4] 
+[1,] "***" "NA"  "NA"  "NA" 
+[2,] "***" ""    "NA"  "NA" 
+[3,] "***" ""    "***" "NA" 
+[4,] "***" "***" ""    "***"</code></pre>
+</div>
+</div>
 </section>
 <section id="second-extension-estimating-nu" class="level3">
 <h3 class="anchored" data-anchor-id="second-extension-estimating-nu">Second Extension: Estimating <span class="math inline">\(\nu\)</span></h3>

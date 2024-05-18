@@ -50,8 +50,8 @@ library(HDInterval)     # For the IRF plots
 
 #Define global variables
 
-  S_burnin <- 200   # number of discarded iterations from the Gibbs sampler
-  S <- 2000          # number of iterations used to calculate B0 and Bp
+  S_burnin <- 1000   # number of discarded iterations from the Gibbs sampler
+  S <- 4000          # number of iterations used to calculate B0 and Bp
   p <- 12           # number of lags in the Baysian SVAR model 
   N <- 4.           # number of variables in the Bayesian SVAR model
   K <-  1+N*p
@@ -327,10 +327,10 @@ X       = t(X)
   
   # Compute posterior distribution parameters
   Omega.inv <- solve(priors$Omega)
-  Omega.post.inv <-  ((lambda_posterior)^(-1) * X %*% t(X) + Omega.inv)
+  Omega.post.inv <-  ( X %*% t(X) + (lambda_posterior)^(-1) * Omega.inv)
   Omega.post <- solve(Omega.post.inv)
-  B.post <-   ((lambda_posterior)^(-1) * Y %*% t(X) + priors$B %*% Omega.inv) %*% Omega.post
-  S.post <- solve((lambda_posterior)^(-1) * Y %*% t(Y) + solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post))
+  B.post <-   ( Y %*% t(X) + (lambda_posterior)^(-1) * priors$B %*% Omega.inv) %*% Omega.post
+  S.post <-  solve( Y %*% t(Y) + (lambda_posterior)^(-1) * solve(priors$S) + (lambda_posterior)^(-1) * priors$B %*% Omega.inv %*% t(priors$B) - (lambda_posterior)^(-1) * B.post %*% Omega.post.inv %*% t(B.post))
   nu.post <- nrow(y) + priors$nu
   
   posteriors <- list(
@@ -982,7 +982,7 @@ The likelihood function for the model incorporates the determinants and exponent
 The likelihood function usning the Normal-Generalized-Normal (NGN) distribution is detailed below: 
 
 $$
-L(B_+, B_0 \mid Y, X) = \left| \det (B_0) \right|^T \exp \left( -\frac{1}{2} \sum_{n=1}^N \left( b_n V_n Y - B_n X \right) \left( b_n V_n Y - B_n X \right)' \right)
+\mathcal{L}(B_+, B_0 \mid Y, X) = \left| \det (B_0) \right|^T \exp \left( -\frac{1}{2} \sum_{n=1}^N \left( b_n V_n Y - B_n X \right) \left( b_n V_n Y - B_n X \right)' \right)
 $$
 
 Expanded Expression
@@ -1009,7 +1009,7 @@ Likelihood Function Simplification
 The simplified likelihood function can then be presented as:
 
 $$
-L(B_+, B_0 \mid Y, X) \sim \mathcal{NGN} \left( \hat{A}, (X X')^{-1}, (Y Y' - Y X' (X X')^{-1} X Y')^{-1}, T + N \right)
+\mathcal{L}(B_+, B_0 \mid Y, X) \sim \mathcal{NGN} \left( \hat{A}, (X X')^{-1}, (Y Y' - Y X' (X X')^{-1} X Y')^{-1}, T + N \right)
 $$
 
 
@@ -1048,7 +1048,7 @@ Posterior Distribution
 Combining the likelihood and the prior, the posterior distribution:
 
 $$
-p(B_+, B_0 \mid Y, X) \propto L(Y \mid B_+, B_0, X) \cdot p(B_+, B_0)
+p(B_+, B_0 \mid Y, X) \propto \mathcal{L}(Y \mid B_+, B_0, X) \cdot p(B_+, B_0)
 $$
 
 $$
@@ -1198,7 +1198,7 @@ Y = matrices$Y
 
 ```
 
-```{r calculate B0 and B+ for the Basic Bayesian SVAR model, echo=FALSE, eval=TRUE}
+```{r calculate B0 and B+ for the Basic Bayesian SVAR model, echo=FALSE, eval=FALSE}
 
 matrices <- create_matrices()
 Y = matrices$Y
@@ -1252,12 +1252,6 @@ print(Bp_significance)
 
 ```
 
-```{r Plotting the IRF response for the Basic Model, echo=FALSE, eval=FALSE}
-
-calculate_and_plot_irfs(horizon = 12, B0_posterior)
-
-```
-
 ### Model Extension I: Solving the Identification Problem Using a Non-Normality Approach
 
 We use a t-distribution to model the error terms. Given difficulties with a direct estimation of the t-distribution, we proceed as follows. 
@@ -1266,8 +1260,8 @@ The current approach is as follows:
 
 $$
 \begin{aligned}
-p(B_0, B_+, \lambda \mid Y, X) &\propto L(Y \mid X, B_0, B_+, \lambda) \ \ p(B_0, B_+, \lambda) \\
-&= L(Y \mid X, B_0, B_+, \lambda) \ \ p(B_0, B_+) \ \ p(\lambda)
+p(B_0, B_+, \lambda \mid Y, X) &\propto \mathcal{L}(Y \mid X, B_0, B_+, \lambda) \ \ p(B_0, B_+, \lambda) \\
+&= \mathcal{L}(Y \mid X, B_0, B_+, \lambda) \ \ p(B_0, B_+) \ \ p(\lambda)
 \end{aligned}
 $$
 
@@ -1325,19 +1319,19 @@ This expression must often be evaluated or sampled using computational Bayesian 
 We can obtain the following posterior formulas similar to the basic model. Note that we use $\underline{\Omega} = \underline{\lambda\Omega}$ in the following equations: 
 
 $$
-\bar{\Omega} =  [\bar{\lambda}^{-1} \ XX^T+ \underline{{\Omega}} \ ]^{-1}
+\bar{\Omega} = \bar{\lambda} \  [\bar{\lambda}^{-1} \ XX^T+ \underline{{\Omega}} \ ]^{-1}
 $$
 
 $$
-\bar{B} =  [\bar{\lambda}^{-1} \ YX^T+\underline{B{\Omega}}^{-1}] \ \bar{\Omega}
+\bar{B} = \bar{\lambda} \  [\bar{\lambda}^{-1} \ YX^T+\underline{B{\Omega}}^{-1}] \ \bar{\Omega}
 $$
 
 $$
-\bar{S} = [\bar{\lambda}^{-1} \ YY^T+\underline{S}^{-1}+ \underline{B{\Omega}}^{-1} \underline{B}^T - \overline{B{\Omega}}^{-1} \bar{B} + \psi]^{-1}
+\bar{S} = \bar{\lambda} \ [\bar{\lambda}^{-1} \ YY^T+\underline{S}^{-1}+ \underline{B{\Omega}}^{-1} \underline{B}^T - \overline{B{\Omega}}^{-1} \bar{B}]^{-1}
 $$
 
 
-```{r Building matrices Y and X from the actual data for evaluating the Extension I Bayesian SVAR model, echo=FALSE, eval=FALSE}
+```{r Building matrices Y and X from the actual data for evaluating the Extension I Bayesian SVAR model, echo=FALSE, eval=TRUE}
 
 matrices <- create_matrices()
 
@@ -1375,17 +1369,18 @@ sample_lambda <- function(psi, num_samples) {
 
 ```
 
-```{r calculate B0 and B+ for the Extension I Bayesian SVAR model, echo=FALSE, eval=FALSE}
+```{r calculate B0 and B+ for the Extension I Bayesian SVAR model, echo=FALSE, eval=TRUE}
 
 Y = matrices$Y
 
-psi = 5
+psi = 10
 
-# Call to the function with psi = 5 and 100 samples
+# Call to the function with psi and 100 samples
 result <- sample_lambda(psi, num_samples = 100)
 # Accessing the mean from the results
 lambda_mean <- result$mean
 lambda.post = lambda_mean
+
 
 #print("lambda2 =")
 #print(lambda.post)
@@ -1399,7 +1394,7 @@ Bp_posterior2 <- posterior_results$Bp
 
 ```
 
-```{r calculating the standard deviation for the Extension I B0 & Bp matrices, echo=FALSE, eval=FALSE}
+```{r calculating the standard deviation for the Extension I B0 & Bp matrices, echo=FALSE, eval=TRUE}
 
 calculate_and_print_B0sd(B0_posterior2)
 
@@ -1414,7 +1409,7 @@ plot_lagged_effects(Bp_posterior2)
 ```
 
 
-```{r printing B0 & Bp for the Extension I Model, echo=FALSE, eval=FALSE}
+```{r printing B0 & Bp for the Extension I Model, echo=FALSE, eval=TRUE}
 
 print("Extension I Model Normalized B0 matrix")
 print(B0_posterior2[ , , S])
@@ -1425,7 +1420,7 @@ print(B0_posterior2[ , , S])
 ```
 
 
-```{r calculate the significance levels for the Extension I model B0 and Bp, echo=FALSE, eval=FALSE}
+```{r calculate the significance levels for the Extension I model B0 and Bp, echo=FALSE, eval=TRUE}
 
 # Calculate significance for B0 and Bp matrices
 B0_significance <- calculate_significance(B0_posterior2)
@@ -1604,9 +1599,11 @@ print(Bp_significance)
 ```{r Plotting the IRF response for the model, echo=FALSE, eval=TRUE}
 
 
-B0 <- posterior_results$B0
-Bp <- posterior_results$Bp
+#B0_posterior1 <- posterior_results$B0
+#Bp_posterior1 <- posterior_results$Bp
 
+B0 <- B0_posterior2
+Bp <- Bp_posterior2
 
 # Parameters
 
