@@ -160,12 +160,20 @@ window.Quarto = {
   <li><a href="#model-testing-using-a-random-walk" id="toc-model-testing-using-a-random-walk" class="nav-link" data-scroll-target="#model-testing-using-a-random-walk">Model Testing Using A Random Walk</a></li>
   <li><a href="#estimation-of-the-basic-model" id="toc-estimation-of-the-basic-model" class="nav-link" data-scroll-target="#estimation-of-the-basic-model">Estimation of the Basic Model</a></li>
   <li><a href="#model-extension-i-solving-the-identification-problem-using-a-non-normality-approach" id="toc-model-extension-i-solving-the-identification-problem-using-a-non-normality-approach" class="nav-link" data-scroll-target="#model-extension-i-solving-the-identification-problem-using-a-non-normality-approach">Model Extension I: Solving the Identification Problem Using a Non-Normality Approach</a></li>
-  <li><a href="#step-1-formulating-the-kernel-of-the-likelihood-function" id="toc-step-1-formulating-the-kernel-of-the-likelihood-function" class="nav-link" data-scroll-target="#step-1-formulating-the-kernel-of-the-likelihood-function">Step 1: Formulating the Kernel of the Likelihood Function</a></li>
-  <li><a href="#step-2-estimating-lambda" id="toc-step-2-estimating-lambda" class="nav-link" data-scroll-target="#step-2-estimating-lambda">Step 2: Estimating <span class="math inline">\(\lambda\)</span></a></li>
-  <li><a href="#step-3-evaluating-the-kernel" id="toc-step-3-evaluating-the-kernel" class="nav-link" data-scroll-target="#step-3-evaluating-the-kernel">Step 3: Evaluating the Kernel</a></li>
-  <li><a href="#step-4-combining-with-the-prior" id="toc-step-4-combining-with-the-prior" class="nav-link" data-scroll-target="#step-4-combining-with-the-prior">Step 4: Combining with the Prior</a></li>
+  <li><a href="#likelihood" id="toc-likelihood" class="nav-link" data-scroll-target="#likelihood">Likelihood</a></li>
+  <li><a href="#prior-for-lambda" id="toc-prior-for-lambda" class="nav-link" data-scroll-target="#prior-for-lambda">Prior for <span class="math inline">\(\lambda\)</span></a></li>
+  <li><a href="#prior-for-b_0-and-b_p" id="toc-prior-for-b_0-and-b_p" class="nav-link" data-scroll-target="#prior-for-b_0-and-b_p">Prior for <span class="math inline">\(B_0\)</span> and <span class="math inline">\(B_p\)</span></a></li>
+  <li><a href="#posterior-derivation" id="toc-posterior-derivation" class="nav-link" data-scroll-target="#posterior-derivation">Posterior Derivation</a></li>
+  <li><a href="#posterior-for-lambda" id="toc-posterior-for-lambda" class="nav-link" data-scroll-target="#posterior-for-lambda">Posterior for <span class="math inline">\(\lambda\)</span></a></li>
+  <li><a href="#posterior-for-b_0-and-b_p" id="toc-posterior-for-b_0-and-b_p" class="nav-link" data-scroll-target="#posterior-for-b_0-and-b_p">Posterior for <span class="math inline">\(B_0\)</span> and <span class="math inline">\(B_p\)</span></a>
+  <ul class="collapse">
+  <li><a href="#update-posterior-parameters" id="toc-update-posterior-parameters" class="nav-link" data-scroll-target="#update-posterior-parameters">Update Posterior Parameters</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a>
+  <ul class="collapse">
   <li><a href="#second-extension-estimating-nu" id="toc-second-extension-estimating-nu" class="nav-link" data-scroll-target="#second-extension-estimating-nu">Second Extension: Estimating <span class="math inline">\(\nu\)</span></a></li>
-  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  <li><a href="#conclusion-1" id="toc-conclusion-1" class="nav-link" data-scroll-target="#conclusion-1">Conclusion</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -350,7 +358,7 @@ Figure&nbsp;4: ACF and PACF functions for the USD Trade Weighted Index
 <tr class="odd">
 <td style="text-align: left;">Unemployment</td>
 <td style="text-align: left;">Unemployment</td>
-<td style="text-align: right;">-1.928571</td>
+<td style="text-align: right;">-1.931129</td>
 <td style="text-align: right;">-2.88</td>
 </tr>
 <tr class="even">
@@ -632,6 +640,73 @@ p(B_+, B_0 \mid Y, X) \propto \mathcal{L}(Y \mid B_+, B_0, X) \cdot p(B_+, B_0)
 <p>We use a random walk to generate a <span class="math inline">\(Y\)</span> matrix with one lag, and with 300 observations over four variables, to check whether the estimation algorithm is able to reproduce the random walk structure. In other words, we expect that <span class="math inline">\(B_0\)</span> will equal an identity matrix, the intercept will equal zero, and the remaining part of the <span class="math inline">\(B_+\)</span> matrix will also be an identity matrix.</p>
 <p>We used 1000 iterations for the burn-in phase to allow the algorithm to converge, then used 5000 iteration for the estimation.</p>
 <p>The estimated <span class="math inline">\(B_0\)</span> and <span class="math inline">\(B_+\)</span> are shown below.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Random Walk Testing Normalized B0 matrix"</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           [,1]        [,2]       [,3]     [,4]
+[1,]  3.0730292  0.00000000  0.0000000 0.000000
+[2,]  0.3048663  3.49022635  0.0000000 0.000000
+[3,] -0.1891242 -0.19030239  3.1823328 0.000000
+[4,] -0.5742637  0.02297444 -0.4960801 3.430429</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Random Walk Testing Bp matrix"</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            [,1]       [,2]        [,3]        [,4]        [,5]        [,6]
+[1,] -0.10194758  3.0272413  0.02831275 -0.05441611  0.05563484 -0.03898545
+[2,] -0.01655937  0.2093133  3.38785731 -0.04897503 -0.13136331  0.08981635
+[3,] -0.11959411 -0.3303063 -0.23941351  3.06658329 -0.11984704  0.04180768
+[4,] -0.35086221 -0.5535632  0.01585354 -0.48358770  3.30094969  0.00884880
+            [,7]        [,8]          [,9]       [,10]        [,11]
+[1,] -0.05381311 -0.06296538 -0.0101386458 -0.02544642 -0.028600743
+[2,]  0.02362813  0.04148206  0.0019712345  0.01105251  0.051687164
+[3,] -0.05264666 -0.08960778  0.0124744286 -0.05069639 -0.007897444
+[4,] -0.05721835  0.07860616  0.0004618549 -0.04137345  0.001721936
+            [,12]       [,13]        [,14]        [,15]       [,16]
+[1,] -0.015190969  0.00227292  0.003443832 -0.026084607  0.04490895
+[2,]  0.008952262 -0.02397751 -0.034448013 -0.043993044 -0.01430907
+[3,] -0.032917962  0.01087263 -0.027109832  0.005330308  0.02215701
+[4,] -0.019569175  0.01137383  0.004493164 -0.001150331 -0.03596327
+            [,17]        [,18]         [,19]         [,20]        [,21]
+[1,] -0.030905315  0.011586598 -0.0062655070 -0.0255330878 -0.012617287
+[2,]  0.021192633  0.006832901 -0.0001128912 -0.0005135786 -0.005324567
+[3,] -0.002747973 -0.029680369  0.0022263840  0.0094771279  0.021534046
+[4,] -0.001801036  0.007048784  0.0086309674  0.0114940716  0.021670605
+            [,22]         [,23]        [,24]        [,25]        [,26]
+[1,] -0.022671719  0.0279561490 -0.003900718  0.006611601 -0.002190694
+[2,]  0.010602829 -0.0122146575 -0.016141244  0.020960217 -0.024853025
+[3,] -0.005023493 -0.0164538834  0.003528570 -0.002612388  0.017895717
+[4,]  0.009355887 -0.0009480507 -0.050651479 -0.010217617 -0.011420921
+            [,27]        [,28]        [,29]        [,30]        [,31]
+[1,]  0.007219474 -0.003234119 -0.010997418 -0.013619114  0.012461055
+[2,] -0.000664190 -0.007435308  0.008785227 -0.006726551 -0.003451675
+[3,]  0.005483983 -0.017396174 -0.008462420  0.013764305 -0.008924859
+[4,]  0.048084025  0.006722617 -0.015483488 -0.015579128 -0.004035668
+            [,32]        [,33]        [,34]        [,35]        [,36]
+[1,]  0.004051196 -0.008039839 -0.009259766  0.006715218 -0.005014661
+[2,] -0.003892966  0.025877463  0.019428831 -0.002493848 -0.016375406
+[3,] -0.009547094  0.008494467  0.009991042 -0.003786858 -0.006032782
+[4,] -0.026729725  0.024224334 -0.001781461  0.007509075  0.003103778
+            [,37]         [,38]        [,39]        [,40]        [,41]
+[1,] -0.012176699 -0.0041633463 -0.011644256 0.0056919163  0.004209563
+[2,] -0.006472895  0.0189631326  0.010758644 0.0111062972  0.001285639
+[3,] -0.002277074 -0.0008559453  0.016185771 0.0105828731  0.014117537
+[4,]  0.015578991  0.0047063206 -0.009371143 0.0005625631 -0.003337813
+            [,42]        [,43]        [,44]       [,45]        [,46]
+[1,]  0.009028830 -0.006413491 -0.005803815 0.005529076 -0.007731883
+[2,]  0.015103921 -0.007999750 -0.002947800 0.004896565 -0.011363726
+[3,]  0.003828489 -0.008484818  0.003698352 0.009721527  0.012126879
+[4,] -0.007128128  0.009696537  0.004060475 0.005638545 -0.012925856
+            [,47]       [,48]        [,49]
+[1,]  0.015710428 0.002313611 -0.004771242
+[2,] -0.002236738 0.000998599  0.003536308
+[3,]  0.016049062 0.003656425  0.001217929
+[4,] -0.007380866 0.008570369  0.007934904</code></pre>
+</div>
+</div>
 <p>There is a clear convergence of the diagonal of each matrix towards one. The other elements in these matrices are also approaching zero. We have enough evidence to see that the algorithm is able to estimate the random walk process.</p>
 </section>
 <section id="estimation-of-the-basic-model" class="level3">
@@ -640,114 +715,106 @@ p(B_+, B_0 \mid Y, X) \propto \mathcal{L}(Y \mid B_+, B_0, X) \cdot p(B_+, B_0)
 </section>
 <section id="model-extension-i-solving-the-identification-problem-using-a-non-normality-approach" class="level3">
 <h3 class="anchored" data-anchor-id="model-extension-i-solving-the-identification-problem-using-a-non-normality-approach">Model Extension I: Solving the Identification Problem Using a Non-Normality Approach</h3>
-<p>We use a t-distribution to model the error terms. Given difficulties with a direct estimation of the t-distribution, we proceed as follows.</p>
-<p>The current approach is as follows:</p>
+<p>We present the Bayesian estimation and inference methodology for an N-variate Student-t distribution modeled as an IG2-scale mixture of normals. The derivation of the full conditional posterior distributions is expanded step-by-step, and the Metropolis-Hastings algorithm is used for sampling the degrees of freedom parameter <span class="math inline">\(\nu\)</span>. An R function implementing the sampler is provided.</p>
+<p>The Student-t distribution is commonly used in statistical modeling to handle data with heavier tails than the normal distribution. An essential parameter of the Student-t distribution is the degrees of freedom <span class="math inline">\(\nu\)</span>, which controls the tail heaviness. In this note, we present the Bayesian estimation of the degrees of freedom parameter for an N-variate Student-t distribution using the Inverted-Gamma 2 (IG2) scale mixture of normals.</p>
+<p>The N-variate Student-t distribution can be represented as a scale mixture of normals:</p>
 <p><span class="math display">\[
-\begin{aligned}
-p(B_0, B_+, \lambda \mid Y, X) &amp;\propto \mathcal{L}(Y \mid X, B_0, B_+, \lambda) \ \ p(B_0, B_+, \lambda) \\
-&amp;= \mathcal{L}(Y \mid X, B_0, B_+, \lambda) \ \ p(B_0, B_+) \ \ p(\lambda)
-\end{aligned}
+B_0 Y = B_p X + U_t, \quad U_t \sim \mathcal{N}(0_T, \lambda I_T)
 \]</span></p>
-<p>Where, as under the basic model:</p>
+<p>And the priors:</p>
 <p><span class="math display">\[
-\begin{aligned}
-p(B^+; B_0) &amp;= \left| \det(B_0) \right|^{\underline{\nu}-N} \exp \left\{ -\frac{1}{2} \sum_{n=1}^{N} b_n V_n \underline{S}^{-1} V_n^T b_n^T \right\} \\
-&amp;\quad \times \exp \left\{ -\frac{1}{2} \sum_{n=1}^{N} (B_n - b_n V_n \underline{B}) \ \ \underline{\Omega}^{-1} \ \ (B_n - b_n V_n \underline{B})^T \right\}
-\end{aligned}
+p(B_0, B_p) \sim \text{NGN}(\underline{B}, \underline{\Omega}, \underline{S}, \underline{\nu})
 \]</span></p>
-<p>To evaluate the overall kernel for the extended Bayesian Structural Vector Autoregression (SVAR) model where the error term <span class="math inline">\(u_t\)</span> follows a distribution <span class="math inline">\(N(0, \lambda I_N)\)</span> and <span class="math inline">\(\lambda\)</span> itself is distributed according to an Inverse Gamma square (IG2) with parameters <span class="math inline">\(\nu, \nu\)</span>, we need to account for the complexity added by this distribution of the error variance. This changes how the kernel of the likelihood function is formulated and combined with the prior.</p>
-</section>
-<section id="step-1-formulating-the-kernel-of-the-likelihood-function" class="level3">
-<h3 class="anchored" data-anchor-id="step-1-formulating-the-kernel-of-the-likelihood-function">Step 1: Formulating the Kernel of the Likelihood Function</h3>
-<p>With the error term <span class="math inline">\(u_t \sim N(0, \lambda I_N)\)</span>, the likelihood function’s kernel, incorporating the variance parameter <span class="math inline">\(\lambda\)</span>, becomes: <span class="math display">\[
-L(Y \mid X, B_0, B_+, \lambda) = \text{det}(B_0)^T \exp\left(-\frac{1}{2\lambda} \sum_{n=1}^N (b_nV_nY - B_nX)(b_nV_nY - B_nX)^T\right)
-\]</span></p>
-</section>
-<section id="step-2-estimating-lambda" class="level3">
-<h3 class="anchored" data-anchor-id="step-2-estimating-lambda">Step 2: Estimating <span class="math inline">\(\lambda\)</span></h3>
-<p>Since <span class="math inline">\(\lambda\)</span> is a random variable following <span class="math inline">\(\lambda \sim IG2(\nu, \nu)\)</span>, its effect can be sampled from the density function for <span class="math inline">\(\lambda\)</span>:</p>
 <p><span class="math display">\[
-p(\lambda) = \frac{(\psi/2)^{\psi/2}}{\Gamma(\psi/2)} \lambda^{-(\psi/2+1)} \exp\left(-\frac{\psi}{2\lambda}\right)
+\lambda \sim \mathcal{IG2}(\underline{s}, \underline{\nu}) \quad \text{with} \quad \underline{s} = \underline{\nu} - 2
 \]</span></p>
-<p>We can use the rinvgamma() function to sample this <span class="math inline">\(\lambda\)</span>. In the estimation process for this extended model, we sample 5000 times from the IG2 distribution and use the mean value for <span class="math inline">\(\lambda\)</span>.</p>
+<p>The condition imposed on <span class="math inline">\(\underline{s}\)</span> ensures that the expected value for <span class="math inline">\(\lambda\)</span> is equal to one, which is the same specification under the basic model.</p>
 </section>
-<section id="step-3-evaluating-the-kernel" class="level3">
-<h3 class="anchored" data-anchor-id="step-3-evaluating-the-kernel">Step 3: Evaluating the Kernel</h3>
-<p>We use the posterior degrees of freedom to estimate the posterior variance of the error terms:</p>
+<section id="likelihood" class="level2">
+<h2 class="anchored" data-anchor-id="likelihood">Likelihood</h2>
+<p>The likelihood function for the model is:</p>
+<p><span class="math display">\[
+p(Y \mid B_0, B_p, \lambda, X) = (2\pi\lambda)^{-\frac{T}{2}} \exp\left(-\frac{1}{2\lambda} \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) \right)
+\]</span></p>
+</section>
+<section id="prior-for-lambda" class="level2">
+<h2 class="anchored" data-anchor-id="prior-for-lambda">Prior for <span class="math inline">\(\lambda\)</span></h2>
+<p>The Inverted-Gamma 2 prior for () is:</p>
+<p><span class="math display">\[
+p(\lambda) = \frac{\underline{\nu}^{\underline{s}}}{\Gamma(\underline{s})} \lambda^{-\underline{s}-1} \exp\left(-\frac{\underline{\nu}}{\lambda}\right)
+\]</span></p>
+</section>
+<section id="prior-for-b_0-and-b_p" class="level2">
+<h2 class="anchored" data-anchor-id="prior-for-b_0-and-b_p">Prior for <span class="math inline">\(B_0\)</span> and <span class="math inline">\(B_p\)</span></h2>
+<p>The Normal-Gamma-Normal (NGN) prior for (B_0) and (B_p) is assumed to be:</p>
+<p><span class="math display">\[
+p(B_0, B_p) \propto \left| \det(B_0) \right|^{\underline{\nu}} \exp \left( -\frac{1}{2} \left[ \operatorname{tr}((B_0 - \underline{B}) \underline{\Omega}^{-1} (B_0 - \underline{B})^T) \right] \right)
+\]</span></p>
+</section>
+<section id="posterior-derivation" class="level2">
+<h2 class="anchored" data-anchor-id="posterior-derivation">Posterior Derivation</h2>
+<p>The posterior distribution is proportional to the product of the likelihood and the priors:</p>
+<p><span class="math display">\[
+p(B_0, B_p, \lambda \mid Y, X) \propto p(Y \mid B_0, B_p, \lambda, X) p(B_0, B_p) p(\lambda)
+\]</span></p>
+</section>
+<section id="posterior-for-lambda" class="level2">
+<h2 class="anchored" data-anchor-id="posterior-for-lambda">Posterior for <span class="math inline">\(\lambda\)</span></h2>
+<p>Combining the likelihood and the prior for ():</p>
+<p><span class="math display">\[
+p(\lambda \mid Y, B_0, B_p, X) \propto \lambda^{-\frac{T}{2}} \exp\left(-\frac{1}{2\lambda} \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) \right) \lambda^{-\underline{s}-1} \exp\left(-\frac{\underline{\nu}}{\lambda}\right)
+\]</span></p>
+<p>Combining terms:</p>
+<p><span class="math display">\[
+p(\lambda \mid Y, B_0, B_p, X) \propto \lambda^{-\left(\frac{T}{2} + \underline{s} + 1\right)} \exp\left(-\frac{1}{2\lambda} \left(\sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) + 2\underline{\nu}\right)\right)
+\]</span></p>
+<p>This is recognized as the kernel of an Inverted-Gamma 2 distribution:</p>
+<p><span class="math display">\[
+\lambda \mid Y, B_0, B_p, X \sim \mathcal{IG2}\left(\underline{s} + \frac{T}{2}, \underline{\nu} + \frac{1}{2} \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) \right)
+\]</span></p>
+</section>
+<section id="posterior-for-b_0-and-b_p" class="level2">
+<h2 class="anchored" data-anchor-id="posterior-for-b_0-and-b_p">Posterior for <span class="math inline">\(B_0\)</span> and <span class="math inline">\(B_p\)</span></h2>
+<p>Considering the effect of <span class="math inline">\(\lambda\)</span> on the residuals, the posterior parameters for <span class="math inline">\(B_0\)</span> and <span class="math inline">\(B_p\)</span> should be adjusted accordingly. The presence of <span class="math inline">\(\lambda\)</span> affects the variance in the likelihood, impacting the posterior distributions for <span class="math inline">\(B_0\)</span> and <span class="math inline">\(B_p\)</span>.</p>
+<section id="update-posterior-parameters" class="level3">
+<h3 class="anchored" data-anchor-id="update-posterior-parameters">Update Posterior Parameters</h3>
+<p>Taking <span class="math inline">\(\lambda\)</span> into account, the posterior parameters for <span class="math inline">\(B_0\)</span> and <span class="math inline">\(B_p\)</span> are:</p>
+<ol type="1">
+<li><strong>Posterior for <span class="math inline">\(\bar{\Omega}\)</span></strong>:</li>
+</ol>
+<p><span class="math display">\[
+\bar{\Omega} = \left(\frac{XX^T}{\lambda} + \underline{\Omega}^{-1}\right)^{-1}
+\]</span></p>
+<ol start="2" type="1">
+<li><strong>Posterior for <span class="math inline">\(\bar{B}\)</span></strong>:</li>
+</ol>
+<p><span class="math display">\[
+\bar{B} = \left(\frac{XX^T}{\lambda} + \underline{\Omega}^{-1}\right)^{-1} \left(\frac{YX^T}{\lambda} + \underline{\Omega}^{-1}\underline{B}\right)
+\]</span></p>
+<ol start="3" type="1">
+<li><strong>Posterior for <span class="math inline">\(\bar{S}\)</span></strong>:</li>
+</ol>
+<p><span class="math display">\[
+\bar{S} = \left(\frac{YY^T}{\lambda} + \underline{S}^{-1} + \underline{B}^{-1}\underline{B}^T - B_{\bar{}} \Omega_{\bar{}} B_{\bar{}}^T\right)
+\]</span></p>
+<ol start="4" type="1">
+<li><strong>Posterior for <span class="math inline">\(\bar{\nu}\)</span></strong>:</li>
+</ol>
 <p><span class="math display">\[
 \bar{\nu} = T + \underline{\nu}
 \]</span></p>
-<p><span class="math display">\[
-\bar{\lambda} = \operatorname{IG2}({\psi}, {\psi})
-\]</span></p>
 </section>
-<section id="step-4-combining-with-the-prior" class="level3">
-<h3 class="anchored" data-anchor-id="step-4-combining-with-the-prior">Step 4: Combining with the Prior</h3>
-<p>Assuming the prior <span class="math inline">\(p(B^+; B_0)\)</span> as given or formulated according to specific assumptions (such as independence, Gaussian priors for coefficients, etc.), the full posterior kernel combining this likelihood with the prior can be approached as:</p>
-<p><span class="math display">\[
-p(B_+; B_0; \lambda \mid Y; X) \propto p(Y \mid X, B_+, B_0, \lambda) \times p(B_+; B_0 \mid \lambda) \times p(\lambda \mid \nu) p
-\]</span></p>
-<p>This expression must often be evaluated or sampled using computational Bayesian techniques, such as Markov Chain Monte Carlo (MCMC), especially given the integrative step required for <span class="math inline">\(\lambda\)</span>.</p>
-<p>We can obtain the following posterior formulas similar to the basic model. Note that we use <span class="math inline">\(\underline{\Omega} = \underline{\lambda\Omega}\)</span> in the following equations:</p>
-<p><span class="math display">\[
-\bar{\Omega} = \bar{\lambda} \  [\bar{\lambda}^{-1} \ XX^T+ \underline{{\Omega}} \ ]^{-1}
-\]</span></p>
-<p><span class="math display">\[
-\bar{B} = \bar{\lambda} \  [\bar{\lambda}^{-1} \ YX^T+\underline{B{\Omega}}^{-1}] \ \bar{\Omega}
-\]</span></p>
-<p><span class="math display">\[
-\bar{S} = \bar{\lambda} \ [\bar{\lambda}^{-1} \ YY^T+\underline{S}^{-1}+ \underline{B{\Omega}}^{-1} \underline{B}^T - \overline{B{\Omega}}^{-1} \bar{B}]^{-1}
-\]</span></p>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>Standard deviation of the model B0:
-           [,1]       [,2]       [,3]       [,4]
-[1,] 0.02965426 0.00000000 0.00000000 0.00000000
-[2,] 0.19345683 0.36697214 0.00000000 0.00000000
-[3,] 0.10737599 0.20184157 0.17346181 0.00000000
-[4,] 0.13999794 0.06831865 0.08592387 0.05587193</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "Extension I Model Normalized B0 matrix"</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>           [,1]        [,2]         [,3]     [,4]
-[1,]  0.5301825  0.00000000  0.000000000 0.000000
-[2,] -0.6367366  0.11782312  0.000000000 0.000000
-[3,] -1.5045957 -0.08334525  1.072401389 0.000000
-[4,] -0.5449991 -0.18924621 -0.008981025 1.003526</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "Significance for B0 Matrix:"</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     [,1]  [,2]  [,3]  [,4] 
-[1,] "***" "NA"  "NA"  "NA" 
-[2,] "***" ""    "NA"  "NA" 
-[3,] "***" ""    "***" "NA" 
-[4,] "***" "***" ""    "***"</code></pre>
-</div>
-</div>
 </section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>We have re-derived the posteriors for the modified Bayesian SVAR model with the correct Inverted-Gamma 2 prior for <span class="math inline">\(\lambda\)</span>, where <span class="math inline">\(\lambda \sim \mathcal{IG2}(\underline{s}, \underline{\nu})\)</span> with <span class="math inline">\(\underline{s} = \underline{\nu} - 2\)</span>. The correct derivation shows that <span class="math inline">\(\lambda\)</span> scales the variance in the likelihood, impacting the posterior distributions of <span class="math inline">\(B_0\)</span> and <span class="math inline">\(B_p\)</span>.</p>
+<p>This approach highlights the importance of correctly handling matrix operations and applying Bayesian inference principles to a more complex model structure.</p>
 <section id="second-extension-estimating-nu" class="level3">
 <h3 class="anchored" data-anchor-id="second-extension-estimating-nu">Second Extension: Estimating <span class="math inline">\(\nu\)</span></h3>
 <p>Following <span class="citation" data-cites="Lee2022">Lee (<a href="#ref-Lee2022" role="doc-biblioref">2022</a>)</span> we use a Metropolis-Hastings Algorithm to estimate <span class="math inline">\(\nu\)</span> and impose a vmode value corresponding to the t-distribution range <span class="math inline">\((0, 25)\)</span>.</p>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/Plotting the IRF response for the model-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
 </section>
-<section id="conclusion" class="level3">
-<h3 class="anchored" data-anchor-id="conclusion">Conclusion</h3>
+<section id="conclusion-1" class="level3">
+<h3 class="anchored" data-anchor-id="conclusion-1">Conclusion</h3>
 <p>The overall kernel for this extended model encapsulates to the random variance <span class="math inline">\(\lambda\)</span>. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.</p>
 <p>In the basic model, all USD Index contemporaneous coefficients are not statistically significant at the standard levels. On the other hand, all these coefficients in the extended model are statistically significant at the 5% level.</p>
 <p>The results suggest the following elasticities. According to the basic model, a weaker Dixie is likely to overheat the Australian economy: a drop of 1 per cent in the USD Index would result in roughly 1 per cent increase in inflation, roughly unchanged unemployment, and roughly 1% increase in the GDP growth rate.</p>
@@ -756,6 +823,7 @@ p(B_+; B_0; \lambda \mid Y; X) \propto p(Y \mid X, B_+, B_0, \lambda) \times p(B
 
 
 
+</section>
 </section>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
