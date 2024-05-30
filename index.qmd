@@ -41,7 +41,7 @@ library(parallel)
 library(actuar)         # For sampling for an inverse gamma distribution
 library(plot3D)         # For the IRF plots
 library(HDInterval)     # For the IRF plots
-
+library(invgamma)       # For the extension models
 
 
 ```
@@ -51,7 +51,7 @@ library(HDInterval)     # For the IRF plots
 #Define global variables
 
   S_burnin <- 100   # number of discarded iterations from the Gibbs sampler
-  S <- 500         # number of iterations used to calculate B0 and Bp
+  S <- 200         # number of iterations used to calculate B0 and Bp
   p <- 12           # number of lags in the Baysian SVAR model 
   N <- 4.           # number of variables in the Bayesian SVAR model
   K <-  1+N*p
@@ -541,6 +541,132 @@ plot_irfs <- function(B0, Bp, horizon, conf_level) {
 }
 
 ```
+
+```{r function to calculate B0 and Bp for the Extension I model}
+
+rgn_for_Extension_I_model = function(n,V,B0.initial){
+
+   y   = Y
+  
+  # Basic settings and model dimensions
+  N <- ncol(y)
+  p <- 12   # This is the number of lags in the model
+  K <- 1 + N * p
+
+  # Set the priors
+  kappa1 <- 0.01      # autoregressive slope shrinkage
+  kappa2 <- 1         # constant term shrinkage 
+  kappa3 <- 100       # contemporaneous effects shrinkage
+  kappa4 <- 1         # VAR prior persistence
+   
+
+# create Y and X
+############################################################
+Y       = y[(p+1):nrow(y),]
+X       = matrix(1,nrow(Y),1)
+for (i in 1:p){
+  X     = cbind(X,y[((p+1):nrow(y))-i,])
+}
+
+Y       = t(Y)
+X       = t(X)
+  
+ 
+  priors <- list(
+    B = cbind(rep(0, N), kappa4 * diag(N), matrix(0, N, (p - 1) * N)),
+    Omega = diag(c(kappa2, kappa1 * ((1:p)^(-2)) %x% rep(1, N))),
+    S = kappa3 * diag(N),
+    nu = N
+  )
+  
+   beta  = 5 # This is the scale parameter 
+  total  = 0 
+ 
+    A <- Y[ ,i]
+    A <- matrix(A, ncol = 1)
+    B <- X[ , i]
+    B <- matrix(B, ncol = 1)
+    C <- (B0_posterior1[ , , S]%*%A - Bp_posterior1[ , ,S]%*%B)
+ 
+    partial_sum = t(C)%*%C
+    total = total + partial_sum
+ 
+  
+  alpha = ((beta - 2) + total) # This is the shape parameter
+  alpha = alpha[1, 1]
+  beta = (beta + nrow(y))
+  
+  N             = nrow(B0.initial)
+  no.draws      = n
+  
+  B0            = array(NA, c(N,N,no.draws))
+  B0.aux        = B0.initial
+  
+      # Generate samples from the Inverse Gamma distribution
+   gamma_samples <- rinvgamma(n=2*no.draws, shape = alpha/2, scale = beta/2)
+
+    # Filter out NaN values
+    valid_samples <- gamma_samples[!is.nan(gamma_samples)]
+  
+
+  
+  for (i in 1:no.draws){
+    
+        # Select the first valid sample
+    lambda <- valid_samples[1]
+    
+    print("lambda =")
+  print(lambda)
+  
+  lambda_posterior <- 1 + lambda
+  
+   # lambda_posterior <- 1
+
+
+    # Compute posterior distribution parameters
+  Omega.inv <- solve(priors$Omega)
+  Omega.post.inv <-  ((lambda_posterior)^(-1) * X %*% t(X) +  Omega.inv)
+  Omega.post <- solve(Omega.post.inv)
+  B.post <-   ( (lambda_posterior)^(-1) * Y %*% t(X) +  priors$B %*% Omega.inv) %*% Omega.post
+  S.post <-  solve( (lambda_posterior)^(-1) * Y %*% t(Y) +  solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post))
+  nu.post <- nrow(y) + priors$nu
+
+
+  S.inv = solve(S.post)
+  nu = nu.post
+  
+    
+    for (n in 1:N){
+      rn            = nrow(V[[n]])
+      
+      Un            = chol(nu*solve(V[[n]]%*%S.inv%*%t(V[[n]])))
+      w             = t(orthogonal.complement.matrix.TW(t(B0.aux[-n,])))
+      w1            = w %*% t(V[[n]]) %*% t(Un) / sqrt(as.numeric(w %*% t(V[[n]]) %*% t(Un) %*% Un %*% V[[n]] %*% t(w)))
+      if (rn>1){
+        Wn          = cbind(t(w1),orthogonal.complement.matrix.TW(t(w1)))
+      } else {
+        Wn          = w1
+      }
+      alpha         = rep(NA,rn)
+      u             = rmvnorm(1,rep(0,nu+1),(1/nu)*diag(nu+1))
+      alpha[1]      = sqrt(as.numeric(u%*%t(u)))
+      if (runif(1)<0.5){
+        alpha[1]    = -alpha[1]
+      }
+      if (rn>1){
+        alpha[2:rn] = rmvnorm(1,rep(0,nrow(V[[n]])-1),(1/nu)*diag(rn-1))
+      }
+      bn            = alpha %*% Wn %*% Un
+      B0.aux[n,]    = bn %*% V[[n]]
+    }
+    B0[,,i]         = B0.aux
+  }
+  
+    return(list(B0 = B0, B.post = B.post, Omega.post = Omega.post))
+}
+
+```
+
 
 
 > **Abstract.** This research project investigates the dynamic effects of the U.S. Dollar (USD) on the Australian economy, with a focus on economic stability. By employing Bayesian Structural Vector Autoregression (SVAR) analysis. This study aims to elucidate the transmission mechanisms of USD fluctuations through three channels: GDP growth, inflation, and unemployment. The findings are expected to provide nuanced insights into the macroeconomic interdependencies between the USD and the Australian economy, offering valuable perspectives for policymakers and economic analysts.
@@ -1200,7 +1326,7 @@ Y <- simulate_random_walk(n, initial_values, sigma)
 ```
 
 
-```{r defining the Vn matrices for the exclusion restrictions on B0} 
+```{r defining the Vn matrices for the exclusion restrictions on B0 for the basic model} 
 
 # Create a list V with predefined fixed matrices
 create_V_matrices <- function() {
@@ -1431,9 +1557,9 @@ $$
 
 3. **Posterior for $\bar{S}$**:
 
-$$ 
-\bar{S} = \left(\frac{YY^T}{\lambda} + \underline{S}^{-1} + \underline{B}^{-1}\underline{B}^T - B_{\bar{}} \Omega_{\bar{}} B_{\bar{}}^T\right) 
 $$
+\bar{S} = \left( \frac{YY^T}{\lambda} + \underline{S}^{-1} + \underline{B}^{-1}\underline{B}^T - \bar{B}\bar{\Omega}\bar{B}^T \right)
+$$ 
 
 4. **Posterior for $\bar{\nu}$**:
 
@@ -1447,129 +1573,67 @@ We have re-derived the posteriors for the modified Bayesian SVAR model with the 
 
 This approach highlights the importance of correctly handling matrix operations and applying Bayesian inference principles to a more complex model structure.
 
-```{r Building matrices Y and X from the actual data for evaluating the Extension I Bayesian SVAR model, echo=FALSE, eval=TRUE}
+```{r defining the Vn matrices for the exclusion restrictions on B0 for the Extension I (and II) model, echo=FALSE, eval=TRUE} 
+
+# Create a list V with predefined fixed matrices
+create_V_matrices <- function() {
+  V <- list()
+  V[[1]] <- matrix(c(1, 0, 0, 0,
+                     0, 1, 0, 0,
+                     0, 0, 1, 0,
+                     0, 0, 0, 1), nrow = 4, ncol = 4, byrow = TRUE)
+  V[[2]] <- matrix(c(1, 0, 0, 0,
+                     0, 1, 0, 0,
+                     0, 0, 1, 0,
+                     0, 0, 0, 1), nrow = 4, ncol = 4, byrow = TRUE)
+  V[[3]] <- matrix(c(1, 0, 0, 0,
+                     0, 1, 0, 0,
+                     0, 0, 1, 0,
+                     0, 0, 0, 1), nrow = 4, ncol = 4, byrow = TRUE)
+  V[[4]] <- matrix(c(1, 0, 0, 0,
+                     0, 1, 0, 0,
+                     0, 0, 1, 0,
+                     0, 0, 0, 1), nrow = 4, ncol = 4, byrow = TRUE)
+  return(V)
+}
+
+# Generate the list of V matrices
+V_matrices <- create_V_matrices()
+```
+
+```{r calculate B0 and B+ for the Extension I Bayesian SVAR model, echo=FALSE, eval=TRUE}
 
 matrices <- create_matrices()
 
 Y = matrices$Y
 
-y = Y
-
-Y       = y[(p+1):nrow(y),]
-X       = matrix(1,nrow(Y),1)
-for (i in 1:p){
-  X     = cbind(X,y[((p+1):nrow(y))-i,])
-}
-
-
-Y       = t(Y)
-X       = t(X)
-
-dim(Y)
-dim(X)
-
-A = Y[ , 100]
-print(A)
-B = X[ , 100]
-print(B)
-
 B0_posterior1 <- posterior_results$B0
 Bp_posterior1 <- posterior_results$Bp
 
-print(B0_posterior1[ , ,S])
-print(Bp_posterior1[ , ,S])
-
-```
-
-```{r calculate B0 and B+ for the Extension I Bayesian SVAR model, echo=FALSE, eval=TRUE}
-
-  # Sample lambda from the Inverse Gamma distribution
- 
-  beta  = 5
-  
-  total = 0 
-  
-  for (i in 1:nrow(Y)) {
-
-   Y = matrices$Y
-
-    y = Y
-
-    Y       = y[(p+1):nrow(y),]
-    X       = matrix(1,nrow(Y),1)
-    for (i in 1:p){
-      X     = cbind(X,y[((p+1):nrow(y))-i,])
-    }
-
-
-    Y       = t(Y)
-    X       = t(X)
- 
-    A <- Y[ ,i]
-    A <- matrix(A, ncol = 1)
-    B <- X[ , i]
-    B <- matrix(B, ncol = 1)
-    C <- (B0_posterior1[ , , S]%*%A - Bp_posterior1[ , ,S]%*%B)
- 
-    partial_sum = t(C)%*%C
-    total = total + partial_sum
+  # Initialize B0
+  B0_initial <- matrix(0, N, N)
+  for (n in 1:N) {
+    unrestricted <- apply(V_matrices[[n]], 2, sum) == 1
+    B0_initial[n, unrestricted] <- rnorm(sum(unrestricted))
   }
-  
-  alpha = (beta - 2) + total
-  
-  lambda <- rinvgamma(n = 1, shape = alpha, rate = beta + nrow(y))
-  
-  lambda.post <- lambda
-  
-for (i in 1:100){
-
-  Y = matrices$Y
-  
-  posterior_results <- generate_posteriors(lambda_posterior = lambda.post, Y, V_matrices, kappa1 = 0.01, kappa2 = 1, kappa3 = 100, kappa4 = 1)
-  
-  B0_posterior2 <- posterior_results$B0
-  Bp_posterior2 <- posterior_results$Bp
-
-  beta  = 5
-  
-  total = 0 
-  
-  for (i in 1:nrow(Y)) {
-    
-    Y = matrices$Y
-
-    y = Y
-
-    Y       = y[(p+1):nrow(y),]
-    X       = matrix(1,nrow(Y),1)
-    for (i in 1:p){
-      X     = cbind(X,y[((p+1):nrow(y))-i,])
-    }
 
 
-    Y       = t(Y)
-    X       = t(X)
-    
-    AA = Y[ ,i]
-    BB = X[ ,i]
-    
-    CC = B0_posterior2[ , ,S]%*%AA - Bp_posterior2[ , , S]%*%BB
- 
-    partial_sum = t(CC)%*%CC
-    total = total + partial_sum
-  }
-  
-  alpha = (beta - 2) + total
-  
-  lambda <- rinvgamma(n = 1, shape = alpha, rate = beta + nrow(y))
-  
-  lambda.post <- lambda
+results <- rgn_for_Extension_I_model(n = S_burnin, V = V_matrices, B0.initial = B0_initial)
 
-}
+B0_posterior <- results$B0
 
-# The function returns a list containing B0 and Bp posteriors which can be accessed as follows:
-B0_posterior2 <- posterior_results$B0
-Bp_posterior2 <- posterior_results$Bp
+results <- rgn_for_Extension_I_model(n = S, V = V_matrices, B0.initial = B0_posterior[,,S_burnin])
+
+B0_posterior <- results$B0
+B_post <- results$B.post
+Omega_post <- results$Omega.post
+
+  # Normalization
+  B0_hat <- diag(sign(diag(B0_posterior[,,S]))) %*% B0_posterior[,,S]
+  B0_posterior2 <- normalize.Gibbs.output.parallel(B0_posterior, B0.hat = B0_hat)
+  
+  # Sample B+ from the normal conditional posterior
+  Bp_posterior2 <- rnorm.ngn(B0_posterior, B = B_post, Omega = Omega_post)
 
 ```
 
@@ -1593,8 +1657,8 @@ plot_lagged_effects(B0_posterior2, Bp_posterior2)
 print("Extension I Model Normalized B0 matrix")
 print(B0_posterior2[ , , S])
 
-#print("Basic Model B plus matrix")
-#print(Bp_posterior2[ , ,S])
+print("Extension I Model B plus matrix")
+print(Bp_posterior2[ , ,S])
 
 ```
 
