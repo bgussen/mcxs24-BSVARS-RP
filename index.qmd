@@ -51,7 +51,7 @@ library(invgamma)       # For the extension models
 #Define global variables
 
   S_burnin <- 100   # number of discarded iterations from the Gibbs sampler
-  S <- 500         # number of iterations used to calculate B0 and Bp
+  S <- 200         # number of iterations used to calculate B0 and Bp
   p <- 12           # number of lags in the Baysian SVAR model 
   N <- 4.           # number of variables in the Bayesian SVAR model
   K <-  1+N*p
@@ -610,19 +610,18 @@ X       = t(X)
   
 
   
-  for (i in 1:no.draws){
+  for (i in 1:n){
     
         # Select the first valid sample
     lambda <- valid_samples[i]
   
-  lambda_posterior <- 1 + lambda
-  
+  lambda_posterior <- 1
 
     # Compute posterior distribution parameters
   Omega.inv <- solve(priors$Omega)
   Omega.post.inv <-  ((lambda_posterior)^(-1) * X %*% t(X) +  Omega.inv)
   Omega.post <- solve(Omega.post.inv)
-  B.post <-   ( (lambda_posterior)^(-1) * Y %*% t(X) +  priors$B %*% Omega.inv) %*% Omega.post
+  B.post <-  ( (lambda_posterior)^(-1) * Y %*% t(X) +  priors$B %*% Omega.inv) %*% Omega.post
   S.post <-  solve( (lambda_posterior)^(-1) * Y %*% t(Y) +  solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post))
   nu.post <- nrow(y) + priors$nu
 
@@ -1568,7 +1567,7 @@ We have re-derived the posteriors for the modified Bayesian SVAR model with the 
 
 This approach highlights the importance of correctly handling matrix operations and applying Bayesian inference principles to a more complex model structure.
 
-```{r defining the Vn matrices for the exclusion restrictions on B0 for the Extension I (and II) model, echo=FALSE, eval=TRUE} 
+```{r defining the Vn matrices for the exclusion restrictions on B0 for the Extension I (and II) model, echo=FALSE, eval=FALSE} 
 
 # Create a list V with predefined fixed matrices
 create_V_matrices <- function() {
@@ -1594,6 +1593,7 @@ create_V_matrices <- function() {
 
 # Generate the list of V matrices
 V_matrices <- create_V_matrices()
+
 ```
 
 ```{r calculate B0 and B+ for the Extension I Bayesian SVAR model, echo=FALSE, eval=TRUE}
