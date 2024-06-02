@@ -15,7 +15,7 @@ set.seed(1234567)
 ```
 
 
-```{r setup, include=FALSE}
+```{r libraries, include=FALSE}
 #| echo: false
 #| message: false
 #| warning: false
@@ -42,7 +42,9 @@ library(actuar)         # For sampling for an inverse gamma distribution
 library(plot3D)         # For the IRF plots
 library(HDInterval)     # For the IRF plots
 library(invgamma)       # For the extension models
-
+library(quantreg)       # For the extension models
+library(dplyr)    # For data manipulation
+library(tidyr)    # For data manipulation
 
 ```
 
@@ -50,8 +52,8 @@ library(invgamma)       # For the extension models
 
 #Define global variables
 
-  S_burnin <- 500   # number of discarded iterations from the Gibbs sampler
-  S <- 1000         # number of iterations used to calculate B0 and Bp
+  S_burnin <- 100   # number of discarded iterations from the Gibbs sampler
+  S <- 200         # number of iterations used to calculate B0 and Bp
   p <- 12           # number of lags in the Baysian SVAR model 
   N <- 4.           # number of variables in the Bayesian SVAR model
   K <-  1+N*p
@@ -285,7 +287,7 @@ create_matrices <- function() {
 ```
 
 
-```{r function to calculate B0 and B+ for the Bayesian SVAR model}
+```{r function to calculate B0 and B+ for the Basic Bayesian SVAR model}
 
 generate_posteriors <- function(lambda_posterior, Y, V_matrices, kappa1, kappa2, kappa3, kappa4) {
 
@@ -355,7 +357,7 @@ X       = t(X)
   B0_posterior <- normalize.Gibbs.output.parallel(B0_posterior, B0.hat = B0_hat)
   
   # Sample B+ from the normal conditional posterior
-  Bp_posterior <- rnorm.ngn(B0_posterior, B = B.post, Omega = Omega.post)
+  Bp_posterior <- rnorm.ngn(B0.posterior = B0_posterior, B = B.post, Omega = Omega.post)
   
   # Return posteriors
   return(list(B0 = B0_posterior, Bp = Bp_posterior))
@@ -539,126 +541,6 @@ plot_irfs <- function(B0, Bp, horizon, conf_level) {
   
   invisible(grid_arrange)
 }
-
-```
-
-```{r function to calculate B0 and Bp for the Extension I model}
-
-rgn_for_Extension_I_model = function(n,V,B0.initial){
-
-   y   = Y
-  
-  # Basic settings and model dimensions
-  N <- ncol(y)
-  p <- 12   # This is the number of lags in the model
-  K <- 1 + N * p
-
-  # Set the priors
-  kappa1 <- 0.01      # autoregressive slope shrinkage
-  kappa2 <- 1         # constant term shrinkage 
-  kappa3 <- 100       # contemporaneous effects shrinkage
-  kappa4 <- 1         # VAR prior persistence
-   
-
-# create Y and X
-############################################################
-Y       = y[(p+1):nrow(y),]
-X       = matrix(1,nrow(Y),1)
-for (i in 1:p){
-  X     = cbind(X,y[((p+1):nrow(y))-i,])
-}
-
-Y       = t(Y)
-X       = t(X)
-  
- 
-  priors <- list(
-    B = cbind(rep(0, N), kappa4 * diag(N), matrix(0, N, (p - 1) * N)),
-    Omega = diag(c(kappa2, kappa1 * ((1:p)^(-2)) %x% rep(1, N))),
-    S = kappa3 * diag(N),
-    nu = N
-  )
-  
-   beta  = 5 # This is the scale parameter 
-  total  = 0 
- 
-    A <- Y[ ,i]
-    A <- matrix(A, ncol = 1)
-    B <- X[ , i]
-    B <- matrix(B, ncol = 1)
-    C <- (B0_posterior1[ , , S]%*%A - Bp_posterior1[ , ,S]%*%B)
- 
-    partial_sum = t(C)%*%C
-    total = total + partial_sum
- 
-  
-  alpha = ((beta - 2) + total) # This is the shape parameter
-  alpha = alpha[1, 1]
-  beta = (beta + nrow(y))
-  
-  N             = nrow(B0.initial)
-  no.draws      = n
-  
-  B0            = array(NA, c(N,N,no.draws))
-  B0.aux        = B0.initial
-  
-      # Generate samples from the Inverse Gamma distribution
-   gamma_samples <- rinvgamma(n=2*no.draws, shape = alpha/2, scale = beta/2)
-
-    # Filter out NaN values
-    valid_samples <- gamma_samples[!is.nan(gamma_samples)]
-  
-
-  
-  for (i in 1:n){
-    
-        # Select the first valid sample
-    lambda <- valid_samples[i]
-  
-  lambda_posterior <- lambda
-
-    # Compute posterior distribution parameters
-  Omega.inv <- solve(priors$Omega)
-  Omega.post.inv <-  ((lambda_posterior)^(-1) * X %*% t(X) +  Omega.inv)
-  Omega.post <- solve(Omega.post.inv)
-  B.post <-  ( (lambda_posterior)^(-1) * Y %*% t(X) +  priors$B %*% Omega.inv) %*% Omega.post
-  S.post <-  solve( (lambda_posterior)^(-1) * Y %*% t(Y) +  solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post))
-  nu.post <- nrow(y) + priors$nu
-
-
-  S.inv = solve(S.post)
-  nu = nu.post
-  
-    
-    for (n in 1:N){
-      rn            = nrow(V[[n]])
-      
-      Un            = chol(nu*solve(V[[n]]%*%S.inv%*%t(V[[n]])))
-      w             = t(orthogonal.complement.matrix.TW(t(B0.aux[-n,])))
-      w1            = w %*% t(V[[n]]) %*% t(Un) / sqrt(as.numeric(w %*% t(V[[n]]) %*% t(Un) %*% Un %*% V[[n]] %*% t(w)))
-      if (rn>1){
-        Wn          = cbind(t(w1),orthogonal.complement.matrix.TW(t(w1)))
-      } else {
-        Wn          = w1
-      }
-      alpha         = rep(NA,rn)
-      u             = rmvnorm(1,rep(0,nu+1),(1/nu)*diag(nu+1))
-      alpha[1]      = sqrt(as.numeric(u%*%t(u)))
-      if (runif(1)<0.5){
-        alpha[1]    = -alpha[1]
-      }
-      if (rn>1){
-        alpha[2:rn] = rmvnorm(1,rep(0,nrow(V[[n]])-1),(1/nu)*diag(rn-1))
-      }
-      bn            = alpha %*% Wn %*% Un
-      B0.aux[n,]    = bn %*% V[[n]]
-    }
-    B0[,,i]         = B0.aux
-  }
-  
-    return(list(B0 = B0, B.post = B.post, Omega.post = Omega.post))
-}
-
 
 ```
 
@@ -1454,116 +1336,426 @@ The Student-t distribution is commonly used in statistical modeling to handle da
 
 The N-variate Student-t distribution can be represented as a scale mixture of normals:
 
+# Model Setup
+
+The model is given by:
 $$
 B_0 Y = B_p X + U_t, \quad U_t \sim \mathcal{N}(0_T, \lambda I_T)
 $$
 
-And the priors:
-
-$$ 
-p(B_0, B_p) \sim \mathcal{NGN}(\underline{B}, \underline{\Omega}, \underline{S}, \underline{\nu}) 
+The priors are:
+$$
+p(B_0, B_p) \sim \mathcal{NGN}(\underline{B}, \underline{\Omega}, \underline{S}, \underline{\nu})
+$$
+$$
+\lambda \sim \mathcal{IG2}(\alpha, \beta)
 $$
 
-$$ 
-\lambda \sim \mathcal{IG2}(\underline{s}, \underline{\nu}) \quad \text{with} \quad \underline{s} = \underline{\nu} - 2 
-$$
-
-The condition imposed on $\underline{s}$ ensures that the expected value for $\lambda$ is equal to one, which is the same specification under the basic model. 
-
-## Likelihood
+# Likelihood Function
 
 The likelihood function for the model is:
-
-$$ 
-p(Y \mid B_0, B_p, \lambda, X) = (2\pi\lambda)^{-\frac{T}{2}} \exp\left(-\frac{1}{2\lambda} \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) \right) 
+$$
+p(Y \mid B_0, B_p, \lambda, X) = (2\pi\lambda)^{-\frac{T}{2}} \exp\left( -\frac{1}{2\lambda} \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) \right)
 $$
 
-## Prior for $\lambda$
+# Prior for \(\lambda\)
 
 The Inverted-Gamma 2 prior for \(\lambda\) is:
-
-$$ 
-p(\lambda) = \frac{(\underline{s}/2)^{\underline{\nu}/2}}{\Gamma(\underline{\nu}/2)} \lambda^{-\underline{\nu}/2-1} \exp\left(-\frac{\underline{s}}{2\lambda}\right) 
+$$
+p(\lambda) = \frac{(\beta/2)^{\alpha/2}}{\Gamma(\alpha/2)} \lambda^{-\alpha/2-1} \exp\left( -\frac{\beta}{2\lambda} \right)
 $$
 
-## Prior for $B_0$ and $B_p$
+# Posterior for \(\lambda\)
 
-The Normal-Gamma-Normal (NGN) prior for \(B_0\) and \(B_p\) is assumed to be:
-
-$$ 
-p(B_0, B_p) \propto \left| \det(B_0) \right|^{\underline{\nu}} \exp \left( -\frac{1}{2} \left[ \operatorname{tr}((B_0 - \underline{B}) \underline{\Omega}^{-1} (B_0 - \underline{B})^T) \right] \right) 
+Combining the likelihood and the prior for \(\lambda\), we get:
+$$
+p(\lambda \mid Y, B_0, B_p, X) \propto \lambda^{-\left( \frac{T}{2} + \frac{\alpha}{2} + 1 \right)} \exp\left( -\frac{1}{2\lambda} \left( \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) + \beta \right) \right)
 $$
 
-## Posterior Derivation
-
-The posterior distribution is proportional to the product of the likelihood and the priors:
-
-$$ 
-p(B_0, B_p, \lambda \mid Y, X) \propto p(Y \mid B_0, B_p, \lambda, X) p(B_0, B_p) p(\lambda) 
+This is the kernel of an Inverted-Gamma 2 distribution:
+$$
+\lambda \mid Y, B_0, B_p, X \sim \mathcal{IG2}\left( \beta + \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t), \alpha + T \right)
 $$
 
-## Posterior for $\lambda$
-
-Combining the likelihood and the prior for \(\lambda\):
-
-$$ 
-p(\lambda \mid Y, B_0, B_p, X) \propto \lambda^{-\frac{T}{2}} \exp\left(-\frac{1}{2\lambda} \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) \right) \lambda^{-\underline{\nu}/2-1} \exp\left(-\frac{\underline{s}}{2\lambda}\right) 
+The posterior mean of \(\lambda\) is:
+$$
+\hat{\lambda} = \frac{\beta + \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t)}{\alpha + T - 2}
 $$
 
-Combining terms:
+# Integrating Out $\lambda$
 
-$$ 
-p(\lambda \mid Y, B_0, B_p, X) \propto \lambda^{-\left(\frac{T}{2} + \frac{\underline{\nu}}{2} + 1\right)} \exp\left(-\frac{1}{2\lambda} \left(\sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) + \underline{s}\right)\right) 
+To derive the marginal posterior distributions for $B_0$ and $B_p$, we integrate out $\lambda$ from the joint posterior distribution.
+
+## Marginal Likelihood
+
+First, we derive the marginal likelihood by integrating out $\lambda$:
+$$
+p(Y \mid B_0, B_p, X) = \int p(Y \mid B_0, B_p, \lambda, X) p(\lambda) \, d\lambda
 $$
 
-This is recognized as the kernel of an Inverted-Gamma 2 distribution:
-
-$$ 
-\lambda \mid Y, B_0, B_p, X \sim \mathcal{IG2}\left(\underline{s} + \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) , \underline{\nu} + T \right) 
+The likelihood and the prior for $\lambda$ combine as:
+$$
+p(Y \mid B_0, B_p, \lambda, X) p(\lambda) \propto \lambda^{-\left( \frac{T}{2} + \frac{\alpha}{2} + 1 \right)} \exp\left( -\frac{1}{2\lambda} \left( \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) + \beta \right) \right)
 $$
 
-We use the results from the basic model (above) to compute the error terms that will be used in sampling $\lambda$. 
-
-
-## Posterior for $B_0$ and $B_p$
-
-Considering the effect of $\lambda$ on the residuals, the posterior parameters for $B_0$ and $B_p$ should be adjusted accordingly. The presence of $\lambda$ affects the variance in the likelihood, impacting the posterior distributions for $B_0$ and $B_p$.
-
-### Update Posterior Parameters
-
-Taking $\lambda$ into account, the posterior parameters for $B_0$ and $B_p$ are:
-
-1. **Posterior for $\bar{\Omega}$**:
-
-$$ 
-\bar{\Omega} = \left(\frac{XX^T}{\lambda} + \underline{\Omega}^{-1}\right)^{-1} 
+Performing the integral:
+$$
+\int_0^\infty \lambda^{-\left( \frac{T}{2} + \frac{\alpha}{2} + 1 \right)} \exp\left( -\frac{1}{2\lambda} \left( \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) + \beta \right) \right) d\lambda
 $$
 
-2. **Posterior for $\bar{B}$**:
-
-$$ 
-\bar{B} = \left(\frac{XX^T}{\lambda} + \underline{\Omega}^{-1}\right)^{-1} \left(\frac{YX^T}{\lambda} + \underline{\Omega}^{-1}\underline{B}\right) 
+This integral is a standard form for the Inverted-Gamma distribution, yielding the marginal likelihood:
+$$
+p(Y \mid B_0, B_p, X) \propto \left( \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) + \beta \right)^{-\left( \frac{T}{2} + \frac{\alpha}{2} \right)}
 $$
 
-3. **Posterior for $\bar{S}$**:
+# Posterior for $B_0$ and $B_p$
 
+Now, the joint posterior distribution for $B_0$ and $B_p$ is given by combining the marginal likelihood with the prior for $B_0$ and $B_p$:
 $$
-\bar{S} = \left( \frac{YY^T}{\lambda} + \underline{S}^{-1} + \underline{B}^{-1}\underline{B}^T - \bar{B}\bar{\Omega}\bar{B}^T \right)
-$$ 
-
-4. **Posterior for $\bar{\nu}$**:
-
-$$ 
-\bar{\nu} = T + \underline{\nu} 
+p(B_0, B_p \mid Y, X) \propto p(Y \mid B_0, B_p, X) p(B_0, B_p)
 $$
 
-## Conclusion
+Substitute the marginal likelihood and the prior for $B_0$ and $B_p$:
+$$
+p(B_0, B_p \mid Y, X) \propto \left( \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) + \beta \right)^{-\left( \frac{T}{2} + \frac{\alpha}{2} \right)} \left| \det(B_0) \right|^{\underline{\nu}} \exp\left( -\frac{1}{2} \operatorname{tr}((B_0 - \underline{B}) \underline{\Omega}^{-1} (B_0 - \underline{B})^T) \right)
+$$
 
-We have re-derived the posteriors for the modified Bayesian SVAR model with the correct Inverted-Gamma 2 prior for $\lambda$, where $\lambda \sim \mathcal{IG2}(\underline{s}, \underline{\nu})$ with $\underline{s} = \underline{\nu} - 2$. The correct derivation shows that $\lambda$ scales the variance in the likelihood, impacting the posterior distributions of $B_0$ and $B_p$.
+# Completing the Square
 
-This approach highlights the importance of correctly handling matrix operations and applying Bayesian inference principles to a more complex model structure.
+To complete the square, we need to express the combined exponent terms involving $B_0$ and $B_p$ in a quadratic form. We combine the quadratic terms and complete the square as follows:
 
-```{r defining the Vn matrices for the exclusion restrictions on B0 for the Extension I (and II) model, echo=FALSE, eval=TRUE} 
+## Expanding the Terms
+
+### Likelihood Contribution
+
+Rewrite the likelihood term:
+$$
+\exp\left( -\frac{1}{2} \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) \right)
+$$
+
+### Prior Contribution
+
+The prior for $B_0$ and $B_p$ is:
+$$
+\exp\left( -\frac{1}{2} \operatorname{tr}((B_0 - \underline{B}) \underline{\Omega}^{-1} (B_0 - \underline{B})^T) \right)
+$$
+
+## Combining Terms
+
+Combine the quadratic terms and complete the square to obtain the posterior distributions for $B_0$ and $B_p$:
+$$
+-\frac{1}{2} \left( \operatorname{tr}((Y - B_0^{-1}B_p X)^T B_0^T B_0 (Y - B_0^{-1}B_p X)) + \operatorname{tr}((B_0 - \underline{B}) \underline{\Omega}^{-1} (B_0 - \underline{B})^T) \right)
+$$
+
+Recognize the combined quadratic form:
+$$
+-\frac{1}{2} \left( (B_0 Y - B_p X)^T B_0^T B_0 (B_0 Y - B_p X) + (B_0 - \underline{B}) \underline{\Omega}^{-1} (B_0 - \underline{B}) \right)
+$$
+
+# Posterior Parameters
+
+From the completed square, we derive the posterior parameters:
+
+## Posterior for $\bar{\Omega}$
+
+$$
+\bar{\Omega} = \left( XX^T + \underline{\Omega}^{-1} \right)^{-1}
+$$
+
+## Posterior for $\bar{B}$
+
+$$
+\bar{B} = \left( XX^T + \underline{\Omega}^{-1} \right)^{-1} \left( YX^T + \underline{\Omega}^{-1} \underline{B} \right)
+$$
+
+## Posterior for $\bar{S}$
+
+$$
+\bar{S} = \left( YY^T + \underline{S}^{-1} + \underline{B}^{-1} \underline{B}^T - \bar{B} \bar{\Omega} \bar{B}^T \right)
+$$
+
+## Posterior for $\bar{\nu}$
+
+$$
+\bar{\nu} = T + \underline{\nu}
+$$
+
+# Conclusion
+
+The parameters $\alpha$ and $\beta$ from the prior distribution of $\lambda$ affect the posterior distributions for $B_0$ and $B_p$ through the variance scaling in the likelihood, influencing $\bar{S}$. This approach correctly shows that $\lambda$ does not explicitly appear in the posterior formulas for $\bar{\Omega}$ and $\bar{B}$, but $\lambda$ impacts the overall posterior distribution implicitly. This rigorous derivation demonstrates the correct Bayesian inference for a hierarchical model, incorporating the effects of $\lambda$ through its posterior distribution.
+
+```{r Building matrices Y and X from the actual data for evaluating the Extension I Bayesian SVAR model, echo=FALSE, eval=TRUE}
+
+matrices <- create_matrices()
+Y = matrices$Y
+
+
+# create Y and X
+############################################################
+
+    y = Y
+    
+Y       = y[(p+1):nrow(y),]
+X       = matrix(1,nrow(Y),1)
+for (i in 1:p){
+  X     = cbind(X,y[((p+1):nrow(y))-i,])
+}
+
+Y       = t(Y)
+X       = t(X)
+
+dim(Y)
+dim(X)
+
+```
+
+```{r function to calculate B0 and B+ for the Extension I Bayesian SVAR model, echo=FALSE, eval=TRUE}
+
+V <- list()
+  V[[1]] <- matrix(c(1, 0, 0, 0), nrow = 1, ncol = 4, byrow = TRUE)
+  V[[2]] <- matrix(c(1, 0, 0, 0,
+                     0, 1, 0, 0), nrow = 2, ncol = 4, byrow = TRUE)
+  V[[3]] <- matrix(c(1, 0, 0, 0,
+                     0, 1, 0, 0,
+                     0, 0, 1, 0), nrow = 3, ncol = 4, byrow = TRUE)
+  V[[4]] <- matrix(c(1, 0, 0, 0,
+                     0, 1, 0, 0,
+                     0, 0, 1, 0,
+                     0, 0, 0, 1), nrow = 4, ncol = 4, byrow = TRUE)
+
+    scale  = 5 # This is the scale parameter 
+    total  = 0 
+ 
+    for (i in 1:ncol(Y)){
+    
+    A <- Y[ ,i]
+    A <- matrix(A, ncol = 1)
+    B <- X[ , i]
+    B <- matrix(B, ncol = 1)
+    C <- (B0_posterior1[ , , S]%*%A - Bp_posterior1[ , ,S]%*%B)
+ 
+    partial_sum = t(C)%*%C
+    total = total + partial_sum
+    
+    }
+ 
+  shape = ((scale - 2) + total) # This is the shape parameter
+  shape = shape[1, 1] # Converting shape into a scalar
+  scale = (scale + nrow(y))
+  
+    # Set the priors
+      kappa1 <- 0.01      # autoregressive slope shrinkage
+      kappa2 <- 1         # constant term shrinkage 
+      kappa3 <- 100       # contemporaneous effects shrinkage
+      kappa4 <- 1         # VAR prior persistence
+  
+      # Basic settings and model dimensions
+  N <- ncol(y)
+  p <- 12   # This is the number of lags in the model
+  K <- 1 + N * p
+  
+    priors <- list(
+    B = cbind(rep(0, N), kappa4 * diag(N), matrix(0, N, (p - 1) * N)),
+    Omega = diag(c(kappa2, kappa1 * ((1:p)^(-2)) %x% rep(1, N))),
+    S = kappa3 * diag(N),
+    nu = N
+  )
+  
+  
+  
+  
+    # Initialize B0
+  B0.initial <- matrix(0, N, N)
+  for (n in 1:N) {
+    unrestricted <- apply(V[[n]], 2, sum) == 1
+    B0.initial[n, unrestricted] <- rnorm(sum(unrestricted))
+  }
+  
+  N             = nrow(B0.initial)
+  no.draws      = S_burnin
+  
+  B0            = array(NA, c(N,N,no.draws))
+  B0.aux        = B0.initial
+  
+      # Generate samples from the Inverse Gamma distribution
+   gamma_samples <- rinvgamma(n=2*no.draws, shape = shape/2, scale = scale/2)
+
+    # Filter out NaN values
+    valid_samples <- gamma_samples[!is.nan(gamma_samples)]
+  
+  for (i in 1:S_burnin){
+    
+        # Select the first valid sample
+    lambda_posterior  <- valid_samples[i]
+
+    # Compute posterior distribution parameters
+  Omega.inv <- solve(priors$Omega)
+  Omega.post.inv <-  ((lambda_posterior)^(-1) * X %*% t(X) +  Omega.inv)
+  Omega.post <- solve(Omega.post.inv)
+  B.post <-  ( (lambda_posterior)^(-1) * Y %*% t(X) +  priors$B %*% Omega.inv) %*% Omega.post
+  S.post <-  solve( (lambda_posterior)^(-1) * Y %*% t(Y) +  solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post))
+  nu.post <- nrow(y) + priors$nu
+
+  
+# Check if Omega.post and S.post is positive definite and store the inverse if it is
+  
+  is_positive_definite <- tryCatch({
+  chol(Omega.post)
+  TRUE
+}, error = function(e) {
+  FALSE
+})
+
+  if (!is_positive_definite) {
+    next  # Skip to the next iteration if S.post is not positive definite
+  }
+
+is_positive_definite <- tryCatch({
+  chol(S.post)
+  TRUE
+}, error = function(e) {
+  FALSE
+})
+
+  if (!is_positive_definite) {
+    next  # Skip to the next iteration if S.post is not positive definite
+  }
+  
+  S.inv <- solve(S.post)
+
+  nu = nu.post
+
+  
+  
+    for (n in 1:N){
+      rn            = nrow(V[[n]])
+      Un            = chol(nu*solve(V[[n]]%*%S.inv%*%t(V[[n]])))
+      w             = t(orthogonal.complement.matrix.TW(t(B0.aux[-n,])))
+      w1            = w %*% t(V[[n]]) %*% t(Un) / sqrt(as.numeric(w %*% t(V[[n]]) %*% t(Un) %*% Un %*% V[[n]] %*% t(w)))
+      if (rn>1){
+        Wn          = cbind(t(w1),orthogonal.complement.matrix.TW(t(w1)))
+      } else {
+        Wn          = w1
+      }
+      alpha         = rep(NA,rn)
+      u             = rmvnorm(1,rep(0,nu+1),(1/nu)*diag(nu+1))
+      alpha[1]      = sqrt(as.numeric(u%*%t(u)))
+      if (runif(1)<0.5){
+        alpha[1]    = -alpha[1]
+      }
+      if (rn>1){
+        alpha[2:rn] = rmvnorm(1,rep(0,nrow(V[[n]])-1),(1/nu)*diag(rn-1))
+      }
+      bn            = alpha %*% Wn %*% Un
+      B0.aux[n,]    = bn %*% V[[n]]
+    }
+    B0[,,i]         = B0.aux
+  
+    }
+    
+    
+  B0_posterior <- B0
+  
+  
+  # Initialize B0 again for the remainder of the iterations 
+  B0.initial <- B0_posterior[,,S_burnin]
+  
+  N             = nrow(B0.initial)
+  no.draws      = S
+  
+  B0            = array(NA, c(N,N,no.draws))
+  B0.aux        = B0.initial
+  
+      # Generate samples from the Inverse Gamma distribution
+   gamma_samples <- rinvgamma(n=2*no.draws, shape = shape/2, scale = scale/2)
+
+    # Filter out NaN values
+    valid_samples <- gamma_samples[!is.nan(gamma_samples)]
+  
+  for (i in 1:S){
+    
+        # Select the first valid sample
+    lambda_posterior  <- valid_samples[i]
+
+    # Compute posterior distribution parameters
+  Omega.inv <- solve(priors$Omega)
+  Omega.post.inv <-  ((lambda_posterior)^(-1) * X %*% t(X) +  Omega.inv)
+  Omega.post <- solve(Omega.post.inv)
+  B.post <-  ( (lambda_posterior)^(-1) * Y %*% t(X) +  priors$B %*% Omega.inv) %*% Omega.post
+  S.post <-  solve( (lambda_posterior)^(-1) * Y %*% t(Y) +  solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post))
+  nu.post <- nrow(y) + priors$nu
+
+  
+# Check if S.post is positive definite and store the inverse if it is
+
+is_positive_definite <- tryCatch({
+  chol(Omega.post)
+  TRUE
+}, error = function(e) {
+  FALSE
+})
+
+  if (!is_positive_definite) {
+    next  # Skip to the next iteration if S.post is not positive definite
+  }
+  
+  
+is_positive_definite <- tryCatch({
+  chol(S.post)
+  TRUE
+}, error = function(e) {
+  FALSE
+})
+
+  if (!is_positive_definite) {
+    next  # Skip to the next iteration if S.post is not positive definite
+  }
+  
+  S.inv <- solve(S.post)
+
+  nu = nu.post
+
+  
+  
+    for (n in 1:N){
+      rn            = nrow(V[[n]])
+      Un            = chol(nu*solve(V[[n]]%*%S.inv%*%t(V[[n]])))
+      w             = t(orthogonal.complement.matrix.TW(t(B0.aux[-n,])))
+      w1            = w %*% t(V[[n]]) %*% t(Un) / sqrt(as.numeric(w %*% t(V[[n]]) %*% t(Un) %*% Un %*% V[[n]] %*% t(w)))
+      if (rn>1){
+        Wn          = cbind(t(w1),orthogonal.complement.matrix.TW(t(w1)))
+      } else {
+        Wn          = w1
+      }
+      alpha         = rep(NA,rn)
+      u             = rmvnorm(1,rep(0,nu+1),(1/nu)*diag(nu+1))
+      alpha[1]      = sqrt(as.numeric(u%*%t(u)))
+      if (runif(1)<0.5){
+        alpha[1]    = -alpha[1]
+      }
+      if (rn>1){
+        alpha[2:rn] = rmvnorm(1,rep(0,nrow(V[[n]])-1),(1/nu)*diag(rn-1))
+      }
+      bn            = alpha %*% Wn %*% Un
+      B0.aux[n,]    = bn %*% V[[n]]
+    }
+    B0[,,i]         = B0.aux
+  
+    }
+    
+  B0_posterior <- B0
+  
+  # Normalization
+  B0_hat <- diag(sign(diag(B0_posterior[,,S]))) %*% B0_posterior[,,S]
+
+    B0_posterior <- normalize.Gibbs.output.parallel(B0_posterior, B0.hat = B0_hat)
+  
+  # Sample B+ from the normal conditional posterior
+  Bp_posterior <- rnorm.ngn(B0.posterior = B0_posterior, B = B.post, Omega = Omega.post)
+  
+```
+
+```{r defining the Vn matrices for the exclusion restrictions on B0 for the Extension I (and II) model, echo=FALSE, eval=FALSE} 
 
 # Create a list V with predefined fixed matrices
 create_V_matrices <- function() {
@@ -1592,43 +1784,9 @@ V_matrices <- create_V_matrices()
 
 ```
 
-```{r calculate B0 and B+ for the Extension I Bayesian SVAR model, echo=FALSE, eval=TRUE}
-
-matrices <- create_matrices()
-
-Y = matrices$Y
-
-B0_posterior1 <- posterior_results$B0
-Bp_posterior1 <- posterior_results$Bp
-
-  # Initialize B0
-  B0_initial <- matrix(0, N, N)
-  for (n in 1:N) {
-    unrestricted <- apply(V_matrices[[n]], 2, sum) == 1
-    B0_initial[n, unrestricted] <- rnorm(sum(unrestricted))
-  }
 
 
-results <- rgn_for_Extension_I_model(n = S, V = V_matrices, B0.initial = B0_initial)
-
-B0_posterior <- results$B0
-
-results <- rgn_for_Extension_I_model(n = S, V = V_matrices, B0.initial = B0_posterior[,,S_burnin])
-
-#B0_posterior <- results$B0
-B_post <- results$B.post
-Omega_post <- results$Omega.post
-
-  # Normalization
-  B0_hat <- diag(sign(diag(B0_posterior[,,S]))) %*% B0_posterior[,,S]
-  B0_posterior2 <- normalize.Gibbs.output.parallel(B0_posterior, B0.hat = B0_hat)
-  
-  # Sample B+ from the normal conditional posterior
-  Bp_posterior2 <- rnorm.ngn(B0_posterior, B = B_post, Omega = Omega_post)
-
-```
-
-```{r calculating the standard deviation for the Extension I B0 & Bp matrices, echo=FALSE, eval=TRUE}
+```{r calculating the standard deviation for the Extension I B0 & Bp matrices, echo=FALSE, eval=FALSE}
 
 calculate_and_print_B0sd(B0_posterior2)
 
@@ -1636,25 +1794,25 @@ calculate_and_print_Bpsd(Bp_posterior2)
 
 ```
 
-```{r plots for the Extension I model, echo=FALSE, eval=TRUE}
+```{r plots for the Extension I model, echo=FALSE, eval=FALSE}
 
 plot_lagged_effects(B0_posterior2, Bp_posterior2)
 
 ```
 
 
-```{r printing B0 & Bp for the Extension I Model, echo=FALSE, eval=TRUE}
+```{r printing B0 & Bp for the Extension I Model, echo=FALSE, eval=FALSE}
 
 print("Extension I Model Normalized B0 matrix")
-print(B0_posterior2[ , , S])
+print(B0_posterior2)
 
 print("Extension I Model B plus matrix")
-print(Bp_posterior2[ , ,S])
+print(Bp_posterior2)
 
 ```
 
 
-```{r calculate the significance levels for the Extension I model B0 and Bp, echo=FALSE, eval=TRUE}
+```{r calculate the significance levels for the Extension I model B0 and Bp, echo=FALSE, eval=FALSE}
 
 # Calculate significance for B0 and Bp matrices
 B0_significance <- calculate_significance(B0_posterior2)
@@ -1669,7 +1827,7 @@ print(B0_significance)
 
 ```
 
-```{r Plotting the IRF response for the EXtension I model, echo=FALSE, eval=TRUE}
+```{r Plotting the IRF response for the EXtension I model, echo=FALSE, eval=FALSE}
 
 B0 <- B0_posterior2
 Bp <- Bp_posterior2

@@ -38,6 +38,8 @@ X       = t(X)
    beta  = 5
   total = 0 
  
+  
+  
     A <- Y[ ,i]
     A <- matrix(A, ncol = 1)
     B <- X[ , i]
