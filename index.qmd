@@ -52,10 +52,10 @@ library(tidyr)    # For data manipulation
 
 #Define global variables
 
-  S_burnin <- 100   # number of discarded iterations from the Gibbs sampler
-  S <- 200         # number of iterations used to calculate B0 and Bp
-  p <- 12           # number of lags in the Baysian SVAR model 
-  N <- 4.           # number of variables in the Bayesian SVAR model
+  S_burnin <- 500   # number of discarded iterations from the Gibbs sampler
+  S <- 1000          # number of iterations used to calculate B0 and Bp
+  p <- 12            # number of lags in the Baysian SVAR model 
+  N <- 4             # number of variables in the Bayesian SVAR model
   K <-  1+N*p
 
 ```
@@ -1486,8 +1486,6 @@ The parameters $\alpha$ and $\beta$ from the prior distribution of $\lambda$ aff
 
 ```{r Building matrices Y and X from the actual data for evaluating the Extension I Bayesian SVAR model, echo=FALSE, eval=TRUE}
 
-  S_burnin <- 500   # number of discarded iterations from the Gibbs sampler
-  S <- 2000         # number of iterations used to calculate B0 and Bp
 
 matrices <- create_matrices()
 Y = matrices$Y
@@ -1539,14 +1537,17 @@ V <- list()
     
     }
  
-  shape = ((scale - 2) + total) # This is the shape parameter
-  shape = shape[1, 1] # Converting shape into a scalar
-  scale = (scale + nrow(y))
+  #shape = ((scale - 2) + total) # This is the shape parameter
+  #shape = shape[1, 1] # Converting shape into a scalar
+  #scale = (scale + nrow(y))
   
+   shape = 7
+    
+    
     # Set the priors
       kappa1 <- 0.01      # autoregressive slope shrinkage
       kappa2 <- 1         # constant term shrinkage 
-      kappa3 <- 1       # contemporaneous effects shrinkage
+      kappa3 <- 10000      # contemporaneous effects shrinkage
       kappa4 <- 1         # VAR prior persistence
   
       # Basic settings and model dimensions
