@@ -4,7 +4,7 @@ title: "Dixie Effect on Economic Stability in Australia"
 author: "Ben Gussen"
 
 execute:
-  echo: false
+  echo: true
   
 bibliography: references.bib
 ---
@@ -1039,6 +1039,10 @@ where:
 - $X_t$includes a constant and lagged values of \( Y \).
 - $u_t$ is the error term assumed to be normally distributed.
 
+#### Matrix notation
+
+<!-- Please specify the matrices $Y$ and $X$ you use below. -->
+
 #### Exclusion Restrictions
 We have specified that each row $n$ of $B_0$ can be represented as a product of unrestricted coefficients $b_n$ and a fixed matrix $V_n$ of zeros and ones, applying structural constraints to the model.
 
@@ -1128,6 +1132,8 @@ $$
 
 The resulting posterior parameters are as follow: 
 
+<!-- It is important that you write explicitly what distribution your parameters below specify. -->
+
 $$
 \bar{\Omega} = [XX^T+\underline{{\Omega}} \ ]^{-1}
 $$
@@ -1176,7 +1182,7 @@ To estimate this model in R, you would generally need to:
 We use a random walk to generate a $Y$ matrix with one lag, and with 300 observations over four variables, to check whether the estimation algorithm is able to reproduce the random walk structure. In other words, we expect that $B_0$ will equal an identity matrix, the intercept will equal zero, and the remaining part of the $B_+$ matrix will also be an identity matrix. 
 
 
-```{r creating Y and X matrices using a random walk, echo=FALSE, eval=TRUE}
+```{r creating Y and X matrices using a random walk, echo=TRUE, eval=TRUE}
 
 set.seed(1234567)
 
