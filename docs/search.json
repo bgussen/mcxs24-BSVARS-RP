@@ -1,0 +1,142 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Dixie Effect on Economic Stability in Australia",
+    "section": "",
+    "text": "Abstract. This research project investigates the dynamic effects of the U.S. Dollar (USD) on the Australian economy, with a focus on economic stability. By employing Bayesian Structural Vector Autoregression (SVAR) analysis. This study aims to elucidate the transmission mechanisms of USD fluctuations through three channels: GDP growth, inflation, and unemployment. The findings are expected to provide nuanced insights into the macroeconomic interdependencies between the USD and the Australian economy, offering valuable perspectives for policymakers and economic analysts.\nKeywords. Bayesian SVAR, USD, Australian economy, inflation, economic stability"
+  },
+  {
+    "objectID": "index.html#likelihood",
+    "href": "index.html#likelihood",
+    "title": "Dixie Effect on Economic Stability in Australia",
+    "section": "Likelihood",
+    "text": "Likelihood\nThe likelihood function for the model is:\n\\[\np(Y \\mid B_0, B_p, \\lambda, X) = (2\\pi\\lambda)^{-\\frac{T}{2}} \\exp\\left(-\\frac{1}{2\\lambda} \\sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) \\right)\n\\]"
+  },
+  {
+    "objectID": "index.html#prior-for-lambda",
+    "href": "index.html#prior-for-lambda",
+    "title": "Dixie Effect on Economic Stability in Australia",
+    "section": "Prior for \\(\\lambda\\)",
+    "text": "Prior for \\(\\lambda\\)\nThe Inverted-Gamma 2 prior for () is:\n\\[\np(\\lambda) = \\frac{(\\underline{s}/2)^{\\underline{\\nu}/2}}{\\Gamma(\\underline{\\nu}/2)} \\lambda^{-\\underline{\\nu}/2-1} \\exp\\left(-\\frac{\\underline{s}}{2\\lambda}\\right)\n\\]"
+  },
+  {
+    "objectID": "index.html#prior-for-b_0-and-b_p",
+    "href": "index.html#prior-for-b_0-and-b_p",
+    "title": "Dixie Effect on Economic Stability in Australia",
+    "section": "Prior for \\(B_0\\) and \\(B_p\\)",
+    "text": "Prior for \\(B_0\\) and \\(B_p\\)\nThe Normal-Gamma-Normal (NGN) prior for (B_0) and (B_p) is assumed to be:\n\\[\np(B_0, B_p) \\propto \\left| \\det(B_0) \\right|^{\\underline{\\nu}} \\exp \\left( -\\frac{1}{2} \\left[ \\operatorname{tr}((B_0 - \\underline{B}) \\underline{\\Omega}^{-1} (B_0 - \\underline{B})^T) \\right] \\right)\n\\]"
+  },
+  {
+    "objectID": "index.html#posterior-derivation",
+    "href": "index.html#posterior-derivation",
+    "title": "Dixie Effect on Economic Stability in Australia",
+    "section": "Posterior Derivation",
+    "text": "Posterior Derivation\nThe posterior distribution is proportional to the product of the likelihood and the priors:\n\\[\np(B_0, B_p, \\lambda \\mid Y, X) \\propto p(Y \\mid B_0, B_p, \\lambda, X) p(B_0, B_p) p(\\lambda)\n\\]"
+  },
+  {
+    "objectID": "index.html#posterior-for-lambda",
+    "href": "index.html#posterior-for-lambda",
+    "title": "Dixie Effect on Economic Stability in Australia",
+    "section": "Posterior for \\(\\lambda\\)",
+    "text": "Posterior for \\(\\lambda\\)\nCombining the likelihood and the prior for ():\n\\[\np(\\lambda \\mid Y, B_0, B_p, X) \\propto \\lambda^{-\\frac{T}{2}} \\exp\\left(-\\frac{1}{2\\lambda} \\sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) \\right) \\lambda^{-\\underline{\\nu}/2-1} \\exp\\left(-\\frac{\\underline{s}}{2\\lambda}\\right)\n\\]\nCombining terms:\n\\[\np(\\lambda \\mid Y, B_0, B_p, X) \\propto \\lambda^{-\\left(\\frac{T}{2} + \\frac{\\underline{\\nu}}{2} + 1\\right)} \\exp\\left(-\\frac{1}{2\\lambda} \\left(\\sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) + \\underline{s}\\right)\\right)\n\\]\nThis is recognized as the kernel of an Inverted-Gamma 2 distribution:\n\\[\n\\lambda \\mid Y, B_0, B_p, X \\sim \\mathcal{IG2}\\left(\\underline{s} + \\sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) , \\underline{\\nu} + T \\right)\n\\]\nWe use the results from the basic model (above) to compute the error terms that will be used in sampling \\(\\lambda\\)."
+  },
+  {
+    "objectID": "index.html#posterior-for-b_0-and-b_p",
+    "href": "index.html#posterior-for-b_0-and-b_p",
+    "title": "Dixie Effect on Economic Stability in Australia",
+    "section": "Posterior for \\(B_0\\) and \\(B_p\\)",
+    "text": "Posterior for \\(B_0\\) and \\(B_p\\)\nConsidering the effect of \\(\\lambda\\) on the residuals, the posterior parameters for \\(B_0\\) and \\(B_p\\) should be adjusted accordingly. The presence of \\(\\lambda\\) affects the variance in the likelihood, impacting the posterior distributions for \\(B_0\\) and \\(B_p\\).\n\nUpdate Posterior Parameters\nTaking \\(\\lambda\\) into account, the posterior parameters for \\(B_0\\) and \\(B_p\\) are:\n\nPosterior for \\(\\bar{\\Omega}\\):\n\n\\[\n\\bar{\\Omega} = \\left(\\frac{XX^T}{\\lambda} + \\underline{\\Omega}^{-1}\\right)^{-1}\n\\]\n\nPosterior for \\(\\bar{B}\\):\n\n\\[\n\\bar{B} = \\left(\\frac{XX^T}{\\lambda} + \\underline{\\Omega}^{-1}\\right)^{-1} \\left(\\frac{YX^T}{\\lambda} + \\underline{\\Omega}^{-1}\\underline{B}\\right)\n\\]\n\nPosterior for \\(\\bar{S}\\):\n\n\\[\n\\bar{S} = \\left( \\frac{YY^T}{\\lambda} + \\underline{S}^{-1} + \\underline{B}^{-1}\\underline{B}^T - \\bar{B}\\bar{\\Omega}\\bar{B}^T \\right)\n\\]\n\nPosterior for \\(\\bar{\\nu}\\):\n\n\\[\n\\bar{\\nu} = T + \\underline{\\nu}\n\\]"
+  },
+  {
+    "objectID": "index.html#conclusion",
+    "href": "index.html#conclusion",
+    "title": "Dixie Effect on Economic Stability in Australia",
+    "section": "Conclusion",
+    "text": "Conclusion\nWe have re-derived the posteriors for the modified Bayesian SVAR model with the correct Inverted-Gamma 2 prior for \\(\\lambda\\), where \\(\\lambda \\sim \\mathcal{IG2}(\\underline{s}, \\underline{\\nu})\\) with \\(\\underline{s} = \\underline{\\nu} - 2\\). The correct derivation shows that \\(\\lambda\\) scales the variance in the likelihood, impacting the posterior distributions of \\(B_0\\) and \\(B_p\\).\nThis approach highlights the importance of correctly handling matrix operations and applying Bayesian inference principles to a more complex model structure.\n\nSecond Extension: Estimating \\(\\nu\\)\nFollowing Lee (2022) we use a Metropolis-Hastings Algorithm to estimate \\(\\nu\\) and impose a vmode value corresponding to the t-distribution range \\((0, 25)\\).\n\n\nConclusion\nThe overall kernel for this extended model encapsulates to the random variance \\(\\lambda\\). This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.\nIn the basic model, all USD Index contemporaneous coefficients are not statistically significant at the standard levels. On the other hand, all these coefficients in the extended model are statistically significant at the 5% level.\nThe results suggest the following elasticities. According to the basic model, a weaker Dixie is likely to overheat the Australian economy: a drop of 1 per cent in the USD Index would result in roughly 1 per cent increase in inflation, roughly unchanged unemployment, and roughly 1% increase in the GDP growth rate.\nOn the other hand, the expanded model suggests that a weakening Dixie would result in an untraditional condition in the Australian economy: 1 per cent decrease in the USD Index would result is roughly 0.7 per cent increase in inflation, roughly 1 per cent increase in unemployment, and roughly 1 per cent increase in the GDP growth rate.\nAs to the second extension, where \\(\\nu\\) is a hyperparameter, this model suggests that a weakening Dixie would result in stagflation in Australia: 1 per cent decrease in the USD Index would result is roughly 3 per cent increase in inflation, roughly 0.7 per cent increase in unemployment, and roughly 3 per cent decrease in the GDP growth rate."
+  },
+  {
+    "objectID": "RP5.html",
+    "href": "RP5.html",
+    "title": "Dixie Effect on Economic Stability in Australia",
+    "section": "",
+    "text": "rgn_for_Extension_I_model = function(n,V,B0.initial){\n\n   y   = Y\n  \n  # Basic settings and model dimensions\n  N &lt;- ncol(y)\n  p &lt;- 12   # This is the number of lags in the model\n  K &lt;- 1 + N * p\n\n  # Set the priors\n  kappa1 &lt;- 0.01      # autoregressive slope shrinkage\n  kappa2 &lt;- 1         # constant term shrinkage \n  kappa3 &lt;- 100       # contemporaneous effects shrinkage\n  kappa4 &lt;- 1         # VAR prior persistence\n   \n\n# create Y and X\n############################################################\nY       = y[(p+1):nrow(y),]\nX       = matrix(1,nrow(Y),1)\nfor (i in 1:p){\n  X     = cbind(X,y[((p+1):nrow(y))-i,])\n}\n\nY       = t(Y)\nX       = t(X)\n  \n \n  priors &lt;- list(\n    B = cbind(rep(0, N), kappa4 * diag(N), matrix(0, N, (p - 1) * N)),\n    Omega = diag(c(kappa2, kappa1 * ((1:p)^(-2)) %x% rep(1, N))),\n    S = kappa3 * diag(N),\n    nu = N\n  )\n  \n   beta  = 5\n  total = 0 \n \n    A &lt;- Y[ ,i]\n    A &lt;- matrix(A, ncol = 1)\n    B &lt;- X[ , i]\n    B &lt;- matrix(B, ncol = 1)\n    C &lt;- (B0_posterior1[ , , S]%*%A - Bp_posterior1[ , ,S]%*%B)\n \n    partial_sum = t(C)%*%C\n    total = total + partial_sum\n  \n  \n  alpha = (beta - 2) + total\n  \n  N             = nrow(B0.initial)\n  no.draws      = n\n  \n  B0            = array(NA, c(N,N,no.draws))\n  B0.aux        = B0.initial\n  \n  for (i in 1:no.draws){\n    \n        # Sample lambda from the Inverse Gamma distribution\n\n  lambda &lt;- rinvgamma(n = 1, shape = alpha, rate = beta + nrow(y))\n  \n  lambda_posterior &lt;- lambda\n\n    # Compute posterior distribution parameters\n  Omega.inv &lt;- solve(priors$Omega)\n  Omega.post.inv &lt;-  ((lambda_posterior)^(-1) * X %*% t(X) +  Omega.inv)\n  Omega.post &lt;- solve(Omega.post.inv)\n  B.post &lt;-   ( (lambda_posterior)^(-1) * Y %*% t(X) +  priors$B %*% Omega.inv) %*% Omega.post\n  S.post &lt;-  solve( (lambda_posterior)^(-1) * Y %*% t(Y) +  solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post))\n  nu.post &lt;- nrow(y) + priors$nu\n  \n  posteriors &lt;- list(\n    B = B.post,\n    Omega = Omega.post,\n    S = S.post,\n    nu = nu.post\n  )\n\n  S.inv = solve(S.post)\n    \n    for (n in 1:N){\n      rn            = nrow(V[[n]])\n      Un            = chol(nu*solve(V[[n]]%*%S.inv%*%t(V[[n]])))\n      w             = t(orthogonal.complement.matrix.TW(t(B0.aux[-n,])))\n      w1            = w %*% t(V[[n]]) %*% t(Un) / sqrt(as.numeric(w %*% t(V[[n]]) %*% t(Un) %*% Un %*% V[[n]] %*% t(w)))\n      if (rn&gt;1){\n        Wn          = cbind(t(w1),orthogonal.complement.matrix.TW(t(w1)))\n      } else {\n        Wn          = w1\n      }\n      alpha         = rep(NA,rn)\n      u             = rmvnorm(1,rep(0,nu+1),(1/nu)*diag(nu+1))\n      alpha[1]      = sqrt(as.numeric(u%*%t(u)))\n      if (runif(1)&lt;0.5){\n        alpha[1]    = -alpha[1]\n      }\n      if (rn&gt;1){\n        alpha[2:rn] = rmvnorm(1,rep(0,nrow(V[[n]])-1),(1/nu)*diag(rn-1))\n      }\n      bn            = alpha %*% Wn %*% Un\n      B0.aux[n,]    = bn %*% V[[n]]\n    }\n    B0[,,i]         = B0.aux\n  }\n  \n  return(B0)\n}"
+  },
+  {
+    "objectID": "index.html#marginal-likelihood",
+    "href": "index.html#marginal-likelihood",
+    "title": "Dixie Effect on Economic Stability in Australia",
+    "section": "Marginal Likelihood",
+    "text": "Marginal Likelihood\nFirst, we derive the marginal likelihood by integrating out \\(\\lambda\\): \\[\np(Y \\mid B_0, B_p, X) = \\int p(Y \\mid B_0, B_p, \\lambda, X) p(\\lambda) \\, d\\lambda\n\\]\nThe likelihood and the prior for \\(\\lambda\\) combine as: \\[\np(Y \\mid B_0, B_p, \\lambda, X) p(\\lambda) \\propto \\lambda^{-\\left( \\frac{T}{2} + \\frac{\\alpha}{2} + 1 \\right)} \\exp\\left( -\\frac{1}{2\\lambda} \\left( \\sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) + \\beta \\right) \\right)\n\\]\nPerforming the integral: \\[\n\\int_0^\\infty \\lambda^{-\\left( \\frac{T}{2} + \\frac{\\alpha}{2} + 1 \\right)} \\exp\\left( -\\frac{1}{2\\lambda} \\left( \\sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) + \\beta \\right) \\right) d\\lambda\n\\]\nThis integral is a standard form for the Inverted-Gamma distribution, yielding the marginal likelihood: \\[\np(Y \\mid B_0, B_p, X) \\propto \\left( \\sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) + \\beta \\right)^{-\\left( \\frac{T}{2} + \\frac{\\alpha}{2} \\right)}\n\\]"
+  },
+  {
+    "objectID": "index.html#expanding-the-terms",
+    "href": "index.html#expanding-the-terms",
+    "title": "Dixie Effect on Economic Stability in Australia",
+    "section": "Expanding the Terms",
+    "text": "Expanding the Terms\n\nLikelihood Contribution\nRewrite the likelihood term: \\[\n\\exp\\left( -\\frac{1}{2} \\sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) \\right)\n\\]\n\n\nPrior Contribution\nThe prior for \\(B_0\\) and \\(B_p\\) is: \\[\n\\exp\\left( -\\frac{1}{2} \\operatorname{tr}((B_0 - \\underline{B}) \\underline{\\Omega}^{-1} (B_0 - \\underline{B})^T) \\right)\n\\]"
+  },
+  {
+    "objectID": "index.html#combining-terms",
+    "href": "index.html#combining-terms",
+    "title": "Dixie Effect on Economic Stability in Australia",
+    "section": "Combining Terms",
+    "text": "Combining Terms\nCombine the quadratic terms and complete the square to obtain the posterior distributions for \\(B_0\\) and \\(B_p\\): \\[\n-\\frac{1}{2} \\left( \\operatorname{tr}((Y - B_0^{-1}B_p X)^T B_0^T B_0 (Y - B_0^{-1}B_p X)) + \\operatorname{tr}((B_0 - \\underline{B}) \\underline{\\Omega}^{-1} (B_0 - \\underline{B})^T) \\right)\n\\]\nRecognize the combined quadratic form: \\[\n-\\frac{1}{2} \\left( (B_0 Y - B_p X)^T B_0^T B_0 (B_0 Y - B_p X) + (B_0 - \\underline{B}) \\underline{\\Omega}^{-1} (B_0 - \\underline{B}) \\right)\n\\]"
+  },
+  {
+    "objectID": "index.html#posterior-for-1",
+    "href": "index.html#posterior-for-1",
+    "title": "Dixie Effect on Economic Stability in Australia",
+    "section": "Posterior for ({})",
+    "text": "Posterior for ({})\n\\[\n\\bar{\\Omega} = \\left( XX^T + \\underline{\\Omega}^{-1} \\right)^{-1}\n\\]"
+  },
+  {
+    "objectID": "index.html#posterior-for-b",
+    "href": "index.html#posterior-for-b",
+    "title": "Dixie Effect on Economic Stability in Australia",
+    "section": "Posterior for ({B})",
+    "text": "Posterior for ({B})\n\\[\n\\bar{B} = \\left( XX^T + \\underline{\\Omega}^{-1} \\right)^{-1} \\left( YX^T + \\underline{\\Omega}^{-1} \\underline{B} \\right)\n\\]"
+  },
+  {
+    "objectID": "index.html#posterior-for-s",
+    "href": "index.html#posterior-for-s",
+    "title": "Dixie Effect on Economic Stability in Australia",
+    "section": "Posterior for ({S})",
+    "text": "Posterior for ({S})\n\\[\n\\bar{S} = \\left( YY^T + \\underline{S}^{-1} + \\underline{B}^{-1} \\underline{B}^T - \\bar{B} \\bar{\\Omega} \\bar{B}^T \\right)\n\\]"
+  },
+  {
+    "objectID": "index.html#posterior-for-2",
+    "href": "index.html#posterior-for-2",
+    "title": "Dixie Effect on Economic Stability in Australia",
+    "section": "Posterior for ({})",
+    "text": "Posterior for ({})\n\\[\n\\bar{\\nu} = T + \\underline{\\nu}\n\\]"
+  },
+  {
+    "objectID": "index.html#posterior-for-baromega",
+    "href": "index.html#posterior-for-baromega",
+    "title": "Dixie Effect on Economic Stability in Australia",
+    "section": "Posterior for \\(\\bar{\\Omega}\\)",
+    "text": "Posterior for \\(\\bar{\\Omega}\\)\n\\[\n\\bar{\\Omega} = \\left( XX^T + \\underline{\\Omega}^{-1} \\right)^{-1}\n\\]"
+  },
+  {
+    "objectID": "index.html#posterior-for-barb",
+    "href": "index.html#posterior-for-barb",
+    "title": "Dixie Effect on Economic Stability in Australia",
+    "section": "Posterior for \\(\\bar{B}\\)",
+    "text": "Posterior for \\(\\bar{B}\\)\n\\[\n\\bar{B} = \\left( XX^T + \\underline{\\Omega}^{-1} \\right)^{-1} \\left( YX^T + \\underline{\\Omega}^{-1} \\underline{B} \\right)\n\\]"
+  },
+  {
+    "objectID": "index.html#posterior-for-bars",
+    "href": "index.html#posterior-for-bars",
+    "title": "Dixie Effect on Economic Stability in Australia",
+    "section": "Posterior for \\(\\bar{S}\\)",
+    "text": "Posterior for \\(\\bar{S}\\)\n\\[\n\\bar{S} = \\left( YY^T + \\underline{S}^{-1} + \\underline{B}^{-1} \\underline{B}^T - \\bar{B} \\bar{\\Omega} \\bar{B}^T \\right)\n\\]"
+  },
+  {
+    "objectID": "index.html#posterior-for-barnu",
+    "href": "index.html#posterior-for-barnu",
+    "title": "Dixie Effect on Economic Stability in Australia",
+    "section": "Posterior for \\(\\bar{\\nu}\\)",
+    "text": "Posterior for \\(\\bar{\\nu}\\)\n\\[\n\\bar{\\nu} = T + \\underline{\\nu}\n\\]"
+  }
+]
