@@ -14,7 +14,6 @@ rm(list=ls())
 set.seed(1234567)
 ```
 
-
 ```{r libraries, include=FALSE}
 #| echo: false
 #| message: false
@@ -52,8 +51,8 @@ library(tidyr)    # For data manipulation
 
 #Define global variables
 
-  S_burnin <- 100   # number of discarded iterations from the Gibbs sampler
-  S <- 200         # number of iterations used to calculate B0 and Bp
+  S_burnin <- 500   # number of discarded iterations from the Gibbs sampler
+  S <- 2000         # number of iterations used to calculate B0 and Bp
   p <- 12           # number of lags in the Baysian SVAR model 
   N <- 4.           # number of variables in the Bayesian SVAR model
   K <-  1+N*p
@@ -285,7 +284,6 @@ create_matrices <- function() {
 
 
 ```
-
 
 ```{r function to calculate B0 and B+ for the Basic Bayesian SVAR model}
 
@@ -545,6 +543,7 @@ plot_irfs <- function(B0, Bp, horizon, conf_level) {
 ```
 
 
+
 > **Abstract.** This research project investigates the dynamic effects of the U.S. Dollar (USD) on the Australian economy, with a focus on economic stability. By employing Bayesian Structural Vector Autoregression (SVAR) analysis. This study aims to elucidate the transmission mechanisms of USD fluctuations through three channels: GDP growth, inflation, and unemployment. The findings are expected to provide nuanced insights into the macroeconomic interdependencies between the USD and the Australian economy, offering valuable perspectives for policymakers and economic analysts.
 >
 > **Keywords.** Bayesian SVAR, USD, Australian economy, inflation, economic stability
@@ -611,6 +610,7 @@ For our purposes in this initial proposal, the required data will be sourced fro
 The first series, the year-end Australian real GDP growth rate, is from the Reserve Bank of Australia (RBA) output and labour statistical tables [@RBA2024a]. This is a quarterly series, and will not need to be treated for frequency alignment. 
 
 
+
 ```{r GDP growth rate}
 #| echo: false
 #| message: false
@@ -645,7 +645,9 @@ par(mfrow=c(1, 1))
 ```
 
 
+
 As seen in @fig-GDP, the PACF above, the optimal lag for conducting the augmented Dicky-Fuller (DF) test is 4. A summary of the results of this test can be found in the table below. 
+
 
 
 ```{r ADF test for DGP_rate}
@@ -657,9 +659,11 @@ As seen in @fig-GDP, the PACF above, the optimal lag for conducting the augmente
 adf_test_result <- ur.df(GDP_rate$value, type = "drift", lags = 4, selectlags = "AIC")
 ```
 
+
 Note that the augmented DF test suggests that the series is stationary at the 95% level. There is no need to modify the series. From the DF test results, its is safe to conclude that the GDP_rate series is stationary. 
 
 The second series, the year-end change in Australian inflation rate, is from the Reserve Bank of Australia (RBA) inflation and inflation expectations statistical tables (@RBA2024b). This series has been converted from a monthly series into a quarterly series by choosing the relevant months for the beginning of each quarter, starting from March and ending with December.
+
 
 ```{r CPI rate}
 #| echo: false 
@@ -706,9 +710,11 @@ adf_test_result <- ur.df(CPI_rate$value, type = "drift", lags = 4, selectlags = 
 
 ```
 
+
 From @fig-CPI, an augmented DF test was conducted with 3 lags. Note that the augmented DF test suggests that the series is not stationary at the 95% confidence level. There was a need to take the difference of the series.
 
 The third series, the Australian unemployment rate, is from the Reserve Bank of Australia (RBA) output and labour Statistical tables [@RBA2024c]. This is  a monthly series. The series was converted into a quarterly series by choosing the relevant months for the beginning of each quarter, starting from March and ending with December. 
+
 
 ```{r unemp_rate}
 #| echo: false 
@@ -756,9 +762,11 @@ adf_test_result <- ur.df(unemp_rate$value, type = "drift", lags = 4, selectlags 
 
 ```
 
+
 @fig-unemp above explains that a lag 4 should be used for the augmented DF test. Note that this test (see Appendix) suggests that the series is not stationary at the 95% confidence level. We therefore use the differenced series.
 
 The fourth series, the USD Index, is also from the Reserve Bank of Australia (RBA) exchange rates statistical tables [@RBA2024d]. This is  a monthly series. The series was converted into a quarterly series by choosing the relevant months for the beginning of each quarter, starting from March and ending with December.
+
 
 ```{r USD Index}
 #| echo: false
@@ -810,9 +818,11 @@ adf_test_result <- ur.df(USD_Index$value, type = "drift", lags = 4, selectlags =
 
 ```
 
+
 @fig-Index above indicates that a lag 4 should be used for the augmented DF test. The results suggest that the series is not stationary at the 95% confidence level. We therefore use the differenced series.
 
 ### Augmented Dicky-Fuller test results for the USD Index
+
 
 ```{r Calculating the ADF test for each series} 
 
@@ -846,9 +856,11 @@ kable(adf_summary_df, caption = "ADF Test Results Summary") %>%
 
 ```
 
+
 ### Do we need to use stationary data series
 
 After consultations with Dr. Thomaz Wozniak, my understanding is that it is possible to use unit-root nonstationary variables in dynamic modeling. Based, on this, all rates are used without differencing, and the USD Index is used in logged form, also without differencing.
+
 
 ```{r plotting all four series}
 #| echo: false
@@ -891,6 +903,7 @@ grid.arrange(grobs = plot_list, ncol = 2)
 
 
 ```
+
 
 ### Model Specification
 
@@ -1178,6 +1191,7 @@ To estimate this model in R, you would generally need to:
 We use a random walk to generate a $Y$ matrix with one lag, and with 300 observations over four variables, to check whether the estimation algorithm is able to reproduce the random walk structure. In other words, we expect that $B_0$ will equal an identity matrix, the intercept will equal zero, and the remaining part of the $B_+$ matrix will also be an identity matrix. 
 
 
+
 ```{r creating Y and X matrices using a random walk, echo=FALSE, eval=TRUE}
 
 set.seed(1234567)
@@ -1200,7 +1214,6 @@ sigma <- diag(0.1, 4)  # Variance for each variable in the random walk
 Y <- simulate_random_walk(n, initial_values, sigma)
 
 ```
-
 
 ```{r defining the Vn matrices for the exclusion restrictions on B0 for the basic model} 
 
@@ -1225,7 +1238,9 @@ V_matrices <- create_V_matrices()
 
 ```
 
+
 We used 100 iterations for the burn-in phase to allow the algorithm to converge, then used 500 iteration for the estimation.
+
 
 ```{r estimating B0 and Bp for the random walk, echo=FALSE, eval=TRUE}
 
@@ -1241,7 +1256,9 @@ Bp_posterior0 <- posterior_results$Bp
 
 ```
 
+
 The estimated $B_0$ and $B_+$ are shown below. 
+
 
 ```{r Ranom Walk  B0 & Bp matrix, echo=FALSE, eval=TRUE}
 
@@ -1253,11 +1270,13 @@ print(Bp_posterior0 [,,S])
 
 ```
 
+
 There is a clear convergence of the diagonal of each matrix towards one. The other elements in these matrices are also approaching zero. We have enough evidence to see that the algorithm is able to estimate the random walk process.
 
 ### Estimation of the Basic Model
 
 We now repeat the same steps above to estimate the $B_0$ and $B_+$ matrices for the basic model. 
+
 
 ```{r Building matrices Y and X from the actual data for evaluating the Basic Bayesian SVAR model, echo=FALSE, eval=TRUE}
 
@@ -1287,7 +1306,6 @@ print("Basic Model B plus matrix")
 print(Bp_posterior1[ , ,S])
 
 ```
-
 
 ```{r calculating the standard deviation for the Basic Model B0 & Bp matrices, echo=FALSE, eval=TRUE}
 
@@ -1326,6 +1344,7 @@ Bp <- Bp_posterior1
 plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95)
 
 ```
+
 
 
 ### Model Extension I: Solving the Identification Problem Using a Non-Normality Approach
@@ -1484,10 +1503,8 @@ $$
 
 The parameters $\alpha$ and $\beta$ from the prior distribution of $\lambda$ affect the posterior distributions for $B_0$ and $B_p$ through the variance scaling in the likelihood, influencing $\bar{S}$. This approach correctly shows that $\lambda$ does not explicitly appear in the posterior formulas for $\bar{\Omega}$ and $\bar{B}$, but $\lambda$ impacts the overall posterior distribution implicitly. This rigorous derivation demonstrates the correct Bayesian inference for a hierarchical model, incorporating the effects of $\lambda$ through its posterior distribution.
 
-```{r Building matrices Y and X from the actual data for evaluating the Extension I Bayesian SVAR model, echo=FALSE, eval=TRUE}
 
-  S_burnin <- 500   # number of discarded iterations from the Gibbs sampler
-  S <- 2000         # number of iterations used to calculate B0 and Bp
+```{r Building matrices Y and X from the actual data for evaluating the Extension I Bayesian SVAR model, echo=FALSE, eval=TRUE}
 
 matrices <- create_matrices()
 Y = matrices$Y
@@ -1786,8 +1803,6 @@ V_matrices <- create_V_matrices()
 
 ```
 
-
-
 ```{r calculating the standard deviation for the Extension I B0 & Bp matrices, echo=FALSE, eval=TRUE}
 
 calculate_and_print_B0sd(B0_posterior2)
@@ -1802,7 +1817,6 @@ plot_lagged_effects(B0_posterior2, Bp_posterior2)
 
 ```
 
-
 ```{r printing B0 & Bp for the Extension I Model, echo=FALSE, eval=TRUE}
 
 print("Extension I Model Normalized B0 matrix")
@@ -1812,7 +1826,6 @@ print("Extension I Model B plus matrix")
 print(Bp_posterior2[ , , S])
 
 ```
-
 
 ```{r calculate the significance levels for the Extension I model B0 and Bp, echo=FALSE, eval=TRUE}
 
@@ -1838,9 +1851,11 @@ plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95)
 
 ```
 
+
 ### Second Extension: Estimating $\nu$
 
 Following @Lee2022 we use a Metropolis-Hastings Algorithm to estimate $\nu$ and impose a vmode value corresponding to the t-distribution range $(0, 25)$. 
+
 
 
 ```{r this code uses a Metropolis-Hastings Algorithm to find the value of the prior nu, echo=FALSE, eval=FALSE}
@@ -1888,7 +1903,6 @@ sample_nu_svar <- function(y, mu, Sigma, initial_nu, iterations, proposal_sd) {
 }
 
 ```
-
 
 ```{r calculate nu for the Extension II Bayesian SVAR model, echo=FALSE, eval=FALSE}
 
@@ -1998,7 +2012,6 @@ print(Bp_significance)
 
 ```
 
-
 ```{r Plotting the IRF response for the Extension II model, echo=FALSE, eval=FALSE}
 
 B0 <- B0_posterior3
@@ -2007,6 +2020,7 @@ Bp <- Bp_posterior3
 plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95)
 
 ```
+
 
 ### Conclusion
 
@@ -2019,6 +2033,7 @@ The results suggest the following elasticities. According to the basic model, a 
 On the other hand, the expanded model suggests that a weakening Dixie would result in an untraditional condition in the Australian economy: 1 per cent decrease in the USD Index would result is roughly 0.7 per cent increase in inflation, roughly 1 per cent increase in unemployment, and roughly 1 per cent increase in the GDP growth rate. 
 
 As to the second extension, where $\nu$ is a hyperparameter, this model suggests that a weakening Dixie would result in stagflation in Australia: 1 per cent decrease in the USD Index would result is roughly 3 per cent increase in inflation, roughly 0.7 per cent increase in unemployment, and roughly 3 per cent decrease in the GDP growth rate. 
+
 
 
 ```{r furnish the results for a 1% drop of the USD_Index in a table, echo=FALSE, eval=FALSE}
@@ -2058,13 +2073,4 @@ results_df <- data.frame(
 kable(results_df, format = "html", caption = "Effect of a weaker USD_Index on Economic Indicators (in elasticities)", col.names = c("Variable (elasticity w.r.t. USD_Index)", "Basic Model", "Extended Model", "Second Extension Model"), align = "c")
 
 ```
-
-
-
-
-
-
-
-
-
 
