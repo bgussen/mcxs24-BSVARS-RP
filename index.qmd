@@ -1358,14 +1358,14 @@ $$
 p(Y \mid B_0, B_p, \lambda, X) = (2\pi\lambda)^{-\frac{T}{2}} \exp\left( -\frac{1}{2\lambda} \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) \right)
 $$
 
-# Prior for \(\lambda\)
+# Prior for $\lambda$
 
 The Inverted-Gamma 2 prior for \(\lambda\) is:
 $$
 p(\lambda) = \frac{(\beta/2)^{\alpha/2}}{\Gamma(\alpha/2)} \lambda^{-\alpha/2-1} \exp\left( -\frac{\beta}{2\lambda} \right)
 $$
 
-# Posterior for \(\lambda\)
+# Posterior for $\lambda$
 
 Combining the likelihood and the prior for \(\lambda\), we get:
 $$
@@ -1377,7 +1377,7 @@ $$
 \lambda \mid Y, B_0, B_p, X \sim \mathcal{IG2}\left( \beta + \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t), \alpha + T \right)
 $$
 
-The posterior mean of \(\lambda\) is:
+The posterior mean of $\lambda$ is:
 $$
 \hat{\lambda} = \frac{\beta + \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t)}{\alpha + T - 2}
 $$
