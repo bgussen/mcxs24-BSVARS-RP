@@ -52,8 +52,8 @@ library(tidyr)    # For data manipulation
 
 #Define global variables
 
-  S_burnin <- 1000     # number of discarded iterations from the Gibbs sampler
-  S <- 5000            # number of iterations used to calculate B0 and Bp
+  S_burnin <- 100     # number of discarded iterations from the Gibbs sampler
+  S <- 500            # number of iterations used to calculate B0 and Bp
   p <- 12              # number of lags in the Baysian SVAR model 
   N <- 4               # number of variables in the Bayesian SVAR model
   K <-  1+N*p
@@ -1844,7 +1844,7 @@ plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95)
 Following @Lee2022 we use a Metropolis-Hastings Algorithm to estimate $\nu$ and impose a vmode value corresponding to the t-distribution range $(0, 25)$. 
 
 
-```{r this code uses a Metropolis-Hastings Algorithm to find the value of the prior nu, echo=FALSE, eval=FALSE}
+```{r this code uses a Metropolis-Hastings Algorithm to find the value of the prior nu, echo=FALSE, eval=TRUE}
 
 # Function to sample from posterior of degrees of freedom (DoF) for the structural Bayesian SVAR
 sample_nu_svar <- function(y, mu, Sigma, initial_nu, iterations, proposal_sd) {
@@ -1891,7 +1891,7 @@ sample_nu_svar <- function(y, mu, Sigma, initial_nu, iterations, proposal_sd) {
 ```
 
 
-```{r calculate nu for the Extension II Bayesian SVAR model, echo=FALSE, eval=FALSE}
+```{r calculate nu for the Extension II Bayesian SVAR model, echo=FALSE, eval=TRUE}
 
 
 # compute posterior distribution parameters, matrices V, and starting values
