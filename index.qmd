@@ -52,8 +52,8 @@ library(tidyr)    # For data manipulation
 
 #Define global variables
 
-  S_burnin <- 200       # number of discarded iterations from the Gibbs sampler
-  S <- 500              # number of iterations used to calculate B0 and Bp
+  S_burnin <- 300       # number of discarded iterations from the Gibbs sampler
+  S <- 700              # number of iterations used to calculate B0 and Bp
   p <- 12               # number of lags in the Baysian SVAR model 
   N <- 4                # number of variables in the Bayesian SVAR model
   K <-  1+N*p
@@ -288,13 +288,13 @@ create_matrices <- function() {
 
 ```{r function to generate poseriors for the random walk}
 
-generate_posteriors <- function(lambda_posterior, Y, V_matrices, kappa1, kappa2, kappa3, kappa4) {
+generate_posteriors <- function(Y, V_matrices, kappa1, kappa2, kappa3, kappa4) {
 
   y   = Y
   
   # Basic settings and model dimensions
   N <- ncol(y)
-  p <- 12   # This is the number of lags in the model
+  pp <- 1   # This is the number of lags in the model
   K <- 1 + N * p
 
 
@@ -308,10 +308,10 @@ generate_posteriors <- function(lambda_posterior, Y, V_matrices, kappa1, kappa2,
 
 # create Y and X
 ############################################################
-Y       = y[(p+1):nrow(y),]
+Y       = y[(pp+1):nrow(y),]
 X       = matrix(1,nrow(Y),1)
-for (i in 1:p){
-  X     = cbind(X,y[((p+1):nrow(y))-i,])
+for (i in 1:pp){
+  X     = cbind(X,y[((pp+1):nrow(y))-i,])
 }
 
 Y       = t(Y)
@@ -319,18 +319,18 @@ X       = t(X)
   
  
   priors <- list(
-    B = cbind(rep(0, N), kappa4 * diag(N), matrix(0, N, (p - 1) * N)),
-    Omega = diag(c(kappa2, kappa1 * ((1:p)^(-2)) %x% rep(1, N))),
+    B = cbind(rep(0, N), kappa4 * diag(N), matrix(0, N, (pp - 1) * N)),
+    Omega = diag(c(kappa2, kappa1 * ((1:pp)^(-2)) %x% rep(1, N))),
     S = kappa3 * diag(N),
     nu = N
   )
   
   # Compute posterior distribution parameters
   Omega.inv <- solve(priors$Omega)
-  Omega.post.inv <-  ((lambda_posterior)^(-1) * X %*% t(X) +  Omega.inv)
+  Omega.post.inv <-  (X %*% t(X) +  Omega.inv)
   Omega.post <- solve(Omega.post.inv)
-  B.post <-   ( (lambda_posterior)^(-1) * Y %*% t(X) +  priors$B %*% Omega.inv) %*% Omega.post
-  S.post <-  solve( (lambda_posterior)^(-1) * Y %*% t(Y) +  solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post))
+  B.post <-   (Y %*% t(X) +  priors$B %*% Omega.inv) %*% Omega.post
+  S.post <-  solve(Y %*% t(Y) +  solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post))
   nu.post <- nrow(y) + priors$nu
   
   posteriors <- list(
@@ -361,7 +361,6 @@ X       = t(X)
   # Return posteriors
   return(list(B0 = B0_posterior, Bp = Bp_posterior))
 }
-
 ```
 
 
@@ -369,16 +368,21 @@ X       = t(X)
 ```{r function to estimate the Basic Bayesian SVAR model}
 
 estimate_basic_model <- function (S_burnin, S){
-
+  
   matrices <- create_matrices()
   Y = matrices$Y
 
-   y   = Y
+  y   = Y
+   
+     # Basic settings and model dimensions
+  N <- ncol(y)
+  p <- 12   # This is the number of lags in the model
+  K <- 1 + N * p
 
 # create Y and X
 ############################################################
 Y       = y[(p+1):nrow(y),]
-X       = matrix(1,nrow(Y),1)
+X       = matrix(0,nrow(Y),1)
 for (i in 1:p){
   X     = cbind(X,y[((p+1):nrow(y))-i,])
 }
@@ -434,17 +438,13 @@ Bp = array(NA, c(nrow(priors$B), ncol(priors$B), no.draws))
 B0.aux = B0.initial
 Bp.aux = matrix(NA, nrow(priors$B), ncol(priors$B))
 
-# Select the first value for lambda 
-lambda_posterior <- 1
-
-
 for (i in 1:S_burnin) {
   # Compute posterior distribution parameters
   Omega.inv <- solve(priors$Omega)
-  Omega.post.inv <- ((lambda_posterior)^(-1) * X %*% t(X) + Omega.inv)
+  Omega.post.inv <- (X %*% t(X) + Omega.inv)
   Omega.post <- solve(Omega.post.inv)
-  B.post <- ((lambda_posterior)^(-1) * Y %*% t(X) + priors$B %*% Omega.inv) %*% Omega.post
-  S.post <- solve((lambda_posterior)^(-1) * Y %*% t(Y) + solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post))
+  B.post <- (Y %*% t(X) + priors$B %*% Omega.inv) %*% Omega.post
+  S.post <- solve(Y %*% t(Y) + solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post))
   nu.post <- nrow(y) + priors$nu
   
   # Check if Omega.post and S.post is positive definite and store the inverse if it is
@@ -523,10 +523,10 @@ Bp.aux = matrix(NA, nrow(priors$B), ncol(priors$B))
 for (j in 1:S) {
   # Compute posterior distribution parameters
   Omega.inv <- solve(priors$Omega)
-  Omega.post.inv <- ((lambda_posterior)^(-1) * X %*% t(X) + Omega.inv)
+  Omega.post.inv <- (X %*% t(X) + Omega.inv)
   Omega.post <- solve(Omega.post.inv)
-  B.post <- ((lambda_posterior)^(-1) * Y %*% t(X) + priors$B %*% Omega.inv) %*% Omega.post
-  S.post <- solve((lambda_posterior)^(-1) * Y %*% t(Y) + solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post))
+  B.post <- (Y %*% t(X) + priors$B %*% Omega.inv) %*% Omega.post
+  S.post <- solve(Y %*% t(Y) + solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post))
   nu.post <- nrow(y) + priors$nu
 
   # Check if Omega.post and S.post is positive definite and store the inverse if it is
@@ -1451,22 +1451,18 @@ Y <- simulate_random_walk(n, initial_values, sigma)
 create_V_matrices <- function() {
   
   V <- list()
-  V[[1]] <- matrix(c(1, 0, 0, 0,
-                     0, 1, 0, 0,
-                     0, 0, 1, 0,
-                     0, 0, 0, 1), nrow = 4, ncol = 4, byrow = TRUE)
+  
+  V[[1]] <- matrix(c(1, 0, 0, 0), nrow = 1, ncol = 4, byrow = TRUE)
   V[[2]] <- matrix(c(1, 0, 0, 0,
-                     0, 1, 0, 0,
-                     0, 0, 1, 0,
-                     0, 0, 0, 1), nrow = 4, ncol = 4, byrow = TRUE)
+                     0, 1, 0, 0), nrow = 2, ncol = 4, byrow = TRUE)
   V[[3]] <- matrix(c(1, 0, 0, 0,
                      0, 1, 0, 0,
-                     0, 0, 1, 0,
-                     0, 0, 0, 1), nrow = 4, ncol = 4, byrow = TRUE)
+                     0, 0, 1, 0), nrow = 3, ncol = 4, byrow = TRUE)
   V[[4]] <- matrix(c(1, 0, 0, 0,
                      0, 1, 0, 0,
                      0, 0, 1, 0,
                      0, 0, 0, 1), nrow = 4, ncol = 4, byrow = TRUE)
+  
   return(V)
 }
 
@@ -1479,11 +1475,8 @@ We used 100 iterations for the burn-in phase to allow the algorithm to converge,
 
 ```{r estimating B0 and Bp for the random walk, echo=FALSE, eval=TRUE}
 
-lambda_posterior = 1
-
-
 # Call the function
-posterior_results <- generate_posteriors(lambda_posterior, Y, V_matrices, kappa1 = 0.01, kappa2 = 1, kappa3 =  100, kappa4 = 1)
+posterior_results <- generate_posteriors(Y, V_matrices, kappa1 = 1, kappa2 = 1, kappa3 =  1, kappa4 = 1)
 
 # The function returns a list containing B0 and Bp posteriors which can be accessed as follows:
 B0_posterior0 <- posterior_results$B0
@@ -1503,7 +1496,7 @@ print(Bp_posterior0 [,,S])
 
 ```
 
-There is a clear convergence of the diagonal of each matrix towards one. The other elements in these matrices are also approaching zero. We have enough evidence to see that the algorithm is able to estimate the random walk process.
+Using only one lag for illustrative purposes, there is a clear convergence of the B0 and Bp matrix towards an identity matrix. The other elements in this matrix and all elements in Bp are also approaching zero (because we opted for no intercept). We have enough evidence to see that the algorithm is able to estimate the random walk process.
 
 ### Estimation of the Basic Model
 
@@ -1588,8 +1581,10 @@ $$
 p(B_0, B_p) \sim \mathcal{NGN}(\underline{B}, \underline{\Omega}, \underline{S}, \underline{\nu})
 $$
 $$
-\lambda \sim \mathcal{IG2}(\alpha, \beta)
+\lambda \sim \mathcal{IG2}(\underline{s}, \underline{\nu})
 $$
+
+Where $\underline{s} = \underline{\nu} - 2$ to ensure that the mean is eaual to one, as was the case under the basic model. 
 
 # Likelihood Function
 
@@ -1602,24 +1597,24 @@ $$
 
 The Inverted-Gamma 2 prior for $\lambda$ is:
 $$
-p(\lambda) = \frac{(\beta/2)^{\alpha/2}}{\Gamma(\alpha/2)} \lambda^{-\alpha/2-1} \exp\left( -\frac{\beta}{2\lambda} \right)
+p(\lambda) = \frac{(s/2)^{\nu/2}}{\Gamma(\nu/2)} \lambda^{-\nu/2-1} \exp\left( -\frac{s}{2\lambda} \right)
 $$
 
 # Posterior for $\lambda$
 
 Combining the likelihood and the prior for $\lambda$, we get:
 $$
-p(\lambda \mid Y, B_0, B_p, X) \propto \lambda^{-\left( \frac{T}{2} + \frac{\alpha}{2} + 1 \right)} \exp\left( -\frac{1}{2\lambda} \left( \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) + \beta \right) \right)
+p(\lambda \mid Y, B_0, B_p, X) \propto \lambda^{-\left( \frac{T}{2} + \frac{\nu}{2} + 1 \right)} \exp\left( -\frac{1}{2\lambda} \left( \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) + s \right) \right)
 $$
 
 This is the kernel of an Inverted-Gamma 2 distribution:
 $$
-\lambda \mid Y, B_0, B_p, X \sim \mathcal{IG2}\left( \alpha + T, \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) + \beta \right)
+\lambda \mid Y, B_0, B_p, X \sim \mathcal{IG2}\left( \nu + T, \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) + s \right)
 $$
 
 The posterior mean of $\lambda$ is:
 $$
-\hat{\lambda} = \frac{\beta + \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t)}{\alpha + T - 2}
+\hat{\lambda} = \frac{s + \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t)}{\nu + T - 2}
 $$
 
 # Integrating Out $\lambda$
@@ -1639,22 +1634,32 @@ This expression must often be evaluated or sampled using computational Bayesian 
 We can obtain the following posterior formulas similar to the basic model. Note that we use $\underline{\Omega} = \underline{\lambda\Omega}$ in the following equations: 
 
 $$
-\bar{\Omega} = [\bar{\lambda}^{-1} XX^T+ \underline{{\Omega}} \ ]^{-1}
+\bar{\Omega} = [XX^T+ \underline{{\Omega}} \ ]^{-1}
 $$
 
 $$
-\bar{B} = [\bar{\lambda}^{-1}  YX^T+\underline{B{\Omega}}^{-1}]\bar{\Omega}
+\bar{B} = [YX^T+\underline{B{\Omega}}^{-1}]\bar{\Omega}
 $$
 
 $$
-\bar{S} = [\bar{\lambda}^{-1} YY^T+\underline{S}^{-1}+ \underline{B{\Omega}}^{-1} \underline{B}^T - \overline{B{\Omega}}^{-1} \bar{B}]^{-1}
+\bar{S} = [YY^T+\underline{S}^{-1}+ \underline{B{\Omega}}^{-1} \underline{B}^T - \overline{B{\Omega}}^{-1} \bar{B}]^{-1}
 $$
+
+Where 
+
+$$
+\underline{S} = ( s + \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t)) * I_N
+$$ 
+
 
 ## Posterior for $\bar{\nu}$
 
 $$
 \bar{\nu} = T + \underline{\nu}
 $$
+
+Where $\underline{\nu} = \underline {s} + 2 = 5 + 2 = 7$. 
+
 
 # Conclusion
 
@@ -1665,10 +1670,17 @@ The parameters $\alpha$ and $\beta$ from the prior distribution of $\lambda$ aff
 
 estimate_extension_I_model <- function (S_burnin, S){
 
+
+  
   matrices <- create_matrices()
   Y = matrices$Y
 
-   y   = Y
+  y   = Y
+   
+  # Basic settings and model dimensions
+  N <- ncol(y)
+  p <- 12   # This is the number of lags in the model
+  K <- 1 + N * p 
 
 # create Y and X
 ############################################################
@@ -1730,18 +1742,31 @@ B0.aux = B0.initial
 Bp.aux = matrix(NA, nrow(priors$B), ncol(priors$B))
 
 # Select the first value for lambda 
-lambda_posterior <- 1
 shape <- 7
 scale <- 5
 
 for (i in 1:S_burnin) {
+  
+  # Set the priors
+  kappa1 <- 0.01      # autoregressive slope shrinkage
+  kappa2 <- 1         # constant term shrinkage 
+  kappa3 <- scale     # contemporaneous effects shrinkage
+  kappa4 <- 1         # VAR prior persistence
+
+  priors <- list(
+  B = cbind(rep(0, N), kappa4 * diag(N), matrix(0, N, (p - 1) * N)),
+  Omega = diag(c(kappa2, kappa1 * ((1:p)^(-2)) %x% rep(1, N))),
+  S = kappa3 * diag(N),
+  nu = shape
+)
+  
   # Compute posterior distribution parameters
   Omega.inv <- solve(priors$Omega)
-  Omega.post.inv <- ((lambda_posterior)^(-1) * X %*% t(X) + Omega.inv)
+  Omega.post.inv <- (X %*% t(X) + Omega.inv)
   Omega.post <- solve(Omega.post.inv)
-  B.post <- ((lambda_posterior)^(-1) * Y %*% t(X) + priors$B %*% Omega.inv) %*% Omega.post
-  S.post <- solve((lambda_posterior)^(-1) * Y %*% t(Y) + solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post) +  matrix(scale^(-1), nrow = N, ncol = N))
-  nu.post <- nrow(y) + priors$nu + shape 
+  B.post <- (Y %*% t(X) + priors$B %*% Omega.inv) %*% Omega.post
+  S.post <- solve(Y %*% t(Y) + solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post) +  matrix(scale^(-1), nrow = N, ncol = N))
+  nu.post <- nrow(y) + priors$nu  
   
   # Check if Omega.post and S.post is positive definite and store the inverse if it is
   is_positive_definite <- tryCatch({
@@ -1816,10 +1841,9 @@ for (i in 1:S_burnin) {
     
   }
   
-    
-    shape = (7 + ncol(Y))
-    scale = (5 + total) # This is the scale parameter
-    scale = scale[1, 1] # Converting scale into a scalar
+
+    scale = total          # This is the scale parameter
+    scale = scale[1, 1]    # Converting scale into a scalar
   
 }
 
@@ -1838,13 +1862,27 @@ B0.aux = B0.initial
 Bp.aux = matrix(NA, nrow(priors$B), ncol(priors$B))
 
 for (j in 1:S) {
+  
+   # Set the priors
+  kappa1 <- 0.01      # autoregressive slope shrinkage
+  kappa2 <- 1         # constant term shrinkage 
+  kappa3 <- scale     # contemporaneous effects shrinkage
+  kappa4 <- 1         # VAR prior persistence
+
+  priors <- list(
+  B = cbind(rep(0, N), kappa4 * diag(N), matrix(0, N, (p - 1) * N)),
+  Omega = diag(c(kappa2, kappa1 * ((1:p)^(-2)) %x% rep(1, N))),
+  S = kappa3 * diag(N),
+  nu = shape
+)
+  
   # Compute posterior distribution parameters
   Omega.inv <- solve(priors$Omega)
-  Omega.post.inv <- ((lambda_posterior)^(-1) * X %*% t(X) + Omega.inv)
+  Omega.post.inv <- (X %*% t(X) + Omega.inv)
   Omega.post <- solve(Omega.post.inv)
-  B.post <- ((lambda_posterior)^(-1) * Y %*% t(X) + priors$B %*% Omega.inv) %*% Omega.post
-  S.post <- solve((lambda_posterior)^(-1) * Y %*% t(Y) + solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post) +  matrix(scale^(-1), nrow = N, ncol = N))
-  nu.post <- nrow(y) + priors$nu + shape 
+  B.post <- (Y %*% t(X) + priors$B %*% Omega.inv) %*% Omega.post
+  S.post <- solve(Y %*% t(Y) + solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post) +  matrix(scale^(-1), nrow = N, ncol = N))
+  nu.post <- nrow(y) + priors$nu 
 
   # Check if Omega.post and S.post is positive definite and store the inverse if it is
   is_positive_definite <- tryCatch({
@@ -1919,9 +1957,7 @@ for (j in 1:S) {
     
   }
   
-    
-    shape = (7 + ncol(Y))
-    scale = (5 + total) # This is the scale parameter
+    scale = total # This is the scale parameter
     scale = scale[1, 1] # Converting scale into a scalar
 
 }
@@ -1949,7 +1985,7 @@ Bp_posterior2 <- results$Bp_posterior
 
 ```
 
-```{r defining the Vn matrices for the exclusion restrictions on B0 for the Extension I (and II) model, echo=FALSE, eval=FALSE} 
+```{r defining the Vn matrices for the exclusion restrictions on B0 for the Extension  II model, echo=FALSE, eval=FALSE} 
 
 # Create a list V with predefined fixed matrices
 create_V_matrices <- function() {
@@ -2030,7 +2066,7 @@ plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95)
 
 ```
 
-### Second Extension: Estimating $\nu$
+### Second Extension: Estimating the scale of $\lambda$
 
 Following @Lee2022 we use a Metropolis-Hastings Algorithm to estimate $\nu$ and impose a vmode value corresponding to the t-distribution range $(0, 25)$. 
 
@@ -2129,24 +2165,318 @@ print(selected_nu_mode)
 
 ```{r calculate B0 and B+ for the Extension II Bayesian SVAR model, echo=FALSE, eval=FALSE}
 
-psi = selected_nu_mode
+estimate_extension_II_model <- function (S_burnin, S){
+  
+  matrices <- create_matrices()
+  Y = matrices$Y
 
-# Call to the function with psi and 100 samples
-result <- sample_lambda(psi, num_samples = 100)
-# Accessing the mean from the results
-lambda_mean <- result$mean
-lambda.post = lambda_mean
+  y   = Y
+   
+  # Basic settings and model dimensions
+  N <- ncol(y)
+  p <- 12   # This is the number of lags in the model
+  K <- 1 + N * p 
 
-print("lambda3 =")
-print(lambda.post)
+# create Y and X
+############################################################
+Y       = y[(p+1):nrow(y),]
+X       = matrix(1,nrow(Y),1)
+for (i in 1:p){
+  X     = cbind(X,y[((p+1):nrow(y))-i,])
+}
+
+Y       = t(Y)
+X       = t(X)
 
 
-# Call the function
-posterior_results <- generate_posteriors(lambda.post, Y, V_matrices, psi)
+ V <- list()
+ 
+  V[[1]] <- matrix(c(1, 0, 0, 0), nrow = 1, ncol = 4, byrow = TRUE)
+  V[[2]] <- matrix(c(1, 0, 0, 0,
+                     0, 1, 0, 0), nrow = 2, ncol = 4, byrow = TRUE)
+  V[[3]] <- matrix(c(1, 0, 0, 0,
+                     0, 1, 0, 0,
+                     0, 0, 1, 0), nrow = 3, ncol = 4, byrow = TRUE)
+  V[[4]] <- matrix(c(1, 0, 0, 0,
+                     0, 1, 0, 0,
+                     0, 0, 1, 0,
+                     0, 0, 0, 1), nrow = 4, ncol = 4, byrow = TRUE)
 
-# The function returns a list containing B0 and Bp posteriors which can be accessed as follows:
-B0_posterior3 <- posterior_results$B0
-Bp_posterior3 <- posterior_results$Bp
+# Set the priors
+kappa1 <- 0.01      # autoregressive slope shrinkage
+kappa2 <- 1         # constant term shrinkage 
+kappa3 <- 1000      # contemporaneous effects shrinkage
+kappa4 <- 1         # VAR prior persistence
+
+# Basic settings and model dimensions
+N <- ncol(y)
+p <- 12   # This is the number of lags in the model
+K <- 1 + N * p
+
+priors <- list(
+  B = cbind(rep(0, N), kappa4 * diag(N), matrix(0, N, (p - 1) * N)),
+  Omega = diag(c(kappa2, kappa1 * ((1:p)^(-2)) %x% rep(1, N))),
+  S = kappa3 * diag(N),
+  nu = sample(nu_samples, size = 1)
+)
+
+# Initialize B0
+B0.initial <- matrix(0, N, N)
+for (n in 1:N) {
+  unrestricted <- apply(V[[n]], 2, sum) == 1
+  B0.initial[n, unrestricted] <- rnorm(sum(unrestricted))
+}
+
+N = nrow(B0.initial)
+no.draws = S_burnin
+
+B0 = array(NA, c(N, N, no.draws))
+Bp = array(NA, c(nrow(priors$B), ncol(priors$B), no.draws))
+
+B0.aux = B0.initial
+Bp.aux = matrix(NA, nrow(priors$B), ncol(priors$B))
+
+# Select the first value for lambda 
+shape <- 7
+scale <- 5
+
+for (i in 1:S_burnin) {
+  
+  # Set the priors
+  kappa1 <- 0.01      # autoregressive slope shrinkage
+  kappa2 <- 1         # constant term shrinkage 
+  kappa3 <- scale     # contemporaneous effects shrinkage
+  kappa4 <- 1         # VAR prior persistence
+
+  priors <- list(
+  B = cbind(rep(0, N), kappa4 * diag(N), matrix(0, N, (p - 1) * N)),
+  Omega = diag(c(kappa2, kappa1 * ((1:p)^(-2)) %x% rep(1, N))),
+  S = kappa3 * diag(N),
+  nu =  sample(nu_samples, size = 1)
+)
+  
+  # Compute posterior distribution parameters
+  Omega.inv <- solve(priors$Omega)
+  Omega.post.inv <- (X %*% t(X) + Omega.inv)
+  Omega.post <- solve(Omega.post.inv)
+  B.post <- (Y %*% t(X) + priors$B %*% Omega.inv) %*% Omega.post
+  S.post <- solve(Y %*% t(Y) + solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post) +  matrix(scale^(-1), nrow = N, ncol = N))
+  nu.post <- nrow(y) + priors$nu  
+  
+  # Check if Omega.post and S.post is positive definite and store the inverse if it is
+  is_positive_definite <- tryCatch({
+    chol(Omega.post)
+    TRUE
+  }, error = function(e) {
+    FALSE
+  })
+
+  if (!is_positive_definite) {
+    next  # Skip to the next iteration if S.post is not positive definite
+  }
+
+  is_positive_definite <- tryCatch({
+    chol(S.post)
+    TRUE
+  }, error = function(e) {
+    FALSE
+  })
+
+  if (!is_positive_definite) {
+    next  # Skip to the next iteration if S.post is not positive definite
+  }
+  
+  S.inv <- solve(S.post)
+  nu = nu.post
+  
+
+  for (n in 1:nrow(B0.initial)) {
+    rn = nrow(V[[n]])
+    Un = chol(nu * solve(V[[n]] %*% S.inv %*% t(V[[n]])))
+    w = t(orthogonal.complement.matrix.TW(t(B0.aux[-n, ])))
+    w1 = w %*% t(V[[n]]) %*% t(Un) / sqrt(as.numeric(w %*% t(V[[n]]) %*% t(Un) %*% Un %*% V[[n]] %*% t(w)))
+    if (rn > 1) {
+      Wn = cbind(t(w1), orthogonal.complement.matrix.TW(t(w1)))
+    } else {
+      Wn = w1
+    }
+    alpha = rep(NA, rn)
+    u = rmvnorm(1, rep(0, nu + 1), (1 / nu) * diag(nu + 1))
+    alpha[1] = sqrt(as.numeric(u %*% t(u)))
+    if (runif(1) < 0.5) {
+      alpha[1] = -alpha[1]
+    }
+    if (rn > 1) {
+      alpha[2:rn] = rmvnorm(1, rep(0, nrow(V[[n]]) - 1), (1 / nu) * diag(rn - 1))
+    }
+    bn = alpha %*% Wn %*% Un
+    B0.aux[n, ] = bn %*% V[[n]]
+    
+    K = ncol(B.post)
+    L = t(chol(Omega.post))
+    
+    Bp.aux[n, ] = as.vector(t(B0.aux[n, ] %*% B.post) + L %*% rnorm(K))
+  }
+  
+  B0[, , i] = B0.aux
+  Bp[, , i] = Bp.aux
+
+
+  total       = 0 
+  
+  for (j in 1:ncol(Y)) {
+    
+    A = Y[, j]
+    A = matrix(A, ncol = 1)
+    B = X[, j]
+    B = matrix(B, ncol = 1)
+    C = (B0.aux %*% A - Bp.aux %*% B)
+    
+    total = total + t(C) %*% C
+    
+  }
+  
+
+    scale = total          # This is the scale parameter
+    scale = scale[1, 1]    # Converting scale into a scalar
+  
+}
+
+B0_posterior <- B0
+
+# Initialize B0 again for the remainder of the iterations 
+B0.initial <- B0_posterior[, , S_burnin]
+ 
+N = nrow(B0.initial)
+no.draws = S
+
+B0 = array(NA, c(N, N, no.draws))
+Bp = array(NA, c(nrow(priors$B), ncol(priors$B), no.draws))
+
+B0.aux = B0.initial
+Bp.aux = matrix(NA, nrow(priors$B), ncol(priors$B))
+
+for (j in 1:S) {
+  
+   # Set the priors
+  kappa1 <- 0.01      # autoregressive slope shrinkage
+  kappa2 <- 1         # constant term shrinkage 
+  kappa3 <- scale     # contemporaneous effects shrinkage
+  kappa4 <- 1         # VAR prior persistence
+
+  priors <- list(
+  B = cbind(rep(0, N), kappa4 * diag(N), matrix(0, N, (p - 1) * N)),
+  Omega = diag(c(kappa2, kappa1 * ((1:p)^(-2)) %x% rep(1, N))),
+  S = kappa3 * diag(N),
+  nu = sample(nu_samples, size = 1)
+)
+  
+  # Compute posterior distribution parameters
+  Omega.inv <- solve(priors$Omega)
+  Omega.post.inv <- (X %*% t(X) + Omega.inv)
+  Omega.post <- solve(Omega.post.inv)
+  B.post <- (Y %*% t(X) + priors$B %*% Omega.inv) %*% Omega.post
+  S.post <- solve(Y %*% t(Y) + solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post) +  matrix(scale^(-1), nrow = N, ncol = N))
+  nu.post <- nrow(y) + priors$nu 
+
+  # Check if Omega.post and S.post is positive definite and store the inverse if it is
+  is_positive_definite <- tryCatch({
+    chol(Omega.post)
+    TRUE
+  }, error = function(e) {
+    FALSE
+  })
+
+  if (!is_positive_definite) {
+    next  # Skip to the next iteration if S.post is not positive definite
+  }
+
+  is_positive_definite <- tryCatch({
+    chol(S.post)
+    TRUE
+  }, error = function(e) {
+    FALSE
+  })
+
+  if (!is_positive_definite) {
+    next  # Skip to the next iteration if S.post is not positive definite
+  }
+
+  S.inv <- solve(S.post)
+  nu = nu.post
+  
+  
+  for (n in 1:N) {
+    rn = nrow(V[[n]])
+    Un = chol(nu * solve(V[[n]] %*% S.inv %*% t(V[[n]])))
+    w = t(orthogonal.complement.matrix.TW(t(B0.aux[-n, ])))
+    w1 = w %*% t(V[[n]]) %*% t(Un) / sqrt(as.numeric(w %*% t(V[[n]]) %*% t(Un) %*% Un %*% V[[n]] %*% t(w)))
+    if (rn > 1) {
+      Wn = cbind(t(w1), orthogonal.complement.matrix.TW(t(w1)))
+    } else {
+      Wn = w1
+    }
+    alpha = rep(NA, rn)
+    u = rmvnorm(1, rep(0, nu + 1), (1 / nu) * diag(nu + 1))
+    alpha[1] = sqrt(as.numeric(u %*% t(u)))
+    if (runif(1) < 0.5) {
+      alpha[1] = -alpha[1]
+    }
+    if (rn > 1) {
+      alpha[2:rn] = rmvnorm(1, rep(0, nrow(V[[n]]) - 1), (1 / nu) * diag(rn - 1))
+    }
+    bn = alpha %*% Wn %*% Un
+    B0.aux[n, ] = bn %*% V[[n]]
+
+    K = ncol(B.post)
+    L = t(chol(Omega.post))
+
+    Bp.aux[n, ] = as.vector(t(B0.aux[n, ] %*% B.post) + L %*% rnorm(K))
+  }
+
+  B0[ , , j] = B0.aux
+  Bp[ , , j] = Bp.aux
+
+
+  total       = 0 
+  
+  for (j in 1:ncol(Y)) {
+    
+    A = Y[, j]
+    A = matrix(A, ncol = 1)
+    B = X[, j]
+    B = matrix(B, ncol = 1)
+    C = (B0.aux %*% A - Bp.aux %*% B)
+
+    total = total + t(C) %*% C
+    
+  }
+  
+    scale = total # This is the scale parameter
+    scale = scale[1, 1] # Converting scale into a scalar
+
+}
+
+B0_posterior <- B0
+Bp_posterior <- Bp
+
+# Normalization
+B0_hat <- diag(sign(diag(B0_posterior[, , S]))) %*% B0_posterior[, , S]
+
+B0_posterior <- normalize.Gibbs.output.parallel(B0_posterior, B0.hat = B0_hat)
+
+# Sample B+ from the normal conditional posterior
+#Bp_posterior2 <- Bp_posterior 
+Bp_posterior <- rnorm.ngn(B0.posterior = B0_posterior, B = B.post, Omega = Omega.post)
+
+return(list(B0_posterior = B0_posterior, Bp_posterior = Bp_posterior))
+
+}
+
+results <- estimate_extension_II_model(S_burnin, S)
+
+B0_posterior3 <- results$B0_posterior
+Bp_posterior3 <- results$Bp_posterior
 
 ```
 
