@@ -54,7 +54,7 @@ library(tidyr)    # For data manipulation
 
   S_burnin <- 200      # number of discarded iterations from the Gibbs sampler
   S <- 500             # number of iterations used to calculate B0 and Bp
-  p <- 12               # number of lags in the Baysian SVAR model 
+  p <- 12              # number of lags in the Baysian SVAR model 
   N <- 4               # number of variables in the Bayesian SVAR model
   K <-  1+N*p
 
