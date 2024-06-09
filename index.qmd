@@ -52,10 +52,10 @@ library(tidyr)    # For data manipulation
 
 #Define global variables
 
-  S_burnin <- 300       # number of discarded iterations from the Gibbs sampler
-  S <- 700              # number of iterations used to calculate B0 and Bp
+  S_burnin <- 200      # number of discarded iterations from the Gibbs sampler
+  S <- 500             # number of iterations used to calculate B0 and Bp
   p <- 12               # number of lags in the Baysian SVAR model 
-  N <- 4                # number of variables in the Bayesian SVAR model
+  N <- 4               # number of variables in the Bayesian SVAR model
   K <-  1+N*p
 
 ```
@@ -293,9 +293,9 @@ generate_posteriors <- function(Y, V_matrices, kappa1, kappa2, kappa3, kappa4) {
   y   = Y
   
   # Basic settings and model dimensions
-  N <- ncol(y)
+  NN <- ncol(y)
   pp <- 1   # This is the number of lags in the model
-  K <- 1 + N * p
+  K <- 1 + NN * pp
 
 
   
@@ -319,10 +319,10 @@ X       = t(X)
   
  
   priors <- list(
-    B = cbind(rep(0, N), kappa4 * diag(N), matrix(0, N, (pp - 1) * N)),
-    Omega = diag(c(kappa2, kappa1 * ((1:pp)^(-2)) %x% rep(1, N))),
-    S = kappa3 * diag(N),
-    nu = N
+    B = cbind(rep(0, NN), kappa4 * diag(NN), matrix(0, NN, (pp - 1) * NN)),
+    Omega = diag(c(kappa2, kappa1 * ((1:pp)^(-2)) %x% rep(1, NN))),
+    S = kappa3 * diag(NN),
+    nu = NN
   )
   
   # Compute posterior distribution parameters
@@ -341,8 +341,8 @@ X       = t(X)
   )
   
   # Initialize B0
-  B0_initial <- matrix(0, N, N)
-  for (n in 1:N) {
+  B0_initial <- matrix(0, NN, NN)
+  for (n in 1:NN) {
     unrestricted <- apply(V_matrices[[n]], 2, sum) == 1
     B0_initial[n, unrestricted] <- rnorm(sum(unrestricted))
   }
@@ -1418,8 +1418,9 @@ To estimate this model in R, you would generally need to:
 
 ### Model Testing Using A Random Walk 
 
-We use a random walk to generate a $Y$ matrix with one lag, and with 300 observations over four variables, to check whether the estimation algorithm is able to reproduce the random walk structure. In other words, we expect that $B_0$ will equal an identity matrix, the intercept will equal zero, and the remaining part of the $B_+$ matrix will also be an identity matrix. 
+We use a random walk to generate a $Y$ matrix with one lag, and with 300 observations over two variables, to check whether the estimation algorithm is able to reproduce the random walk structure. In other words, we expect that $B_0$ will equal an identity matrix, the intercept will equal zero, and the remaining part of the $B_+$ matrix will also be an identity matrix. 
 
+We used 100 iterations for the burn-in phase to allow the algorithm to converge, then used 500 iteration for the estimation.
 
 ```{r creating Y and X matrices using a random walk, echo=FALSE, eval=TRUE}
 
@@ -1437,7 +1438,7 @@ simulate_random_walk <- function(n, initial_value, sigma) {
 }
 
 # Simulate the Y matrix as a random walk
-n <- 300  # Number of observations
+n <- 100  # Number of observations
 initial_values <- rep(0, 4)  # Initial values for each of the 2 variables
 sigma <- diag(0.1, 4)  # Variance for each variable in the random walk
 Y <- simulate_random_walk(n, initial_values, sigma)
@@ -1476,11 +1477,12 @@ We used 100 iterations for the burn-in phase to allow the algorithm to converge,
 ```{r estimating B0 and Bp for the random walk, echo=FALSE, eval=TRUE}
 
 # Call the function
-posterior_results <- generate_posteriors(Y, V_matrices, kappa1 = 1, kappa2 = 1, kappa3 =  1, kappa4 = 1)
+posterior_results <- generate_posteriors(Y, V_matrices, kappa1 = 0.0001, kappa2 = 0.01, kappa3 =  0.01, kappa4 = 1)
 
 # The function returns a list containing B0 and Bp posteriors which can be accessed as follows:
 B0_posterior0 <- posterior_results$B0
 Bp_posterior0 <- posterior_results$Bp
+
 
 ```
 
@@ -1617,9 +1619,6 @@ $$
 \hat{\lambda} = \frac{s + \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t)}{\nu + T - 2}
 $$
 
-# Integrating Out $\lambda$
-
-To derive the marginal posterior distributions for $B_0$ and $B_p$, we integrate out $\lambda$ from the joint posterior distribution.
 
 ### Combining with the Prior
 
@@ -2163,7 +2162,7 @@ print(selected_nu_mode)
 
 ```
 
-```{r calculate B0 and B+ for the Extension II Bayesian SVAR model, echo=FALSE, eval=FALSE}
+```{r calculate B0 and B+ for the Extension II Bayesian SVAR model, echo=FALSE, eval=TRUE}
 
 estimate_extension_II_model <- function (S_burnin, S){
   
@@ -2260,7 +2259,7 @@ for (i in 1:S_burnin) {
   Omega.post.inv <- (X %*% t(X) + Omega.inv)
   Omega.post <- solve(Omega.post.inv)
   B.post <- (Y %*% t(X) + priors$B %*% Omega.inv) %*% Omega.post
-  S.post <- solve(Y %*% t(Y) + solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post) +  matrix(scale^(-1), nrow = N, ncol = N))
+  S.post <- solve(Y %*% t(Y) + solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post))
   nu.post <- nrow(y) + priors$nu  
   
   # Check if Omega.post and S.post is positive definite and store the inverse if it is
@@ -2376,7 +2375,7 @@ for (j in 1:S) {
   Omega.post.inv <- (X %*% t(X) + Omega.inv)
   Omega.post <- solve(Omega.post.inv)
   B.post <- (Y %*% t(X) + priors$B %*% Omega.inv) %*% Omega.post
-  S.post <- solve(Y %*% t(Y) + solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post) +  matrix(scale^(-1), nrow = N, ncol = N))
+  S.post <- solve(Y %*% t(Y) + solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post))
   nu.post <- nrow(y) + priors$nu 
 
   # Check if Omega.post and S.post is positive definite and store the inverse if it is
@@ -2480,35 +2479,35 @@ Bp_posterior3 <- results$Bp_posterior
 
 ```
 
-```{r print the B0 & BP matrices for the Extension II model, echo=FALSE, eval=FALSE}
+```{r print the B0 & BP matrices for the Extension II model, echo=FALSE, eval=TRUE}
 
 print("Extension II Model Normalized B0 matrix")
-print(B0.posterior3[,,S])
+print(B0_posterior3[,,S])
 
 print("Extension II Model B plus matrix")
-print(Bp.posterior3[,,S])
+print(Bp_posterior3[,,S])
 
 ```
 
-```{r calculating the standard deviation for the Extension II model B0 matrix, echo=FALSE, eval=FALSE}
+```{r calculating the standard deviation for the Extension II model B0 matrix, echo=FALSE, eval=TRUE}
 
 calculate_and_print_B0sd(B0_posterior3)
 
 ```
 
-```{r calculating the standard deviation for the Extension II model Bp matrix, echo=FALSE, eval=FALSE}
+```{r calculating the standard deviation for the Extension II model Bp matrix, echo=FALSE, eval=TRUE}
 
 calculate_and_print_Bpsd(Bp_posterior3)
 
 ```
 
-```{r plot lagged Bp for the Extension II model, echo=FALSE, eval=FALSE}
+```{r plot lagged Bp for the Extension II model, echo=FALSE, eval=TRUE}
 
-plot_lagged_effects(Bp_posterior3)
+plot_lagged_effects(B0_posterior3, Bp_posterior3)
 
 ```
 
-```{r calculate the significance levels for the Extension II B0 and Bp, echo=FALSE, eval=FALSE}
+```{r calculate the significance levels for the Extension II B0 and Bp, echo=FALSE, eval=TRUE}
 
 # Calculate significance for B0 and Bp matrices
 B0_significance <- calculate_significance(B0_posterior3)
@@ -2524,7 +2523,7 @@ print(Bp_significance)
 ```
 
 
-```{r Plotting the IRF response for the Extension II model, echo=FALSE, eval=FALSE}
+```{r Plotting the IRF response for the Extension II model, echo=FALSE, eval=TRUE}
 
 B0 <- B0_posterior3
 Bp <- Bp_posterior3
@@ -2546,7 +2545,7 @@ On the other hand, the expanded model suggests that a weakening Dixie would resu
 As to the second extension, where $\nu$ is a hyperparameter, this model suggests that a weakening Dixie would result in stagflation in Australia: 1 per cent decrease in the USD Index would result is roughly 3 per cent increase in inflation, roughly 0.7 per cent increase in unemployment, and roughly 3 per cent decrease in the GDP growth rate. 
 
 
-```{r furnish the results for a 1% drop of the USD_Index in a table, echo=FALSE, eval=FALSE}
+```{r furnish the results for a 1% drop of the USD_Index in a table, echo=FALSE, eval=TRUE}
 
 # Load the knitr package for better table formatting
 library(knitr)
@@ -2559,15 +2558,15 @@ second_extension_results <- list()
 # Loop through each economic variable
 for (i in 2:4) {
   # Calculate the effect for the Basic model
-  basic_effect <- B0.posterior1[i, i, S] / B0.posterior1[i, 1, S] 
+  basic_effect <- B0_posterior1[i, i, S] / B0_posterior1[i, 1, S] 
   basic_model_results[[i - 1]] <- basic_effect
   
   # Calculate the effect for the Extended model
-  extended_effect <-   B0.posterior2[i, i, S] / B0.posterior2[i, 1, S] 
+  extended_effect <-   B0_posterior2[i, i, S] / B0_posterior2[i, 1, S] 
   extended_model_results[[i - 1]] <- extended_effect
   
   # Calculate the effect for the Second Extension model
-  second_extension_effect <-   B0.posterior3[i, i, S] / B0.posterior3[i, 1, S] 
+  second_extension_effect <-   B0_posterior3[i, i, S] / B0_posterior3[i, 1, S] 
   second_extension_results[[i - 1]] <- second_extension_effect
 }
 
