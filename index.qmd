@@ -53,7 +53,7 @@ library(tidyr)    # For data manipulation
 #Define global variables
 
   S_burnin <- 200      # number of discarded iterations from the Gibbs sampler
-  S <- 500             # number of iterations used to calculate B0 and Bp
+  S <- 800             # number of iterations used to calculate B0 and Bp
   p <- 12              # number of lags in the Baysian SVAR model 
   N <- 4               # number of variables in the Bayesian SVAR model
   K <-  1+N*p
@@ -1202,6 +1202,14 @@ $B_i$ (for i=0,1,...,pi=0,1,...,p): These are matrices representing the lagged e
 
 $u_t$: This is the vector of errors or shocks at time tt. In the SVAR framework, these are considered unobservable random shocks that affect the endogenous variables. In Bayesian SVAR models, these shocks are also subjected to prior distributions reflecting our beliefs or assumptions before observing the data.
 
+The model can also be introduced in succinct form as follows: 
+
+$$
+B_0 Y_t = B_p X_t + U_t,
+$$
+
+where $U_t \sim \mathcal{N}(0_T, I_T)$, where $T$ is the number of observations ($ = 160$), and $X_t$ are the lagged values of $Y_t$.
+
 #### Using the Model to Answer the Research Question:
 
 The model will be used to analyze how fluctuations in the US Trade Weighted Index (representing a weakening or strengthening USD) impact the Australian economy's stability, specifically through GDP growth, inflation, and unemployment rates. By examining the contemporaneous and lagged relationships between these variables, we can understand the transmission mechanisms of US dollar fluctuations.
@@ -1277,12 +1285,13 @@ For the basic model as described above, we will proceed as follows:
 #### Model Structure
 
 The SVAR model is expressed as:
-$B_0 Y_t = B_+ X_t + u_t$
+$B_0 Y_t = B_p X_t + U_t$
 where:
+
 - $B_0$ contains contemporaneous effects with certain zero restrictions (exclusion restrictions).
-- $B_+$ is the matrix comprising the intercept and coefficients of lagged variables.
-- $X_t$includes a constant and lagged values of \( Y \).
-- $u_t$ is the error term assumed to be normally distributed.
+- $B_p$ is the matrix comprising the intercept and coefficients of lagged variables.
+- $X_t$includes a constant and lagged values of $Y$.
+- $U_t$ is the error term assumed to be normally distributed.
 
 #### Exclusion Restrictions
 We have specified that each row $n$ of $B_0$ can be represented as a product of unrestricted coefficients $b_n$ and a fixed matrix $V_n$ of zeros and ones, applying structural constraints to the model.
@@ -1394,22 +1403,22 @@ Using these formulas we can proceed to sample using the Gibbs sampling procedure
 #### Gibbs Sampling Procedure
 Gibbs sampling for this model involves:
 1. **Sampling the unrestricted coefficients $b_n$** from their conditional distributions given the data and all other parameters.
-2. **Sampling $B_+$**, considering the latest draws of $b_n$ and the data.
+2. **Sampling $B_p$**, considering the latest draws of $b_n$ and the data.
 
 #### Steps to Implement in R
 
 To estimate this model in R, you would generally need to:
 
 1. **Define the Model Structure:**
-   - We set up matrices $B_0$ and $B_+$ based on the given structure and exclusion restrictions.
+   - We set up matrices $B_0$ and $B_p$ based on the given structure and exclusion restrictions.
    - We prepare the data matrices $Y$ and $X$.
 
 2. **Initialize Parameters:**
-   - We initialize $B_0$, $B_+$, and any other matrices or parameters required for the Gibbs sampling.
+   - We initialize $B_0$, $B_p$, and any other matrices or parameters required for the Gibbs sampling.
 
 3. **Implement Gibbs Sampler:**
    - We write loops to update each parameter iteratively based on its conditional posterior distribution. This includes:
-     - Computing residuals and other derived quantities needed to sample $b_n$ and $B_+$.
+     - Computing residuals and other derived quantities needed to sample $b_n$ and $B_p$.
      - Drawing from the conditional distributions using function  `rmvnorm` for multivariate normal distributions.
 
 4. **Normalize and Summarize Results:**
@@ -1418,9 +1427,9 @@ To estimate this model in R, you would generally need to:
 
 ### Model Testing Using A Random Walk 
 
-We use a random walk to generate a $Y$ matrix with one lag, and with 300 observations over two variables, to check whether the estimation algorithm is able to reproduce the random walk structure. In other words, we expect that $B_0$ will equal an identity matrix, the intercept will equal zero, and the remaining part of the $B_+$ matrix will also be an identity matrix. 
+We use a random walk to generate a $Y$ matrix with four variables and with one lag, and with 150 observations over two variables, to check whether the estimation algorithm is able to reproduce the random walk structure. This structure is identical to the data set used for the model and uses the same structural restrictions on $B_0$, namely a 4 x 4 lower triangle matrix. In other words, we expect that $B_0$ will equal an identity matrix, the intercept will equal zero, and the remaining part of the $B_p$ matrix will also be an identity matrix. 
 
-We used 100 iterations for the burn-in phase to allow the algorithm to converge, then used 500 iteration for the estimation.
+We used 200 iterations for the burn-in phase to allow the algorithm to converge, then used 500 iteration for the estimation.
 
 ```{r creating Y and X matrices using a random walk, echo=FALSE, eval=TRUE}
 
@@ -1438,7 +1447,7 @@ simulate_random_walk <- function(n, initial_value, sigma) {
 }
 
 # Simulate the Y matrix as a random walk
-n <- 100  # Number of observations
+n <- 150  # Number of observations
 initial_values <- rep(0, 4)  # Initial values for each of the 2 variables
 sigma <- diag(0.1, 4)  # Variance for each variable in the random walk
 Y <- simulate_random_walk(n, initial_values, sigma)
@@ -1498,11 +1507,11 @@ print(Bp_posterior0 [,,S])
 
 ```
 
-Using only one lag for illustrative purposes, there is a clear convergence of the B0 and Bp matrix towards an identity matrix. The other elements in this matrix and all elements in Bp are also approaching zero (because we opted for no intercept). We have enough evidence to see that the algorithm is able to estimate the random walk process.
+Using only one lag for illustrative purposes, there is a clear convergence of the B0 towards an identity matrix. Bp has two parts, the intercept is approachign zero, while the rest of the matrix is approaching an identity matrix. We have enough evidence to see that the algorithm is able to estimate the random walk process.
 
 ### Estimation of the Basic Model
 
-We now repeat the same steps above to estimate the $B_0$ and $B_+$ matrices for the basic model. 
+We now repeat the same steps above to estimate the $B_0$ and $B_p$ matrices for the basic model. 
 
 ```{r estimating the Basic Bayesian SVAR model, echo=FALSE, eval=TRUE}
 
@@ -1571,7 +1580,7 @@ The Student-t distribution is commonly used in statistical modeling to handle da
 
 The N-variate Student-t distribution can be represented as a scale mixture of normals:
 
-# Model Setup
+#### Model Setup
 
 The model is given by:
 $$
@@ -1588,21 +1597,21 @@ $$
 
 Where $\underline{s} = \underline{\nu} - 2$ to ensure that the mean is eaual to one, as was the case under the basic model. 
 
-# Likelihood Function
+#### Likelihood Function
 
 The likelihood function for the model is:
 $$
 p(Y \mid B_0, B_p, \lambda, X) = (2\pi\lambda)^{-\frac{T}{2}} \exp\left( -\frac{1}{2\lambda} \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t) \right)
 $$
 
-# Prior for $\lambda$
+#### Prior for $\lambda$
 
 The Inverted-Gamma 2 prior for $\lambda$ is:
 $$
 p(\lambda) = \frac{(s/2)^{\nu/2}}{\Gamma(\nu/2)} \lambda^{-\nu/2-1} \exp\left( -\frac{s}{2\lambda} \right)
 $$
 
-# Posterior for $\lambda$
+#### Posterior for $\lambda$
 
 Combining the likelihood and the prior for $\lambda$, we get:
 $$
@@ -1620,7 +1629,7 @@ $$
 $$
 
 
-### Combining with the Prior
+#### Combining with the Prior
 
 Assuming the prior $p(B^+; B_0)$ as given or formulated according to specific assumptions (such as independence, Gaussian priors for coefficients, etc.), the full posterior kernel combining this likelihood with the prior can be approached as:
 
@@ -1629,6 +1638,8 @@ p(B_+; B_0 \mid Y; X) \propto p(Y \mid X, B_+, B_0) \times p(B_+; B_0)
 $$
 
 This expression must often be evaluated or sampled using computational Bayesian techniques, such as Markov Chain Monte Carlo (MCMC), especially given the integrative step required for $\lambda$.
+
+The resulting poserior distribution is also a Normal-Generalized-Normal distribution. 
 
 We can obtain the following posterior formulas similar to the basic model. Note that we use $\underline{\Omega} = \underline{\lambda\Omega}$ in the following equations: 
 
@@ -1651,7 +1662,7 @@ $$
 $$ 
 
 
-## Posterior for $\bar{\nu}$
+#### Posterior for $\bar{\nu}$
 
 $$
 \bar{\nu} = T + \underline{\nu}
@@ -1660,9 +1671,9 @@ $$
 Where $\underline{\nu} = \underline {s} + 2 = 5 + 2 = 7$. 
 
 
-# Conclusion
+#### Conclusion
 
-The parameters $\alpha$ and $\beta$ from the prior distribution of $\lambda$ affect the posterior distributions for $B_0$ and $B_p$ through the variance scaling in the likelihood, influencing $\bar{S}$. This approach correctly shows that $\lambda$ does not explicitly appear in the posterior formulas for $\bar{\Omega}$ and $\bar{B}$, but $\lambda$ impacts the overall posterior distribution implicitly. This rigorous derivation demonstrates the correct Bayesian inference for a hierarchical model, incorporating the effects of $\lambda$ through its posterior distribution.
+The parameters $s$ and $\nu$ from the prior distribution of $\lambda$ affect the posterior distributions for $B_0$ and $B_p$ through the variance scaling in the likelihood, influencing $\bar{S}$. This approach correctly shows that $\lambda$ does not explicitly appear in the posterior formulas for $\bar{\Omega}$ and $\bar{B}$, but $\lambda$ impacts the overall posterior distribution implicitly. This rigorous derivation demonstrates the correct Bayesian inference for a hierarchical model, incorporating the effects of $\lambda$ through its posterior distribution.
 
 
 ```{r calculate B0 and B+ for the Extension I Bayesian SVAR model, echo=FALSE, eval=TRUE}
@@ -2045,7 +2056,7 @@ print(Bp_posterior2[ , , S])
 
 # Calculate significance for B0 and Bp matrices
 B0_significance <- calculate_significance(B0_posterior2)
-Bp_significance <- calculate_significance(Bp_posterior2)
+#Bp_significance <- calculate_significance(Bp_posterior2)
 
 # Print significance matrices
 print("Significance for B0 Matrix:")
@@ -2532,17 +2543,19 @@ plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95)
 
 ```
 
+
+
 ### Conclusion
 
-The overall kernel for this extended model encapsulates to the random variance $\lambda$. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.
+The overall kernel for this extended model encapsulates the random variance of $\lambda$. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.
 
-In the basic model, all USD Index contemporaneous coefficients are not statistically significant at the standard levels. On the other hand, all these coefficients in the extended model are statistically significant at the 5% level. 
+In the basic model, all USD Index contemporaneous coefficients are not statistically significant at the standard levels. On the other hand, In the Extension I model, the simultaneous effect of the Dixie on GDP growth is statistically significant at the 5% significance level. For the Extension II model, the same effect is also significant, but at the 10% level, plus the simultanous effect of the Dixie on the unemployment rate, which is significant at the 1% level. 
 
-The results suggest the following elasticities. According to the basic model, a weaker Dixie is likely to overheat the Australian economy: a drop of 1 per cent in the USD Index would result in roughly 1 per cent increase in inflation, roughly unchanged unemployment, and roughly 1% increase in the GDP growth rate. 
+Both the Extension I and II models tell the same story. A weaker USD Index is likely to result in stagflation in Australia. A 1% drop in the Dixie will result in an increase in inflation and unemployment, and a drop in the GDP growth rate. However, the IRF plots suggest that the inflation is likely to drop again with in six to seven months, while the unemployment rate is likely to drop within the first four months. The dangeous sign, however, is that the drop in GDP growth rate will not result in any positive rebound in the first 30 months after the shock. At best, the GDP gowth rate will return to its previous level before the drop in teh Dixie. 
 
-On the other hand, the expanded model suggests that a weakening Dixie would result in an untraditional condition in the Australian economy: 1 per cent decrease in the USD Index would result is roughly 0.7 per cent increase in inflation, roughly 1 per cent increase in unemployment, and roughly 1 per cent increase in the GDP growth rate. 
+We need to explain that the Extension I and II models were not able to produce any IRF plots with a non-restricted B0 matrix. This suggests that there are problems either with the derivation of the posteriors, or with the ability to simiulate enough iterations of the model. 
 
-As to the second extension, where $\nu$ is a hyperparameter, this model suggests that a weakening Dixie would result in stagflation in Australia: 1 per cent decrease in the USD Index would result is roughly 3 per cent increase in inflation, roughly 0.7 per cent increase in unemployment, and roughly 3 per cent decrease in the GDP growth rate. 
+Professor Tomasz Woźniak suggested revising the model to ensure that we can obtain statistically significant results. In particular, the proposition was to replate the unemployment rate with the RBA interest rate. This discussion was prior to the extension fo the basic model. As can be seen from the above results, Extenion I and Extension II provide significant elasticities, while the IRF plots suggest statistically significant responses. Notwithstanding, there is room for improvement by adding a fifth variable, namely the interest rate. However, given the time constraints on finalizing this report, we decided to leave this third extension for further resreach. 
 
 
 ```{r furnish the results for a 1% drop of the USD_Index in a table, echo=FALSE, eval=TRUE}
