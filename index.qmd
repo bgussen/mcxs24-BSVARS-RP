@@ -2553,9 +2553,9 @@ In the basic model, all USD Index contemporaneous coefficients are not statistic
 
 Both the Extension I and II models tell the same story. A weaker USD Index is likely to result in stagflation in Australia. A 1% drop in the Dixie will result in an increase in inflation and unemployment, and a drop in the GDP growth rate. However, the IRF plots suggest that the inflation is likely to drop again with in six to seven months, while the unemployment rate is likely to drop within the first four months. The dangeous sign, however, is that the drop in GDP growth rate will not result in any positive rebound in the first 30 months after the shock. At best, the GDP gowth rate will return to its previous level before the drop in teh Dixie. 
 
-We need to explain that the Extension I and II models were not able to produce any IRF plots with a non-restricted B0 matrix. This suggests that there are problems either with the derivation of the posteriors, or with the ability to simiulate enough iterations of the model. 
-
 Professor Tomasz Woźniak suggested revising the model to ensure that we can obtain statistically significant results. In particular, the proposition was to replate the unemployment rate with the RBA interest rate. This discussion was prior to the extension fo the basic model. As can be seen from the above results, Extenion I and Extension II provide significant elasticities, while the IRF plots suggest statistically significant responses. Notwithstanding, there is room for improvement by adding a fifth variable, namely the interest rate. However, given the time constraints on finalizing this report, we decided to leave this third extension for further resreach. 
+
+Finally, we need to explain that the Extension I and II models are able to produce IRF plots with a non-restricted B0 matrix. However, the ability to simiulate enough iterations of the model is restricted by the processor available for completing this assignment. The same issue also arises when attempting to simulate the random walk using an unrestricted B0. 
 
 
 ```{r furnish the results for a 1% drop of the USD_Index in a table, echo=FALSE, eval=TRUE}
