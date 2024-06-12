@@ -1658,7 +1658,7 @@ $$
 Where 
 
 $$
-\underline{S} = ( s + \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t)) * I_N
+\underline{S} = ( s * I_N + \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t))
 $$ 
 
 
@@ -1669,6 +1669,40 @@ $$
 $$
 
 Where $\underline{\nu} = \underline {s} + 2 = 5 + 2 = 7$. 
+
+The Extension I model is similar to the reduced form model that can be described as (from lecture 8):
+
+$$
+Y = XA + E
+$$
+
+Where:
+
+- $E|X \sim MN_{T \times N}(0_{T \times N}, \Sigma, I_T)$
+- $A$ is a $K \times N$ matrix that is said to follow a matrix-variate normal distribution:
+  
+$$
+A \sim MN_{K \times N}(M, Q, P)
+$$
+
+Here:
+
+- $M$ is a $K \times N$ matrix
+- $Q$ is a $N \times N$ row-specific covariance matrix
+- $P$ is a $K \times K$ column-specific covariance matrix
+
+An $N \times N$ square symmetric and positive definite matrix $\Sigma$ follows an inverse Wishart distribution:
+
+$$
+\Sigma \sim IW_N(S, \nu)
+$$
+
+Where:
+
+- $S$ is the scale matrix
+- $\nu$ is the degrees of freedom
+
+The key point is that for our model, $\Sigma = \lambda I_N$. This means that $\lambda$ does not appear directly in the posteriors of our model. Instead, it enters through the priors and posteriors for $S$ and $\nu$ of the $\mathcal{NGN}$ distribution. 
 
 
 #### Conclusion

@@ -904,7 +904,7 @@ p(B_+; B_0 \mid Y; X) \propto p(Y \mid X, B_+, B_0) \times p(B_+; B_0)
 \]</span></p>
 <p>Where</p>
 <p><span class="math display">\[
-\underline{S} = ( s + \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t)) * I_N
+\underline{S} = ( s * I_N + \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t))
 \]</span></p>
 </section>
 <section id="posterior-for-barnu" class="level4">
@@ -913,6 +913,34 @@ p(B_+; B_0 \mid Y; X) \propto p(Y \mid X, B_+, B_0) \times p(B_+; B_0)
 \bar{\nu} = T + \underline{\nu}
 \]</span></p>
 <p>Where <span class="math inline">\(\underline{\nu} = \underline {s} + 2 = 5 + 2 = 7\)</span>.</p>
+<p>The Extension I model is similar to the reduced form model that can be described as (from lecture 8):</p>
+<p><span class="math display">\[
+Y = XA + E
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(E|X \sim MN_{T \times N}(0_{T \times N}, \Sigma, I_T)\)</span></li>
+<li><span class="math inline">\(A\)</span> is a <span class="math inline">\(K \times N\)</span> matrix that is said to follow a matrix-variate normal distribution:</li>
+</ul>
+<p><span class="math display">\[
+A \sim MN_{K \times N}(M, Q, P)
+\]</span></p>
+<p>Here:</p>
+<ul>
+<li><span class="math inline">\(M\)</span> is a <span class="math inline">\(K \times N\)</span> matrix</li>
+<li><span class="math inline">\(Q\)</span> is a <span class="math inline">\(N \times N\)</span> row-specific covariance matrix</li>
+<li><span class="math inline">\(P\)</span> is a <span class="math inline">\(K \times K\)</span> column-specific covariance matrix</li>
+</ul>
+<p>An <span class="math inline">\(N \times N\)</span> square symmetric and positive definite matrix <span class="math inline">\(\Sigma\)</span> follows an inverse Wishart distribution:</p>
+<p><span class="math display">\[
+\Sigma \sim IW_N(S, \nu)
+\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(S\)</span> is the scale matrix</li>
+<li><span class="math inline">\(\nu\)</span> is the degrees of freedom</li>
+</ul>
+<p>The key point is that for our model, <span class="math inline">\(\Sigma = \lambda I_N\)</span>. This means that <span class="math inline">\(\lambda\)</span> does not appear directly in the posteriors of our model. Instead, it enters through the priors and posteriors for <span class="math inline">\(S\)</span> and <span class="math inline">\(\nu\)</span> of the <span class="math inline">\(\mathcal{NGN}\)</span> distribution.</p>
 </section>
 <section id="conclusion" class="level4">
 <h4 class="anchored" data-anchor-id="conclusion">Conclusion</h4>
@@ -1281,6 +1309,7 @@ p(B_+; B_0 \mid Y; X) \propto p(Y \mid X, B_+, B_0) \times p(B_+; B_0)
 <p>In the basic model, all USD Index contemporaneous coefficients are not statistically significant at the standard levels. On the other hand, In the Extension I model, the simultaneous effect of the Dixie on GDP growth is statistically significant at the 5% significance level. For the Extension II model, the same effect is also significant, but at the 10% level, plus the simultanous effect of the Dixie on the unemployment rate, which is significant at the 1% level.</p>
 <p>Both the Extension I and II models tell the same story. A weaker USD Index is likely to result in stagflation in Australia. A 1% drop in the Dixie will result in an increase in inflation and unemployment, and a drop in the GDP growth rate. However, the IRF plots suggest that the inflation is likely to drop again with in six to seven months, while the unemployment rate is likely to drop within the first four months. The dangeous sign, however, is that the drop in GDP growth rate will not result in any positive rebound in the first 30 months after the shock. At best, the GDP gowth rate will return to its previous level before the drop in teh Dixie.</p>
 <p>Professor Tomasz Woźniak suggested revising the model to ensure that we can obtain statistically significant results. In particular, the proposition was to replate the unemployment rate with the RBA interest rate. This discussion was prior to the extension fo the basic model. As can be seen from the above results, Extenion I and Extension II provide significant elasticities, while the IRF plots suggest statistically significant responses. Notwithstanding, there is room for improvement by adding a fifth variable, namely the interest rate. However, given the time constraints on finalizing this report, we decided to leave this third extension for further resreach.</p>
+<p>Finally, we need to explain that the Extension I and II models are able to produce IRF plots with a non-restricted B0 matrix. However, the ability to simiulate enough iterations of the model is restricted by the processor available for completing this assignment. The same issue also arises when attempting to simulate the random walk using an unrestricted B0.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
