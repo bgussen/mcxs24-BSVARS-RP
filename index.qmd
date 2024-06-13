@@ -720,20 +720,22 @@ calculate_significance <- function(matrix_posterior) {
 
 ```{r function to plot the IRF responses to a one-standard-deviation negative shock to the USD_Index}
 
-plot_irfs <- function(B0, Bp, horizon, conf_level) {
+library(ggplot2)
+library(gridExtra)
+
+plot_irfs <- function(B0, Bp, horizon, conf_level, conf_color) {
   # Initialize IRF array
   IRFs <- array(NA, dim = c(N, horizon + 1, S))
-
-  # Extract the USD_Index column from Y matrix and calculate its standard deviation
   
+  # Extract the USD_Index column from Y matrix and calculate its standard deviation
   matrices <- create_matrices()
-  Y = matrices$Y
+  Y <- matrices$Y
   usd_index <- Y[, 1]
   sd_usd_index <- sd(usd_index)
   
   # Define the shock vector (negative 1 SD shock to the USD_Index)
   shock_vector <- matrix(c(-sd_usd_index, rep(0, N - 1)), nrow = N, ncol = 1)
-
+  
   # Calculate IRFs for each posterior draw
   for (s in 1:S) {
     B0_inv <- solve(B0[,,s])  # Inverse of B0 for simulation s
@@ -750,12 +752,12 @@ plot_irfs <- function(B0, Bp, horizon, conf_level) {
       }
     }
   }
-
+  
   # Compute median and confidence intervals
   IRF_median <- apply(IRFs, 1:2, median)
   IRF_lower <- apply(IRFs, 1:2, quantile, probs = (1 - conf_level) / 2)
   IRF_upper <- apply(IRFs, 1:2, quantile, probs = 1 - (1 - conf_level) / 2)
-
+  
   # Corrected Data frame for plotting
   data_to_plot <- data.frame(
     Time = rep(0:horizon, N),
@@ -764,26 +766,29 @@ plot_irfs <- function(B0, Bp, horizon, conf_level) {
     Upper = as.vector(t(IRF_upper)),
     Variable = rep(c("USD_Index", "Inflation", "Unemployment", "GDP_growth"), each = horizon + 1)
   )
-
+  
   # Determine the overall range for y-axis limits
   global_y_min <- min(data_to_plot$Lower)
   global_y_max <- max(data_to_plot$Upper)
-
+  
   # Create plots for each variable
   plots <- lapply(c("USD_Index", "Inflation", "Unemployment", "GDP_growth"), function(var) {
     ggplot(subset(data_to_plot, Variable == var), aes(x = Time, y = IRF)) +
-    geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = Variable), alpha = 0.2) +
-    geom_line() +
-    scale_y_continuous(limits = c(global_y_min, global_y_max)) +
-    labs(title = var) +
-    theme_minimal()
+      geom_ribbon(aes(ymin = Lower, ymax = Upper), fill = conf_color, alpha = 0.2) +
+      geom_line() +
+      scale_y_continuous(limits = c(global_y_min, global_y_max)) +
+      labs(title = var) +
+      theme_minimal()
   })
-
+  
   # Arrange the plots in a grid
   grid_arrange <- do.call(gridExtra::grid.arrange, c(plots, ncol = 2))
   
   invisible(grid_arrange)
 }
+
+
+
 
 ```
 
@@ -1495,7 +1500,7 @@ Bp_posterior0 <- posterior_results$Bp
 
 ```
 
-The estimated $B_0$ and $B_+$ are shown below. 
+The estimated $B_0$ and $B_p$ are shown below. 
 
 ```{r Ranom Walk  B0 & Bp matrix, echo=FALSE, eval=TRUE}
 
@@ -1509,9 +1514,9 @@ print(Bp_posterior0 [,,S])
 
 Using only one lag for illustrative purposes, there is a clear convergence of the B0 towards an identity matrix. Bp has two parts, the intercept is approachign zero, while the rest of the matrix is approaching an identity matrix. We have enough evidence to see that the algorithm is able to estimate the random walk process.
 
-### Estimation of the Basic Model
+### Estimation of the Baseline Model
 
-We now repeat the same steps above to estimate the $B_0$ and $B_p$ matrices for the basic model. 
+We now repeat the same steps above to estimate the $B_0$ and $B_p$ matrices for the baseline model. 
 
 ```{r estimating the Basic Bayesian SVAR model, echo=FALSE, eval=TRUE}
 
@@ -1567,9 +1572,56 @@ print(Bp_significance)
 B0 <- B0_posterior1
 Bp <- Bp_posterior1
 
-plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95)
+plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95, conf_color = "turquoise1")
 
 ```
+
+## Model Extensions 
+
+The explanation of the the baseline model and the three extension provided in this report is as follows: 
+
+```{r}
+
+# Create the data frame
+model_data <- data.frame(
+  Model = c("Baseline Model", "Extension I", "Extension II", "Extension III"),
+  Description = c(
+    "Lambda is a constant equal to one.",
+    "Lambda is IG2 (s, nu) and s is estimated from the posterior distribution, while nu is taken as a constant.",
+    "Lambda is IG2 (s, nu) and s taken as a constant, while nu is sampled from the data.",
+    "Both s and nu are integrated from the previous two extensions, with Lambda IG2 (s, nu)."
+  )
+)
+
+# Create the table
+kable(model_data, col.names = c("Model", "Description"), align = "l") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
+  column_spec(1, width = "20 em", bold = TRUE) %>%
+  column_spec(2, width = "50em")
+
+```
+
+Where $\lambda$ is the variance of the error terms in the model, namely, $U_t ~ \mathcal{N}(0_T, \lambda I_T)$. 
+
+
+### Explanation:
+
+1. **Baseline Model**:
+    - $\lambda$ is a constant equal to one.
+
+2. **Extension I**:
+    - Lambda is ~ $\mathcal{IG2}$ (s, nu)
+    - s is estimated from the posterior distribution.
+    - nu is taken as a constant.
+
+3. **Extension II**:
+    - Lambda is ~ $\mathcal{IG2}$ (s, nu)
+    - s is taken as a constant.
+    - nu is sampled from the data.
+
+4. **Extension III**:
+    - Both s and nu are integrated from the previous two extensions.
+    - Lambda is ~ $\mathcal{IG2}$ (s, nu).
 
 
 ### Model Extension I: Solving the Identification Problem Using a Non-Normality Approach
@@ -1710,7 +1762,7 @@ The key point is that for our model, $\Sigma = \lambda I_N$. This means that $\l
 The parameters $s$ and $\nu$ from the prior distribution of $\lambda$ affect the posterior distributions for $B_0$ and $B_p$ through the variance scaling in the likelihood, influencing $\bar{S}$. This approach correctly shows that $\lambda$ does not explicitly appear in the posterior formulas for $\bar{\Omega}$ and $\bar{B}$, but $\lambda$ impacts the overall posterior distribution implicitly. This rigorous derivation demonstrates the correct Bayesian inference for a hierarchical model, incorporating the effects of $\lambda$ through its posterior distribution.
 
 
-```{r calculate B0 and B+ for the Extension I Bayesian SVAR model, echo=FALSE, eval=TRUE}
+```{r calculate B0 and Bp for the Extension I Bayesian SVAR model, echo=FALSE, eval=TRUE}
 
 estimate_extension_I_model <- function (S_burnin, S){
 
@@ -2106,7 +2158,7 @@ print(B0_significance)
 B0 <- B0_posterior2
 Bp <- Bp_posterior2
 
-plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95)
+plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95, conf_color = "turquoise2")
 
 ```
 
@@ -2207,9 +2259,439 @@ print(selected_nu_mode)
 
 ```
 
-```{r calculate B0 and B+ for the Extension II Bayesian SVAR model, echo=FALSE, eval=TRUE}
+```{r calculate B0 and Bp for the Extension II Bayesian SVAR model, echo=FALSE, eval=TRUE}
 
 estimate_extension_II_model <- function (S_burnin, S){
+  
+  matrices <- create_matrices()
+  Y = matrices$Y
+
+  y   = Y
+   
+  # Basic settings and model dimensions
+  N <- ncol(y)
+  p <- 12   # This is the number of lags in the model
+  K <- 1 + N * p 
+
+# create Y and X
+############################################################
+Y       = y[(p+1):nrow(y),]
+X       = matrix(1,nrow(Y),1)
+for (i in 1:p){
+  X     = cbind(X,y[((p+1):nrow(y))-i,])
+}
+
+Y       = t(Y)
+X       = t(X)
+
+
+ V <- list()
+ 
+  V[[1]] <- matrix(c(1, 0, 0, 0), nrow = 1, ncol = 4, byrow = TRUE)
+  V[[2]] <- matrix(c(1, 0, 0, 0,
+                     0, 1, 0, 0), nrow = 2, ncol = 4, byrow = TRUE)
+  V[[3]] <- matrix(c(1, 0, 0, 0,
+                     0, 1, 0, 0,
+                     0, 0, 1, 0), nrow = 3, ncol = 4, byrow = TRUE)
+  V[[4]] <- matrix(c(1, 0, 0, 0,
+                     0, 1, 0, 0,
+                     0, 0, 1, 0,
+                     0, 0, 0, 1), nrow = 4, ncol = 4, byrow = TRUE)
+
+# Set the priors
+kappa1 <- 0.01      # autoregressive slope shrinkage
+kappa2 <- 1         # constant term shrinkage 
+kappa3 <- 1000      # contemporaneous effects shrinkage
+kappa4 <- 1         # VAR prior persistence
+
+# Basic settings and model dimensions
+N <- ncol(y)
+p <- 12   # This is the number of lags in the model
+K <- 1 + N * p
+
+priors <- list(
+  B = cbind(rep(0, N), kappa4 * diag(N), matrix(0, N, (p - 1) * N)),
+  Omega = diag(c(kappa2, kappa1 * ((1:p)^(-2)) %x% rep(1, N))),
+  S = kappa3 * diag(N),
+  nu = sample(nu_samples, size = 1)
+)
+
+# Initialize B0
+B0.initial <- matrix(0, N, N)
+for (n in 1:N) {
+  unrestricted <- apply(V[[n]], 2, sum) == 1
+  B0.initial[n, unrestricted] <- rnorm(sum(unrestricted))
+}
+
+N = nrow(B0.initial)
+no.draws = S_burnin
+
+B0 = array(NA, c(N, N, no.draws))
+Bp = array(NA, c(nrow(priors$B), ncol(priors$B), no.draws))
+
+B0.aux = B0.initial
+Bp.aux = matrix(NA, nrow(priors$B), ncol(priors$B))
+
+# Select the first value for lambda 
+shape <- 7
+scale <- 5
+
+for (i in 1:S_burnin) {
+  
+  # Set the priors
+  kappa1 <- 0.01      # autoregressive slope shrinkage
+  kappa2 <- 1         # constant term shrinkage 
+  kappa3 <- 1000      # contemporaneous effects shrinkage
+  kappa4 <- 1         # VAR prior persistence
+
+  priors <- list(
+  B = cbind(rep(0, N), kappa4 * diag(N), matrix(0, N, (p - 1) * N)),
+  Omega = diag(c(kappa2, kappa1 * ((1:p)^(-2)) %x% rep(1, N))),
+  S = kappa3 * diag(N),
+  nu =  sample(nu_samples, size = 1)
+)
+  
+  # Compute posterior distribution parameters
+  Omega.inv <- solve(priors$Omega)
+  Omega.post.inv <- (X %*% t(X) + Omega.inv)
+  Omega.post <- solve(Omega.post.inv)
+  B.post <- (Y %*% t(X) + priors$B %*% Omega.inv) %*% Omega.post
+  S.post <- solve(Y %*% t(Y) + solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post))
+  nu.post <- nrow(y) + priors$nu  
+  
+  # Check if Omega.post and S.post is positive definite and store the inverse if it is
+  is_positive_definite <- tryCatch({
+    chol(Omega.post)
+    TRUE
+  }, error = function(e) {
+    FALSE
+  })
+
+  if (!is_positive_definite) {
+    next  # Skip to the next iteration if S.post is not positive definite
+  }
+
+  is_positive_definite <- tryCatch({
+    chol(S.post)
+    TRUE
+  }, error = function(e) {
+    FALSE
+  })
+
+  if (!is_positive_definite) {
+    next  # Skip to the next iteration if S.post is not positive definite
+  }
+  
+  S.inv <- solve(S.post)
+  nu = nu.post
+  
+
+  for (n in 1:nrow(B0.initial)) {
+    rn = nrow(V[[n]])
+    Un = chol(nu * solve(V[[n]] %*% S.inv %*% t(V[[n]])))
+    w = t(orthogonal.complement.matrix.TW(t(B0.aux[-n, ])))
+    w1 = w %*% t(V[[n]]) %*% t(Un) / sqrt(as.numeric(w %*% t(V[[n]]) %*% t(Un) %*% Un %*% V[[n]] %*% t(w)))
+    if (rn > 1) {
+      Wn = cbind(t(w1), orthogonal.complement.matrix.TW(t(w1)))
+    } else {
+      Wn = w1
+    }
+    alpha = rep(NA, rn)
+    u = rmvnorm(1, rep(0, nu + 1), (1 / nu) * diag(nu + 1))
+    alpha[1] = sqrt(as.numeric(u %*% t(u)))
+    if (runif(1) < 0.5) {
+      alpha[1] = -alpha[1]
+    }
+    if (rn > 1) {
+      alpha[2:rn] = rmvnorm(1, rep(0, nrow(V[[n]]) - 1), (1 / nu) * diag(rn - 1))
+    }
+    bn = alpha %*% Wn %*% Un
+    B0.aux[n, ] = bn %*% V[[n]]
+    
+    K = ncol(B.post)
+    L = t(chol(Omega.post))
+    
+    Bp.aux[n, ] = as.vector(t(B0.aux[n, ] %*% B.post) + L %*% rnorm(K))
+  }
+  
+  B0[, , i] = B0.aux
+  Bp[, , i] = Bp.aux
+
+}
+
+B0_posterior <- B0
+
+# Initialize B0 again for the remainder of the iterations 
+B0.initial <- B0_posterior[, , S_burnin]
+ 
+N = nrow(B0.initial)
+no.draws = S
+
+B0 = array(NA, c(N, N, no.draws))
+Bp = array(NA, c(nrow(priors$B), ncol(priors$B), no.draws))
+
+B0.aux = B0.initial
+Bp.aux = matrix(NA, nrow(priors$B), ncol(priors$B))
+
+for (j in 1:S) {
+  
+   # Set the priors
+  kappa1 <- 0.01      # autoregressive slope shrinkage
+  kappa2 <- 1         # constant term shrinkage 
+  kappa3 <- 1000      # contemporaneous effects shrinkage
+  kappa4 <- 1         # VAR prior persistence
+
+  priors <- list(
+  B = cbind(rep(0, N), kappa4 * diag(N), matrix(0, N, (p - 1) * N)),
+  Omega = diag(c(kappa2, kappa1 * ((1:p)^(-2)) %x% rep(1, N))),
+  S = kappa3 * diag(N),
+  nu = sample(nu_samples, size = 1)
+)
+  
+  # Compute posterior distribution parameters
+  Omega.inv <- solve(priors$Omega)
+  Omega.post.inv <- (X %*% t(X) + Omega.inv)
+  Omega.post <- solve(Omega.post.inv)
+  B.post <- (Y %*% t(X) + priors$B %*% Omega.inv) %*% Omega.post
+  S.post <- solve(Y %*% t(Y) + solve(priors$S) + priors$B %*% Omega.inv %*% t(priors$B) - B.post %*% Omega.post.inv %*% t(B.post))
+  nu.post <- nrow(y) + priors$nu 
+
+  # Check if Omega.post and S.post is positive definite and store the inverse if it is
+  is_positive_definite <- tryCatch({
+    chol(Omega.post)
+    TRUE
+  }, error = function(e) {
+    FALSE
+  })
+
+  if (!is_positive_definite) {
+    next  # Skip to the next iteration if S.post is not positive definite
+  }
+
+  is_positive_definite <- tryCatch({
+    chol(S.post)
+    TRUE
+  }, error = function(e) {
+    FALSE
+  })
+
+  if (!is_positive_definite) {
+    next  # Skip to the next iteration if S.post is not positive definite
+  }
+
+  S.inv <- solve(S.post)
+  nu = nu.post
+  
+  
+  for (n in 1:N) {
+    rn = nrow(V[[n]])
+    Un = chol(nu * solve(V[[n]] %*% S.inv %*% t(V[[n]])))
+    w = t(orthogonal.complement.matrix.TW(t(B0.aux[-n, ])))
+    w1 = w %*% t(V[[n]]) %*% t(Un) / sqrt(as.numeric(w %*% t(V[[n]]) %*% t(Un) %*% Un %*% V[[n]] %*% t(w)))
+    if (rn > 1) {
+      Wn = cbind(t(w1), orthogonal.complement.matrix.TW(t(w1)))
+    } else {
+      Wn = w1
+    }
+    alpha = rep(NA, rn)
+    u = rmvnorm(1, rep(0, nu + 1), (1 / nu) * diag(nu + 1))
+    alpha[1] = sqrt(as.numeric(u %*% t(u)))
+    if (runif(1) < 0.5) {
+      alpha[1] = -alpha[1]
+    }
+    if (rn > 1) {
+      alpha[2:rn] = rmvnorm(1, rep(0, nrow(V[[n]]) - 1), (1 / nu) * diag(rn - 1))
+    }
+    bn = alpha %*% Wn %*% Un
+    B0.aux[n, ] = bn %*% V[[n]]
+
+    K = ncol(B.post)
+    L = t(chol(Omega.post))
+
+    Bp.aux[n, ] = as.vector(t(B0.aux[n, ] %*% B.post) + L %*% rnorm(K))
+  }
+
+  B0[ , , j] = B0.aux
+  Bp[ , , j] = Bp.aux
+
+}
+
+B0_posterior <- B0
+Bp_posterior <- Bp
+
+# Normalization
+B0_hat <- diag(sign(diag(B0_posterior[, , S]))) %*% B0_posterior[, , S]
+
+B0_posterior <- normalize.Gibbs.output.parallel(B0_posterior, B0.hat = B0_hat)
+
+# Sample B+ from the normal conditional posterior
+#Bp_posterior2 <- Bp_posterior 
+Bp_posterior <- rnorm.ngn(B0.posterior = B0_posterior, B = B.post, Omega = Omega.post)
+
+return(list(B0_posterior = B0_posterior, Bp_posterior = Bp_posterior))
+
+}
+
+results <- estimate_extension_II_model(S_burnin, S)
+
+B0_posterior3 <- results$B0_posterior
+Bp_posterior3 <- results$Bp_posterior
+
+```
+
+```{r print the B0 & BP matrices for the Extension II model, echo=FALSE, eval=TRUE}
+
+print("Extension II Model Normalized B0 matrix")
+print(B0_posterior3[,,S])
+
+print("Extension II Model B plus matrix")
+print(Bp_posterior3[,,S])
+
+```
+
+```{r calculating the standard deviation for the Extension II model B0 matrix, echo=FALSE, eval=TRUE}
+
+calculate_and_print_B0sd(B0_posterior3)
+
+```
+
+```{r calculating the standard deviation for the Extension II model Bp matrix, echo=FALSE, eval=TRUE}
+
+calculate_and_print_Bpsd(Bp_posterior3)
+
+```
+
+```{r plot lagged Bp for the Extension II model, echo=FALSE, eval=TRUE}
+
+plot_lagged_effects(B0_posterior3, Bp_posterior3)
+
+```
+
+```{r calculate the significance levels for the Extension II B0 and Bp, echo=FALSE, eval=TRUE}
+
+# Calculate significance for B0 and Bp matrices
+B0_significance <- calculate_significance(B0_posterior3)
+Bp_significance <- calculate_significance(Bp_posterior3)
+
+# Print significance matrices
+print("Significance for B0 Matrix:")
+print(B0_significance)
+print("Significance for Bp Matrix:")
+print(Bp_significance)
+
+
+```
+
+
+```{r Plotting the IRF response for the Extension II model, echo=FALSE, eval=TRUE}
+
+B0 <- B0_posterior3
+Bp <- Bp_posterior3
+
+plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95, conf_color = "turquoise3")
+
+```
+
+### Third Extension: Estimating the scale and shape of $\lambda$
+
+As before, we follow @Lee2022 and use a Metropolis-Hastings Algorithm to estimate $\nu$ and obtain the shape $s$ from the posterior of $\lambda$ as we did for Extension I. 
+
+
+```{r this code uses a Metropolis-Hastings Algorithm to find the value of the prior nu as we did in Extension II, echo=FALSE, eval=TRUE}
+
+# Function to sample from posterior of degrees of freedom (DoF) for the structural Bayesian SVAR
+sample_nu_svar <- function(y, mu, Sigma, initial_nu, iterations, proposal_sd) {
+  
+  # Nested posterior function: Posterior log density of nu for SVAR
+  log_posterior_nu <- function(nu, y, mu, Sigma) {
+    
+    # Convert matrix y to ensure correct dimensions for the following operation 
+    
+  # Adjusting n and d based on the transposed structure
+  n <- nrow(y)  # Number of rows represents the number of observations
+  d <- ncol(y)  # Number of columns represents the number of variables
+
+    
+    log_lik <- -n * lgamma(nu / 2) + (nu / 2) * sum(log(diag(Sigma)))
+    for (i in 1:n) {
+      res <- y[i, ] - mu
+      log_lik <- log_lik - (nu + d) / 2 * log(1 + t(res) %*% solve(Sigma) %*% res / nu)
+    }
+    log_prior <- 0
+    return(log_lik + log_prior)
+  }
+
+  # Initialize the chain
+  nu <- initial_nu
+  samples <- numeric(iterations)
+
+  # Metropolis-Hastings Algorithm: 
+  for (iter in 1:iterations) {
+    proposed_nu <- nu + rnorm(1, 0, proposal_sd)
+    if (proposed_nu <= 0) next
+
+    log_acceptance_ratio <- log_posterior_nu(proposed_nu, y, mu, Sigma) - log_posterior_nu(nu, y, mu, Sigma)
+    if (log(runif(1)) < log_acceptance_ratio) {
+      nu <- proposed_nu
+    }
+
+    samples[iter] <- nu
+  }
+
+  return(samples)
+}
+
+```
+
+
+```{r calculate nu for the Extension III Bayesian SVAR model, echo=FALSE, eval=TRUE}
+
+  matrices <- create_matrices()
+  Y = matrices$Y
+  y = Y
+ 
+# compute posterior distribution parameters, matrices V, and starting values
+############################################################
+
+
+mu <- colMeans(y)  # Mean for each variable
+Sigma <- cov(y)  # Compute covariance matrix of transposed y
+
+
+# Check the dimensions of the resulting matrix
+print(dim(Sigma))
+
+
+# Adjust the proposal_sd based on the data variance
+variable_sd <- apply(y, 2, sd)  # Standard deviation for each column (variable)
+proposal_sd_adjusted <- mean(variable_sd) / 10  # Adjusted proposal standard deviation
+
+initial_nu <- 5 # To ensure the fourth moment exists. 
+
+print("initial_nu")
+print(initial_nu)
+
+iterations <- 2000
+
+# Sample DoF for Bayesian SVAR model
+nu_samples <- sample_nu_svar(y, mu, Sigma, initial_nu, iterations, proposal_sd_adjusted)
+
+# Analyze results
+summary(nu_samples)
+hist(nu_samples, main = "Posterior Distribution of Degrees of Freedom", xlab = "Degrees of Freedom (ν)")
+
+# Choose the mode nu from the histogram
+# Create histogram of the samples
+hist_data <- hist(nu_samples, breaks = 30, plot = FALSE)
+# Find the bin with the maximum count
+selected_nu_mode <- hist_data$mids[which.max(hist_data$counts)]
+print(selected_nu_mode)
+
+```
+
+```{r calculate B0 and Bp for the Extension III Bayesian SVAR model, echo=FALSE, eval=TRUE}
+
+estimate_extension_III_model <- function (S_burnin, S){
   
   matrices <- create_matrices()
   Y = matrices$Y
@@ -2517,46 +2999,46 @@ return(list(B0_posterior = B0_posterior, Bp_posterior = Bp_posterior))
 
 }
 
-results <- estimate_extension_II_model(S_burnin, S)
+results <- estimate_extension_III_model(S_burnin, S)
 
-B0_posterior3 <- results$B0_posterior
-Bp_posterior3 <- results$Bp_posterior
-
-```
-
-```{r print the B0 & BP matrices for the Extension II model, echo=FALSE, eval=TRUE}
-
-print("Extension II Model Normalized B0 matrix")
-print(B0_posterior3[,,S])
-
-print("Extension II Model B plus matrix")
-print(Bp_posterior3[,,S])
+B0_posterior4 <- results$B0_posterior
+Bp_posterior4 <- results$Bp_posterior
 
 ```
 
-```{r calculating the standard deviation for the Extension II model B0 matrix, echo=FALSE, eval=TRUE}
+```{r print the B0 & BP matrices for the Extension III model, echo=FALSE, eval=TRUE}
 
-calculate_and_print_B0sd(B0_posterior3)
+print("Extension III Model Normalized B0 matrix")
+print(B0_posterior4[,,S])
 
-```
-
-```{r calculating the standard deviation for the Extension II model Bp matrix, echo=FALSE, eval=TRUE}
-
-calculate_and_print_Bpsd(Bp_posterior3)
+print("Extension III Model B plus matrix")
+print(Bp_posterior4[,,S])
 
 ```
 
-```{r plot lagged Bp for the Extension II model, echo=FALSE, eval=TRUE}
+```{r calculating the standard deviation for the Extension III model B0 matrix, echo=FALSE, eval=TRUE}
 
-plot_lagged_effects(B0_posterior3, Bp_posterior3)
+calculate_and_print_B0sd(B0_posterior4)
 
 ```
 
-```{r calculate the significance levels for the Extension II B0 and Bp, echo=FALSE, eval=TRUE}
+```{r calculating the standard deviation for the Extension III model Bp matrix, echo=FALSE, eval=TRUE}
+
+calculate_and_print_Bpsd(Bp_posterior4)
+
+```
+
+```{r plot lagged Bp for the Extension III model, echo=FALSE, eval=TRUE}
+
+plot_lagged_effects(B0_posterior4, Bp_posterior4)
+
+```
+
+```{r calculate the significance levels for the Extension III B0 and Bp, echo=FALSE, eval=TRUE}
 
 # Calculate significance for B0 and Bp matrices
-B0_significance <- calculate_significance(B0_posterior3)
-Bp_significance <- calculate_significance(Bp_posterior3)
+B0_significance <- calculate_significance(B0_posterior4)
+Bp_significance <- calculate_significance(Bp_posterior4)
 
 # Print significance matrices
 print("Significance for B0 Matrix:")
@@ -2568,14 +3050,15 @@ print(Bp_significance)
 ```
 
 
-```{r Plotting the IRF response for the Extension II model, echo=FALSE, eval=TRUE}
+```{r Plotting the IRF response for the Extension III model, echo=FALSE, eval=TRUE}
 
-B0 <- B0_posterior3
-Bp <- Bp_posterior3
+B0 <- B0_posterior4
+Bp <- Bp_posterior4
 
-plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95)
+plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95, conf_color = "turquoise4")
 
 ```
+
 
 
 
@@ -2585,11 +3068,21 @@ The overall kernel for this extended model encapsulates the random variance of $
 
 In the basic model, all USD Index contemporaneous coefficients are not statistically significant at the standard levels. On the other hand, In the Extension I model, the simultaneous effect of the Dixie on GDP growth is statistically significant at the 5% significance level. For the Extension II model, the same effect is also significant, but at the 10% level, plus the simultanous effect of the Dixie on the unemployment rate, which is significant at the 1% level. 
 
-Both the Extension I and II models tell the same story. A weaker USD Index is likely to result in stagflation in Australia. A 1% drop in the Dixie will result in an increase in inflation and unemployment, and a drop in the GDP growth rate. However, the IRF plots suggest that the inflation is likely to drop again with in six to seven months, while the unemployment rate is likely to drop within the first four months. The dangeous sign, however, is that the drop in GDP growth rate will not result in any positive rebound in the first 30 months after the shock. At best, the GDP gowth rate will return to its previous level before the drop in teh Dixie. 
+Both the Extension I and II models tell the same story. A weaker USD Index is likely to result in stagflation in Australia. A drop in the Dixie will result in an increase in inflation and unemployment, and a drop in the GDP growth rate. However, the IRF plots suggest that the inflation is likely to drop again with in six to seven months, while the unemployment rate is likely to drop within the first four months. The dangeous sign, however, is that the drop in GDP growth rate will not result in any positive rebound in the first 30 months after the shock. At best, the GDP gowth rate will return to its previous level before the drop in teh Dixie. 
 
-Professor Tomasz Woźniak suggested revising the model to ensure that we can obtain statistically significant results. In particular, the proposition was to replate the unemployment rate with the RBA interest rate. This discussion was prior to the extension fo the basic model. As can be seen from the above results, Extenion I and Extension II provide significant elasticities, while the IRF plots suggest statistically significant responses. Notwithstanding, there is room for improvement by adding a fifth variable, namely the interest rate. However, given the time constraints on finalizing this report, we decided to leave this third extension for further resreach. 
+In particular, the results suggest the following elasticities. According to the basic model, a drop of 1 per cent in the USD Index would result in roughly 1 per cent decrease in inflation, roughly 14 per cent unemployment, and roughly 1% decrease in the GDP growth rate. 
 
-Finally, we need to explain that the Extension I and II models are able to produce IRF plots with a non-restricted B0 matrix. However, the ability to simiulate enough iterations of the model is restricted by the processor available for completing this assignment. The same issue also arises when attempting to simulate the random walk using an unrestricted B0. 
+On the other hand, the first version of the expanded model, namely Extension I, which accounts for a random posterior scale for $\lambda = \mathcal{IG2(s, \nu)}$, suggests that a weakening Dixie would result in $\textbf{stagnation}$ in Australia: 1 per cent decrease in the USD Index would result is roughly 23 per cent increase in inflation, roughly 3 per cent increase in unemployment, and roughly 0.2 per cent decrease in the GDP growth rate. 
+
+In the second extension model, the Extension II version, $\lambda$'s scale is held constant, while the shape parameter for $\lambda = \mathcal{IG2(s, \nu)}$, namely $\nu$, is estimated from the data itself, from matrix $Y$. Here, the model calibrates the $\textbf{stagnation}$ story told in Extension I. It suggests that a 1 per cent decrease in the USD Index would result is roughly 0.4 per cent increase in inflation, roughly 0.6 per cent increase in unemployment, and roughly 0.3 per cent decrease in the GDP growth rate.
+
+In the second extension model, the Extension III version, $\lambda$'s scale is as in Extension I, while the shape parameter for $\lambda = \mathcal{IG2(s, \nu)}$, namely $\nu$, is estimated from the data itself, from matrix $Y$. Here, the model calibrates the $\textbf{stagnation}$ story told in Extension I. It suggests that a 1 per cent decrease in the USD Index would result is roughly 0.3 per cent increase in inflation, roughly 0.7 per cent increase in unemployment, and roughly 0.2 per cent decrease in the GDP growth rate. 
+
+Of course, all of the above analysis relates to a one-off 1% drop in the Dixie. One could extrapolate and suggest that a larger and sustained drop in the Dixie would be likely to aplify the expected stagnation in the Australian economy. This result is critical given the current pressures on the US dollar, especially through the introduction of the BRICS currency. The question for government, and especially those in charge of fiscal and monetary policies, is this: What can Australia do today to mitigate the envisaged possibility of stagflation?
+
+Professor Tomasz Woźniak suggested revising the model to ensure that we can obtain statistically significant results. In particular, the proposition was to replate the unemployment rate with the RBA interest rate. This discussion was prior to the extension fo the basic model. As can be seen from the above results, Extenions I to III provide significant elasticities, while the IRF plots suggest statistically significant responses. Notwithstanding, there is room for improvement by adding a fifth variable, namely the interest rate. However, given the time constraints on finalizing this report, we decided to leave this third extension for further resreach. 
+
+Finally, we need to explain that the extension models are able to produce IRF plots with a non-restricted B0 matrix. However, the ability to simiulate enough iterations of the model is restricted by the processor available for completing this assignment. We attempted a simpulation of 50,000 iterations but the simulation was still running even after nine hours. The same issue also arises when attempting to simulate the random walk using an unrestricted B0. 
 
 
 ```{r furnish the results for a 1% drop of the USD_Index in a table, echo=FALSE, eval=TRUE}
@@ -2601,6 +3094,7 @@ library(knitr)
 basic_model_results <- list()
 extended_model_results <- list()
 second_extension_results <- list()
+third_extension_results <- list()
 
 # Loop through each economic variable
 for (i in 2:4) {
@@ -2615,6 +3109,10 @@ for (i in 2:4) {
   # Calculate the effect for the Second Extension model
   second_extension_effect <-   B0_posterior3[i, i, S] / B0_posterior3[i, 1, S] 
   second_extension_results[[i - 1]] <- second_extension_effect
+  
+  # Calculate the effect for the Third Extension model
+  third_extension_effect <-   B0_posterior4[i, i, S] / B0_posterior4[i, 1, S] 
+  third_extension_results[[i - 1]] <- third_extension_effect
 }
 
 # Create a data frame to hold the results
@@ -2622,11 +3120,12 @@ results_df <- data.frame(
   Variable = c("Inflation", "Unemployment", "GDP Growth"),
   Basic_Model = unlist(basic_model_results),
   Extended_Model = unlist(extended_model_results),
-  Second_Extension = unlist(second_extension_results)
+  Second_Extension = unlist(second_extension_results),
+  Third_Extension = unlist(third_extension_results)
 )
 
 # Print the results table using kable for better formatting
-kable(results_df, format = "html", caption = "Effect of a weaker USD_Index on Economic Indicators (in elasticities)", col.names = c("Variable (elasticity w.r.t. USD_Index)", "Basic Model", "Extended Model", "Second Extension Model"), align = "c")
+kable(results_df, format = "html", caption = "Effect of a weaker USD_Index on Economic Indicators (in elasticities)", col.names = c("Variable (elasticity w.r.t. USD_Index)", "Baseline Model", "Extension I Model", "Extension II Model", "Extension III Model"), align = "c")
 
 ```
 
