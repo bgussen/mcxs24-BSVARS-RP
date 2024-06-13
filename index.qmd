@@ -1572,7 +1572,7 @@ print(Bp_significance)
 B0 <- B0_posterior1
 Bp <- Bp_posterior1
 
-plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95, conf_color = "turquoise1")
+plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95, conf_color = "lightgrey")
 
 ```
 
@@ -1596,7 +1596,7 @@ model_data <- data.frame(
 # Create the table
 kable(model_data, col.names = c("Model", "Description"), align = "l") %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
-  column_spec(1, width = "20 em", bold = TRUE) %>%
+  column_spec(1, width = "12em", bold = TRUE) %>%
   column_spec(2, width = "50em")
 
 ```
@@ -2158,7 +2158,7 @@ print(B0_significance)
 B0 <- B0_posterior2
 Bp <- Bp_posterior2
 
-plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95, conf_color = "turquoise2")
+plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95, conf_color = "springgreen")
 
 ```
 
@@ -2341,7 +2341,7 @@ for (i in 1:S_burnin) {
   # Set the priors
   kappa1 <- 0.01      # autoregressive slope shrinkage
   kappa2 <- 1         # constant term shrinkage 
-  kappa3 <- 1000      # contemporaneous effects shrinkage
+  kappa3 <- scale     # contemporaneous effects shrinkage
   kappa4 <- 1         # VAR prior persistence
 
   priors <- list(
@@ -2438,7 +2438,7 @@ for (j in 1:S) {
    # Set the priors
   kappa1 <- 0.01      # autoregressive slope shrinkage
   kappa2 <- 1         # constant term shrinkage 
-  kappa3 <- 1000      # contemporaneous effects shrinkage
+  kappa3 <- scale     # contemporaneous effects shrinkage
   kappa4 <- 1         # VAR prior persistence
 
   priors <- list(
@@ -2588,7 +2588,7 @@ print(Bp_significance)
 B0 <- B0_posterior3
 Bp <- Bp_posterior3
 
-plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95, conf_color = "turquoise3")
+plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95, conf_color = "thistle")
 
 ```
 
@@ -3055,7 +3055,7 @@ print(Bp_significance)
 B0 <- B0_posterior4
 Bp <- Bp_posterior4
 
-plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95, conf_color = "turquoise4")
+plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95, conf_color = "turquoise")
 
 ```
 
@@ -3064,25 +3064,25 @@ plot_irfs(B0, Bp, horizon = 10, conf_level = 0.95, conf_color = "turquoise4")
 
 ### Conclusion
 
-The overall kernel for this extended model encapsulates the random variance of $\lambda$. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.
+The overall kernel for this extended model (Extensions I, II, and III) encapsulates the random variance of $\lambda$. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.
 
-In the basic model, all USD Index contemporaneous coefficients are not statistically significant at the standard levels. On the other hand, In the Extension I model, the simultaneous effect of the Dixie on GDP growth is statistically significant at the 5% significance level. For the Extension II model, the same effect is also significant, but at the 10% level, plus the simultanous effect of the Dixie on the unemployment rate, which is significant at the 1% level. 
+In the basic model, all USD Index contemporaneous coefficients are not statistically significant at the standard levels. On the other hand, In the Extension I model, the simultaneous effect of the Dixie on GDP growth is statistically significant at the 5% significance level. For the Extension II model, the significant effect is the Dixie simultaneous effect on the unemployment rate, also at the 5% level, plus the simultanous effect of the Dixie on the unemployment rate, which is significant at the 1% level. Extension III produces both significant effects at the same time, and both at the 5% level. 
 
-Both the Extension I and II models tell the same story. A weaker USD Index is likely to result in stagflation in Australia. A drop in the Dixie will result in an increase in inflation and unemployment, and a drop in the GDP growth rate. However, the IRF plots suggest that the inflation is likely to drop again with in six to seven months, while the unemployment rate is likely to drop within the first four months. The dangeous sign, however, is that the drop in GDP growth rate will not result in any positive rebound in the first 30 months after the shock. At best, the GDP gowth rate will return to its previous level before the drop in teh Dixie. 
+Extensions I, II, and III models all tell the same story. A weaker USD Index is likely to result in stagflation in Australia. A drop in the Dixie will result in an increase in inflation and unemployment, and a drop in the GDP growth rate. However, the IRF plots suggest that the inflation is likely to drop again with in six to seven months, while the unemployment rate is likely to drop within the first four months. The dangeous sign, however, is that the drop in GDP growth rate will not result in any positive rebound in the first 30 months after the shock. At best, the GDP gowth rate will return to its previous level before the drop in teh Dixie. 
 
-In particular, the results suggest the following elasticities. According to the basic model, a drop of 1 per cent in the USD Index would result in roughly 1 per cent decrease in inflation, roughly 14 per cent unemployment, and roughly 1% decrease in the GDP growth rate. 
+In particular, the results suggest the following elasticities (see the table below). According to the basic model, a drop of 1 per cent in the USD Index would result in roughly 1 per cent decrease in inflation, roughly 14 per cent unemployment, and roughly 1% decrease in the GDP growth rate. 
 
 On the other hand, the first version of the expanded model, namely Extension I, which accounts for a random posterior scale for $\lambda = \mathcal{IG2(s, \nu)}$, suggests that a weakening Dixie would result in $\textbf{stagnation}$ in Australia: 1 per cent decrease in the USD Index would result is roughly 23 per cent increase in inflation, roughly 3 per cent increase in unemployment, and roughly 0.2 per cent decrease in the GDP growth rate. 
 
-In the second extension model, the Extension II version, $\lambda$'s scale is held constant, while the shape parameter for $\lambda = \mathcal{IG2(s, \nu)}$, namely $\nu$, is estimated from the data itself, from matrix $Y$. Here, the model calibrates the $\textbf{stagnation}$ story told in Extension I. It suggests that a 1 per cent decrease in the USD Index would result is roughly 0.4 per cent increase in inflation, roughly 0.6 per cent increase in unemployment, and roughly 0.3 per cent decrease in the GDP growth rate.
+In the second extension model, the Extension II version, $\lambda$'s scale is held constant, while the shape parameter for $\lambda = \mathcal{IG2(s, \nu)}$, namely $\nu$, is estimated from the data itself, from matrix $Y$. Here, the model calibrates the $\textbf{stagnation}$ story told in Extension I. It suggests that a 1 per cent decrease in the USD Index would result is roughly 0.8 per cent increase in inflation, roughly 1.1 per cent increase in unemployment, and roughly 0.6 per cent decrease in the GDP growth rate.
 
-In the second extension model, the Extension III version, $\lambda$'s scale is as in Extension I, while the shape parameter for $\lambda = \mathcal{IG2(s, \nu)}$, namely $\nu$, is estimated from the data itself, from matrix $Y$. Here, the model calibrates the $\textbf{stagnation}$ story told in Extension I. It suggests that a 1 per cent decrease in the USD Index would result is roughly 0.3 per cent increase in inflation, roughly 0.7 per cent increase in unemployment, and roughly 0.2 per cent decrease in the GDP growth rate. 
+In the third extension model, the Extension III version, $\lambda$'s scale and shape are both estimated. The scale is estimated from the posterior for $\lambda$, while the shape parameter for $\lambda = \mathcal{IG2(s, \nu)}$, namely $\nu$, is estimated from the data itself, from matrix $Y$. Here, the model calibrates the $\textbf{stagnation}$ story told in Extension II. It suggests that a 1 per cent decrease in the USD Index would result is roughly 0.3 per cent increase in inflation, roughly 0.7 per cent increase in unemployment, and roughly 0.2 per cent decrease in the GDP growth rate.
 
-Of course, all of the above analysis relates to a one-off 1% drop in the Dixie. One could extrapolate and suggest that a larger and sustained drop in the Dixie would be likely to aplify the expected stagnation in the Australian economy. This result is critical given the current pressures on the US dollar, especially through the introduction of the BRICS currency. The question for government, and especially those in charge of fiscal and monetary policies, is this: What can Australia do today to mitigate the envisaged possibility of stagflation?
+Of course, all of the above analysis relates to a one-off 1% drop in the Dixie. One could extrapolate and suggest that a larger and sustained drop in the Dixie would be likely to aplify the expected stagnation in the Australian economy. This result is topical given the current pressures on the US dollar, especially through the introduction of a new BRICS currency. The question for government, and especially those in charge of fiscal and monetary policies, is this: What can Australia do today to mitigate the envisaged possibility of stagflation?
 
 Professor Tomasz Woźniak suggested revising the model to ensure that we can obtain statistically significant results. In particular, the proposition was to replate the unemployment rate with the RBA interest rate. This discussion was prior to the extension fo the basic model. As can be seen from the above results, Extenions I to III provide significant elasticities, while the IRF plots suggest statistically significant responses. Notwithstanding, there is room for improvement by adding a fifth variable, namely the interest rate. However, given the time constraints on finalizing this report, we decided to leave this third extension for further resreach. 
 
-Finally, we need to explain that the extension models are able to produce IRF plots with a non-restricted B0 matrix. However, the ability to simiulate enough iterations of the model is restricted by the processor available for completing this assignment. We attempted a simpulation of 50,000 iterations but the simulation was still running even after nine hours. The same issue also arises when attempting to simulate the random walk using an unrestricted B0. 
+Finally, we need to explain that the extension models are able to produce IRF plots with a non-restricted B0 matrix. However, the ability to simiulate enough iterations of the model is restricted by the processor available for completing this assignment. We attempted a simpulation of 50,000 iterations but the simulation was still running even after nine hours. In our experience, the Gibbs sampler used for the model takes much longer to converge once the restriction on the B0 matrix are lifted. The same issue also arises when attempting to simulate the random walk using an unrestricted B0. 
 
 
 ```{r furnish the results for a 1% drop of the USD_Index in a table, echo=FALSE, eval=TRUE}

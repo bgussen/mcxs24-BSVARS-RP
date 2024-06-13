@@ -864,19 +864,19 @@ p(B_+, B_0 \mid Y, X) \propto \mathcal{L}(Y \mid B_+, B_0, X) \cdot p(B_+, B_0)
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left; width: 20 em; font-weight: bold;">Baseline Model</td>
+<td style="text-align: left; width: 12em; font-weight: bold;">Baseline Model</td>
 <td style="text-align: left; width: 50em;">Lambda is a constant equal to one.</td>
 </tr>
 <tr class="even">
-<td style="text-align: left; width: 20 em; font-weight: bold;">Extension I</td>
+<td style="text-align: left; width: 12em; font-weight: bold;">Extension I</td>
 <td style="text-align: left; width: 50em;">Lambda is IG2 (s, nu) and s is estimated from the posterior distribution, while nu is taken as a constant.</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left; width: 20 em; font-weight: bold;">Extension II</td>
+<td style="text-align: left; width: 12em; font-weight: bold;">Extension II</td>
 <td style="text-align: left; width: 50em;">Lambda is IG2 (s, nu) and s taken as a constant, while nu is sampled from the data.</td>
 </tr>
 <tr class="even">
-<td style="text-align: left; width: 20 em; font-weight: bold;">Extension III</td>
+<td style="text-align: left; width: 12em; font-weight: bold;">Extension III</td>
 <td style="text-align: left; width: 50em;">Both s and nu are integrated from the previous two extensions, with Lambda IG2 (s, nu).</td>
 </tr>
 </tbody>
@@ -1202,120 +1202,120 @@ A \sim MN_{K \times N}(M, Q, P)
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>          [,1]       [,2]     [,3]     [,4]
-[1,] 33.936261 0.00000000 0.000000 0.000000
-[2,]  3.318791 1.39885778 0.000000 0.000000
-[3,]  8.127038 0.54516359 4.828261 0.000000
-[4,] -4.492329 0.05466591 1.878261 1.283286</code></pre>
+[1,] 22.496218 0.00000000 0.000000 0.000000
+[2,]  1.780771 1.39529933 0.000000 0.000000
+[3,]  4.475429 0.53534219 4.869592 0.000000
+[4,] -2.249046 0.05392476 1.779538 1.277026</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Extension II Model B plus matrix"</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>            [,1]      [,2]        [,3]        [,4]       [,5]        [,6]
-[1,]  0.01741515 33.976740 -0.00667752  0.09098080 -0.1007724 -0.05810703
-[2,] -1.80373391  3.534498  1.32974945 -0.08321938  0.1039982 -0.04795067
-[3,]  0.62638855  8.245539  0.53515159  4.86372869 -0.2822564 -0.05368118
-[4,]  0.22827218 -4.437621 -0.06657870  1.94423858  0.9651119 -0.02882989
-             [,7]        [,8]        [,9]        [,10]       [,11]        [,12]
-[1,] -0.001063501 -0.03589381  0.03855013 -0.006941309 0.006972047 -0.009895307
-[2,] -0.027572875  0.03298900  0.02937132  0.017464230 0.005261658  0.016237523
-[3,]  0.046084137 -0.01776814 -0.01390442 -0.015684975 0.028186095 -0.043971887
-[4,]  0.093882238 -0.07624939 -0.05728869  0.006201786 0.024020265  0.051643490
+<pre><code>           [,1]      [,2]         [,3]        [,4]        [,5]        [,6]
+[1,] -0.1065850 22.542358  0.002782798  0.08764125 -0.08654025 -0.05591494
+[2,] -1.8200711  1.997243  1.327558244 -0.08354594  0.10575969 -0.04765980
+[3,]  0.5944075  4.595905  0.528835963  4.90454170 -0.28071473 -0.05295988
+[4,]  0.2354734 -2.195868 -0.069295799  1.84545489  0.96301023 -0.02935067
+             [,7]        [,8]        [,9]        [,10]       [,11]       [,12]
+[1,]  0.002929009 -0.03476611  0.04051645 -0.006150338 0.009391915 -0.01067480
+[2,] -0.026960341  0.03312811  0.02953476  0.017566657 0.005643032  0.01611292
+[3,]  0.047968493 -0.01759771 -0.01377053 -0.015432329 0.029293334 -0.04442960
+[4,]  0.091986453 -0.07620050 -0.05692241  0.006013776 0.023087134  0.05211243
            [,13]        [,14]        [,15]        [,16]        [,17]
-[1,]  0.02625831 -0.011806693 -0.001314907  0.046880324  0.001162482
-[2,]  0.04729676  0.078574027 -0.007134275  0.002160590  0.021616605
-[3,] -0.04308204  0.013610412 -0.011507053 -0.016621402  0.031877359
-[4,] -0.07098772  0.001899318  0.022318742 -0.004517793 -0.016702856
-            [,18]       [,19]        [,20]        [,21]         [,22]
-[1,] -0.007459445 0.004369716  0.007719489  0.005709728  0.0009034975
-[2,]  0.038583184 0.017522683  0.024078150  0.003796977 -0.0162915205
-[3,] -0.020389165 0.005827051 -0.005338899 -0.002751066  0.0215431340
-[4,]  0.016787693 0.019469802  0.025823500  0.012874055  0.0081212587
+[1,]  0.02556007 -0.011315087  0.003682776  0.046817321  0.001333815
+[2,]  0.04710399  0.078637595 -0.006420150  0.002134509  0.021625968
+[3,] -0.04363011  0.013764672 -0.009715836 -0.016792563  0.031859194
+[4,] -0.07055257  0.001788585  0.021154431 -0.004291091 -0.016531121
+            [,18]       [,19]        [,20]        [,21]        [,22]
+[1,] -0.007126654 0.005309698  0.008044994  0.003708119  0.001088218
+[2,]  0.038626623 0.017644976  0.024110704  0.003514871 -0.016267542
+[3,] -0.020284576 0.006159581 -0.005338164 -0.003480504  0.021601950
+[4,]  0.016715072 0.019166956  0.025913589  0.013347351  0.008077201
             [,23]        [,24]       [,25]        [,26]        [,27]
-[1,] -0.001467299 -0.006597832 0.023180698 -0.036502013 -0.014435840
-[2,] -0.002674750 -0.002226104 0.027251374 -0.022660246  0.002444691
-[3,]  0.006670788 -0.003855801 0.005889664  0.008574642 -0.003936386
-[4,]  0.015260300  0.018753137 0.015171519 -0.003722294  0.002687332
-            [,28]         [,29]         [,30]        [,31]        [,32]
-[1,] -0.019603450  0.0009687969 -0.0080023353 -0.013955967 -0.014020033
-[2,]  0.003527629 -0.0058133975  0.0290162636  0.004927196  0.006826540
-[3,] -0.007483057 -0.0136339951 -0.0156306780  0.003411159 -0.002828512
-[4,] -0.002790113 -0.0275048539 -0.0001609006 -0.022304430 -0.019687233
-            [,33]        [,34]       [,35]        [,36]         [,37]
-[1,]  0.008531114  0.005409678 0.013984655 -0.010641476 -0.0156168794
-[2,]  0.014438944 -0.001199637 0.011660541  0.011747697 -0.0008807276
-[3,]  0.020309186  0.004712803 0.016335091 -0.005722729  0.0223741672
-[4,] -0.001723319 -0.012982136 0.001821804  0.015888563 -0.0101034851
+[1,] -0.001457693 -0.006382295 0.021504197 -0.036340940 -0.014129581
+[2,] -0.002672179 -0.002205699 0.027016966 -0.022639181  0.002489455
+[3,]  0.006671897 -0.003865635 0.005310847  0.008624811 -0.003836290
+[4,]  0.015263334  0.018827440 0.015534321 -0.003757102  0.002639461
+            [,28]        [,29]         [,30]        [,31]        [,32]
+[1,] -0.019590690  0.001145816 -0.0078511190 -0.014110738 -0.014104655
+[2,]  0.003521460 -0.005788607  0.0290359786  0.004909135  0.006810357
+[3,] -0.007538738 -0.013572181 -0.0155836833  0.003378559 -0.002896252
+[4,] -0.002713263 -0.027552879 -0.0001932447 -0.022291299 -0.019612370
+            [,33]        [,34]       [,35]       [,36]         [,37]
+[1,]  0.009428898  0.005508160 0.014120823 -0.01076516 -0.0147907840
+[2,]  0.014554989 -0.001186808 0.011678691  0.01172882 -0.0007709911
+[3,]  0.020604451  0.004743222 0.016405217 -0.00578326  0.0226537231
+[4,] -0.001943231 -0.013003535 0.001740951  0.01594282 -0.0103004963
             [,38]        [,39]        [,40]        [,41]        [,42]
-[1,]  0.003367708  0.004924928  0.019272018 -0.001428982 -0.016555804
-[2,] -0.014497085 -0.003401491 -0.004970473 -0.002564543 -0.013609220
-[3,] -0.001527824 -0.005722727 -0.015755132  0.005877310  0.001965731
-[4,]  0.003452538 -0.007095304  0.008827782  0.019678458  0.002652272
+[1,]  0.003419837  0.005732708  0.019132489 -0.001310577 -0.016540916
+[2,] -0.014490323 -0.003294481 -0.004990512 -0.002551623 -0.013607366
+[3,] -0.001511768 -0.005437349 -0.015813050  0.005916275  0.001969879
+[4,]  0.003440354 -0.007315609  0.008875437  0.019629876  0.002648475
             [,43]         [,44]         [,45]        [,46]        [,47]
-[1,] -0.006932118 -0.0063414235 -0.0049097513 -0.008353663 -0.001196124
-[2,] -0.022943171 -0.0050279261 -0.0069519550  0.011410319  0.013699919
-[3,]  0.014846514 -0.0044509253  0.0009856358 -0.001362014  0.002733799
-[4,]  0.004599288 -0.0009476013 -0.0036623607  0.008638126 -0.005812579
+[1,] -0.005946535 -0.0064283256 -0.0055648936 -0.008343044 -0.000417889
+[2,] -0.022813887 -0.0050394946 -0.0070392565  0.011411705  0.013800431
+[3,]  0.015185131 -0.0044836314  0.0007929547 -0.001358943  0.002992306
+[4,]  0.004339424 -0.0009183192 -0.0035708658  0.008635474 -0.006009659
             [,48]         [,49]
-[1,]  0.004844666 -0.0039998829
-[2,] -0.004781926 -0.0032366624
-[3,]  0.003871000  0.0002098167
-[4,]  0.008422555  0.0026958001</code></pre>
+[1,]  0.004765522 -4.800330e-03
+[2,] -0.004792370 -3.338538e-03
+[3,]  0.003843806 -2.162371e-05
+[4,]  0.008444925  2.824448e-03</code></pre>
 </div>
 </div>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>Standard deviation of the model B0:
          [,1]       [,2]      [,3]       [,4]
-[1,] 1.846483 0.00000000 0.0000000 0.00000000
-[2,] 3.193492 0.08907367 0.0000000 0.00000000
-[3,] 2.655235 0.12123401 0.2944310 0.00000000
-[4,] 2.609657 0.12587957 0.4170763 0.07074905</code></pre>
+[1,] 1.224026 0.00000000 0.0000000 0.00000000
+[2,] 1.862350 0.08860047 0.0000000 0.00000000
+[3,] 1.756892 0.12100494 0.2825703 0.00000000
+[4,] 1.719945 0.12546440 0.4084977 0.07040397</code></pre>
 </div>
 </div>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Standard deviation of the model Bp"
           [,1]     [,2]       [,3]       [,4]       [,5]       [,6]       [,7]
-[1,] 0.5661464 1.841448 0.05580799 0.06450923 0.05607315 0.04800775 0.04404249
-[2,] 0.5640493 3.193737 0.10159426 0.06213733 0.05879829 0.05078282 0.04385950
-[3,] 0.5710596 2.658548 0.13285595 0.30086280 0.06084251 0.04858273 0.04604984
-[4,] 0.5735442 2.613710 0.13423999 0.42243361 0.08375945 0.05056168 0.04442427
+[1,] 0.5655798 1.220550 0.05578229 0.06450755 0.05605380 0.04800590 0.04404444
+[2,] 0.5630944 1.863018 0.10121300 0.06215046 0.05872653 0.05077974 0.04381296
+[3,] 0.5709603 1.761522 0.13264761 0.28958741 0.06077268 0.04857830 0.04599986
+[4,] 0.5733353 1.725410 0.13392526 0.41408699 0.08357083 0.05055678 0.04435994
            [,8]       [,9]      [,10]      [,11]      [,12]      [,13]
-[1,] 0.04665785 0.04199115 0.03359878 0.03037366 0.03212280 0.02931367
-[2,] 0.04483534 0.04306534 0.03237144 0.03140722 0.03298851 0.03043729
-[3,] 0.04771273 0.04309468 0.03419454 0.03030169 0.03334911 0.02981620
-[4,] 0.04440937 0.04506070 0.03320460 0.03188796 0.03168736 0.03067093
+[1,] 0.04665833 0.04198485 0.03360043 0.03037421 0.03212396 0.02931433
+[2,] 0.04483857 0.04306327 0.03236635 0.03139789 0.03298607 0.03043766
+[3,] 0.04771504 0.04309426 0.03419201 0.03029189 0.03335296 0.02981980
+[4,] 0.04440934 0.04505981 0.03320341 0.03187611 0.03168545 0.03067028
           [,14]      [,15]      [,16]      [,17]      [,18]      [,19]
-[1,] 0.02525556 0.02387879 0.02474545 0.02403421 0.02027423 0.01846419
-[2,] 0.02538583 0.02427680 0.02468138 0.02311389 0.01946055 0.01940868
-[3,] 0.02418026 0.02362600 0.02471579 0.02449079 0.02082554 0.01838564
-[4,] 0.02583086 0.02349761 0.02454821 0.02357598 0.01997424 0.01960343
+[1,] 0.02525495 0.02388541 0.02474529 0.02403404 0.02027470 0.01846263
+[2,] 0.02537976 0.02425318 0.02468035 0.02311386 0.01945858 0.01940797
+[3,] 0.02417920 0.02360866 0.02471072 0.02449017 0.02082513 0.01838077
+[4,] 0.02582919 0.02345748 0.02454669 0.02357473 0.01997488 0.01960203
           [,20]      [,21]      [,22]      [,23]      [,24]      [,25]
-[1,] 0.01967432 0.01940785 0.01671806 0.01618293 0.01676768 0.01681149
-[2,] 0.02015698 0.01979371 0.01631548 0.01597769 0.01630700 0.01677526
-[3,] 0.01956441 0.01948228 0.01644110 0.01570288 0.01579439 0.01609401
-[4,] 0.01958604 0.01934034 0.01625521 0.01641375 0.01629575 0.01581089
+[1,] 0.01967498 0.01940947 0.01671867 0.01618292 0.01676792 0.01681146
+[2,] 0.02015776 0.01977012 0.01631491 0.01597761 0.01630660 0.01678440
+[3,] 0.01956512 0.01947913 0.01644115 0.01570284 0.01579545 0.01608643
+[4,] 0.01958686 0.01934078 0.01625502 0.01641373 0.01629551 0.01580336
           [,26]      [,27]      [,28]      [,29]      [,30]      [,31]
-[1,] 0.01446169 0.01377358 0.01407683 0.01350648 0.01295528 0.01226861
-[2,] 0.01424380 0.01333069 0.01412264 0.01324420 0.01233159 0.01250657
-[3,] 0.01398723 0.01448078 0.01491094 0.01352863 0.01240530 0.01216397
-[4,] 0.01424611 0.01308742 0.01424680 0.01424503 0.01239597 0.01177786
+[1,] 0.01446121 0.01377219 0.01407680 0.01350583 0.01295588 0.01226872
+[2,] 0.01424464 0.01333067 0.01412256 0.01324449 0.01233304 0.01250699
+[3,] 0.01398702 0.01448059 0.01490992 0.01352967 0.01240481 0.01216419
+[4,] 0.01424625 0.01308716 0.01424777 0.01424485 0.01239558 0.01177797
           [,32]      [,33]      [,34]      [,35]      [,36]      [,37]
-[1,] 0.01217992 0.01254214 0.01082078 0.01053825 0.01117971 0.01115965
-[2,] 0.01234531 0.01270158 0.01131559 0.01105002 0.01086777 0.01154745
-[3,] 0.01241651 0.01192790 0.01099651 0.01069069 0.01142979 0.01112663
-[4,] 0.01263336 0.01212701 0.01108594 0.01064344 0.01079926 0.01151915
+[1,] 0.01217997 0.01254340 0.01082093 0.01053804 0.01117995 0.01115921
+[2,] 0.01234598 0.01269407 0.01131501 0.01104992 0.01086823 0.01154696
+[3,] 0.01241692 0.01192540 0.01099661 0.01069154 0.01142926 0.01112602
+[4,] 0.01263271 0.01212854 0.01108579 0.01064255 0.01079877 0.01151484
            [,38]       [,39]       [,40]       [,41]       [,42]       [,43]
-[1,] 0.009947758 0.009887889 0.010090952 0.009678495 0.008881567 0.009081120
-[2,] 0.009572807 0.009498200 0.010086825 0.010118605 0.008962581 0.009199823
-[3,] 0.010061379 0.009765048 0.010099302 0.009476492 0.009268431 0.009053556
-[4,] 0.010160696 0.010066153 0.009678138 0.009684688 0.009064223 0.008652211
+[1,] 0.009947712 0.009889831 0.010090818 0.009678196 0.008881526 0.009078771
+[2,] 0.009573074 0.009495256 0.010086936 0.010118185 0.008962602 0.009204117
+[3,] 0.010061209 0.009765777 0.010099312 0.009476249 0.009268466 0.009047385
+[4,] 0.010160763 0.010062355 0.009678281 0.009684613 0.009064242 0.008651076
            [,44]       [,45]       [,46]       [,47]       [,48]       [,49]
-[1,] 0.008885747 0.008843857 0.008357310 0.007797241 0.008235714 0.008590061
-[2,] 0.008890654 0.008800195 0.008540131 0.008249748 0.008473442 0.008245998
-[3,] 0.009105556 0.009088670 0.008242030 0.008145991 0.007913855 0.008423026
-[4,] 0.008752858 0.009177167 0.008406537 0.008368873 0.008454414 0.008212992</code></pre>
+[1,] 0.008885770 0.008843844 0.008357278 0.007795025 0.008235663 0.008589691
+[2,] 0.008890436 0.008792433 0.008540213 0.008250672 0.008473342 0.008243775
+[3,] 0.009104797 0.009089045 0.008242027 0.008149089 0.007913548 0.008421647
+[4,] 0.008753042 0.009174219 0.008406508 0.008368736 0.008454115 0.008213670</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -1335,18 +1335,18 @@ A \sim MN_{K \times N}(M, Q, P)
 <pre><code>     [,1]  [,2]  [,3]  [,4] 
 [1,] "***" "NA"  "NA"  "NA" 
 [2,] ""    "***" "NA"  "NA" 
-[3,] "***" "***" "***" "NA" 
-[4,] "*"   ""    "***" "***"</code></pre>
+[3,] "**"  "***" "***" "NA" 
+[4,] ""    ""    "***" "***"</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Significance for Bp Matrix:"</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     [,1]  [,2]  [,3]  [,4]  [,5]  [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13]
-[1,] ""    "***" ""    ""    "*"   ""   ""   ""   ""   ""    ""    ""    ""   
+[1,] ""    "***" ""    ""    ""    ""   ""   ""   ""   ""    ""    ""    ""   
 [2,] "***" ""    "***" ""    "*"   ""   ""   ""   ""   ""    ""    ""    ""   
 [3,] ""    "***" "***" "***" "***" ""   ""   ""   ""   ""    ""    ""    ""   
-[4,] ""    "*"   ""    "***" "***" ""   "**" "*"  ""   ""    ""    ""    "**" 
+[4,] ""    ""    ""    "***" "***" ""   "**" "*"  ""   ""    ""    "*"   "**" 
      [,14] [,15] [,16] [,17] [,18] [,19] [,20] [,21] [,22] [,23] [,24] [,25]
 [1,] ""    ""    "*"   ""    ""    ""    ""    ""    ""    ""    ""    ""   
 [2,] "***" ""    ""    ""    "**"  ""    ""    ""    ""    ""    ""    ""   
@@ -1360,7 +1360,7 @@ A \sim MN_{K \times N}(M, Q, P)
      [,38] [,39] [,40] [,41] [,42] [,43] [,44] [,45] [,46] [,47] [,48] [,49]
 [1,] ""    ""    "*"   ""    "*"   ""    ""    ""    ""    ""    ""    ""   
 [2,] ""    ""    ""    ""    ""    "**"  ""    ""    ""    "*"   ""    ""   
-[3,] ""    ""    ""    ""    ""    ""    ""    ""    ""    ""    ""    ""   
+[3,] ""    ""    ""    ""    ""    "*"   ""    ""    ""    ""    ""    ""   
 [4,] ""    ""    ""    "**"  ""    ""    ""    ""    ""    ""    ""    ""   </code></pre>
 </div>
 </div>
@@ -1582,15 +1582,16 @@ A \sim MN_{K \times N}(M, Q, P)
 </section>
 <section id="conclusion-1" class="level3">
 <h3 class="anchored" data-anchor-id="conclusion-1">Conclusion</h3>
-<p>The overall kernel for this extended model encapsulates the random variance of <span class="math inline">\(\lambda\)</span>. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.</p>
-<p>In the basic model, all USD Index contemporaneous coefficients are not statistically significant at the standard levels. On the other hand, In the Extension I model, the simultaneous effect of the Dixie on GDP growth is statistically significant at the 5% significance level. For the Extension II model, the same effect is also significant, but at the 10% level, plus the simultanous effect of the Dixie on the unemployment rate, which is significant at the 1% level.</p>
-<p>Both the Extension I and II models tell the same story. A weaker USD Index is likely to result in stagflation in Australia. A drop in the Dixie will result in an increase in inflation and unemployment, and a drop in the GDP growth rate. However, the IRF plots suggest that the inflation is likely to drop again with in six to seven months, while the unemployment rate is likely to drop within the first four months. The dangeous sign, however, is that the drop in GDP growth rate will not result in any positive rebound in the first 30 months after the shock. At best, the GDP gowth rate will return to its previous level before the drop in teh Dixie.</p>
-<p>In particular, the results suggest the following elasticities. According to the basic model, a drop of 1 per cent in the USD Index would result in roughly 1 per cent decrease in inflation, roughly 14 per cent unemployment, and roughly 1% decrease in the GDP growth rate.</p>
+<p>The overall kernel for this extended model (Extensions I, II, and III) encapsulates the random variance of <span class="math inline">\(\lambda\)</span>. This allows for a more robust handling of heteroscedasticity and potential non-stationarities in the error terms, offering nuanced insights into the dynamics under study.</p>
+<p>In the basic model, all USD Index contemporaneous coefficients are not statistically significant at the standard levels. On the other hand, In the Extension I model, the simultaneous effect of the Dixie on GDP growth is statistically significant at the 5% significance level. For the Extension II model, the significant effect is the Dixie simultaneous effect on the unemployment rate, also at the 5% level, plus the simultanous effect of the Dixie on the unemployment rate, which is significant at the 1% level. Extension III produces both significant effects at the same time, and both at the 5% level.</p>
+<p>Extensions I, II, and III models all tell the same story. A weaker USD Index is likely to result in stagflation in Australia. A drop in the Dixie will result in an increase in inflation and unemployment, and a drop in the GDP growth rate. However, the IRF plots suggest that the inflation is likely to drop again with in six to seven months, while the unemployment rate is likely to drop within the first four months. The dangeous sign, however, is that the drop in GDP growth rate will not result in any positive rebound in the first 30 months after the shock. At best, the GDP gowth rate will return to its previous level before the drop in teh Dixie.</p>
+<p>In particular, the results suggest the following elasticities (see the table below). According to the basic model, a drop of 1 per cent in the USD Index would result in roughly 1 per cent decrease in inflation, roughly 14 per cent unemployment, and roughly 1% decrease in the GDP growth rate.</p>
 <p>On the other hand, the first version of the expanded model, namely Extension I, which accounts for a random posterior scale for <span class="math inline">\(\lambda = \mathcal{IG2(s, \nu)}\)</span>, suggests that a weakening Dixie would result in <span class="math inline">\(\textbf{stagnation}\)</span> in Australia: 1 per cent decrease in the USD Index would result is roughly 23 per cent increase in inflation, roughly 3 per cent increase in unemployment, and roughly 0.2 per cent decrease in the GDP growth rate.</p>
-<p>In the second extension model, the Extension II version, <span class="math inline">\(\lambda\)</span>’s scale is as in Extension I, while the shape parameter for <span class="math inline">\(\lambda = \mathcal{IG2(s, \nu)}\)</span>, namely <span class="math inline">\(\nu\)</span>, is estimated from the data itself, from matrix <span class="math inline">\(Y\)</span>. Here, the model calibrates the <span class="math inline">\(\textbf{stagnation}\)</span> story told in Extension I. It suggests that a 1 per cent decrease in the USD Index would result is roughly 0.4 per cent increase in inflation, roughly 0.6 per cent increase in unemployment, and roughly 0.3 per cent decrease in the GDP growth rate.</p>
-<p>Of course, all of the above analysis relates to a one-off 1% drop in the Dixie. One could extrapolate and suggest that a larger and sustained drop in the Dixie would be likely to aplify the expected stagnation in the Australian economy. This result is critical given the current pressures on the US dollar, especially through the introduction of the BRICS currency. The question for government, and especially those in charge of fiscal and monetary policies, is this: What can Australia do today to mitigate the envisaged possibility of stagflation?</p>
-<p>Professor Tomasz Woźniak suggested revising the model to ensure that we can obtain statistically significant results. In particular, the proposition was to replate the unemployment rate with the RBA interest rate. This discussion was prior to the extension fo the basic model. As can be seen from the above results, Extenion I and Extension II provide significant elasticities, while the IRF plots suggest statistically significant responses. Notwithstanding, there is room for improvement by adding a fifth variable, namely the interest rate. However, given the time constraints on finalizing this report, we decided to leave this third extension for further resreach.</p>
-<p>Finally, we need to explain that the Extension I and II models are able to produce IRF plots with a non-restricted B0 matrix. However, the ability to simiulate enough iterations of the model is restricted by the processor available for completing this assignment. We attempted a simpulation of 50,000 iterations but the simulation was still running even after nine hours. The same issue also arises when attempting to simulate the random walk using an unrestricted B0.</p>
+<p>In the second extension model, the Extension II version, <span class="math inline">\(\lambda\)</span>’s scale is held constant, while the shape parameter for <span class="math inline">\(\lambda = \mathcal{IG2(s, \nu)}\)</span>, namely <span class="math inline">\(\nu\)</span>, is estimated from the data itself, from matrix <span class="math inline">\(Y\)</span>. Here, the model calibrates the <span class="math inline">\(\textbf{stagnation}\)</span> story told in Extension I. It suggests that a 1 per cent decrease in the USD Index would result is roughly 0.8 per cent increase in inflation, roughly 1.1 per cent increase in unemployment, and roughly 0.6 per cent decrease in the GDP growth rate.</p>
+<p>In the third extension model, the Extension III version, <span class="math inline">\(\lambda\)</span>’s scale and shape are both estimated. The scale is estimated from the posterior for <span class="math inline">\(\lambda\)</span>, while the shape parameter for <span class="math inline">\(\lambda = \mathcal{IG2(s, \nu)}\)</span>, namely <span class="math inline">\(\nu\)</span>, is estimated from the data itself, from matrix <span class="math inline">\(Y\)</span>. Here, the model calibrates the <span class="math inline">\(\textbf{stagnation}\)</span> story told in Extension II. It suggests that a 1 per cent decrease in the USD Index would result is roughly 0.3 per cent increase in inflation, roughly 0.7 per cent increase in unemployment, and roughly 0.2 per cent decrease in the GDP growth rate.</p>
+<p>Of course, all of the above analysis relates to a one-off 1% drop in the Dixie. One could extrapolate and suggest that a larger and sustained drop in the Dixie would be likely to aplify the expected stagnation in the Australian economy. This result is topical given the current pressures on the US dollar, especially through the introduction of a new BRICS currency. The question for government, and especially those in charge of fiscal and monetary policies, is this: What can Australia do today to mitigate the envisaged possibility of stagflation?</p>
+<p>Professor Tomasz Woźniak suggested revising the model to ensure that we can obtain statistically significant results. In particular, the proposition was to replate the unemployment rate with the RBA interest rate. This discussion was prior to the extension fo the basic model. As can be seen from the above results, Extenions I to III provide significant elasticities, while the IRF plots suggest statistically significant responses. Notwithstanding, there is room for improvement by adding a fifth variable, namely the interest rate. However, given the time constraints on finalizing this report, we decided to leave this third extension for further resreach.</p>
+<p>Finally, we need to explain that the extension models are able to produce IRF plots with a non-restricted B0 matrix. However, the ability to simiulate enough iterations of the model is restricted by the processor available for completing this assignment. We attempted a simpulation of 50,000 iterations but the simulation was still running even after nine hours. In our experience, the Gibbs sampler used for the model takes much longer to converge once the restriction on the B0 matrix are lifted. The same issue also arises when attempting to simulate the random walk using an unrestricted B0.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -1610,21 +1611,21 @@ A \sim MN_{K \times N}(M, Q, P)
 <td style="text-align: center;">Inflation</td>
 <td style="text-align: center;">-1.229990</td>
 <td style="text-align: center;">22.614972</td>
-<td style="text-align: center;">0.4214962</td>
+<td style="text-align: center;">0.7835367</td>
 <td style="text-align: center;">0.3155108</td>
 </tr>
 <tr class="even">
 <td style="text-align: center;">Unemployment</td>
 <td style="text-align: center;">14.328879</td>
 <td style="text-align: center;">2.700378</td>
-<td style="text-align: center;">0.5940985</td>
+<td style="text-align: center;">1.0880727</td>
 <td style="text-align: center;">0.6562255</td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;">GDP Growth</td>
 <td style="text-align: center;">-1.110779</td>
 <td style="text-align: center;">-0.227012</td>
-<td style="text-align: center;">-0.2856615</td>
+<td style="text-align: center;">-0.5678081</td>
 <td style="text-align: center;">-0.2371972</td>
 </tr>
 </tbody>
