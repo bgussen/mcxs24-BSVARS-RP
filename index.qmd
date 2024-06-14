@@ -655,7 +655,7 @@ calculate_and_print_B0sd <- function(B0_posterior) {
 
 ```
 
-```{r function to calculate and print the Standard Deviation of Bp}
+```{r function to calculate and print the Standard Deviation of Bp, echo=FALSE, eval=FALSE}
 
 calculate_and_print_Bpsd <- function(Bp_posterior) {
 # Calculate the standard deviation of Bp.posterior along the desired axis
@@ -880,16 +880,18 @@ series <- series %>%
 GDP_rate <- series %>%
   filter(date >= as.yearqtr("1980 Q1") & date <= as.yearqtr("2019 Q4"))
 
-# Set up the plotting area
-
+# Set up the plotting area with reduced margins
 par(mfrow=c(1,2))
 
 # Plot ACF with lags limited to 10
 acf(GDP_rate$value, main = "ACF for GDP Rate", lag.max = 10)
+
 # Plot PACF with lags limited to 10
 pacf(GDP_rate$value, main = "PACF for GDP Rate", lag.max = 10)
+
 # Reset the plotting area back to default
 par(mfrow=c(1, 1))
+
 ```
 
 
@@ -1532,13 +1534,13 @@ Bp_posterior1 <- results$Bp_posterior
 print("Basic Model Normalized B0 matrix")
 print(B0_posterior1[ , , S])
 
-print("Basic Model B plus matrix")
-print(Bp_posterior1[ , ,S])
+#print("Basic Model B plus matrix")
+#print(Bp_posterior1[ , ,S])
 
 ```
 
 
-```{r calculating the standard deviation for the Basic Model B0 & Bp matrices, echo=FALSE, eval=TRUE}
+```{r calculating the standard deviation for the Basic Model B0 & Bp matrices, echo=FALSE, eval=FALSE}
 
 calculate_and_print_B0sd(B0_posterior1)
   
@@ -1546,7 +1548,7 @@ calculate_and_print_Bpsd(Bp_posterior1)
 
 ```
 
-```{r lagged Bp plots for the Basic model, echo=FALSE, eval=TRUE}
+```{r lagged Bp plots for the Basic model, echo=FALSE, eval=FALSE}
 
 plot_lagged_effects(B0_posterior1, Bp_posterior1)
 
@@ -1561,8 +1563,8 @@ Bp_significance <- calculate_significance(Bp_posterior1)
 # Print significance matrices
 print("Significance for B0 Matrix:")
 print(B0_significance)
-print("Significance for Bp Matrix:")
-print(Bp_significance)
+#print("Significance for Bp Matrix:")
+#print(Bp_significance)
 
 
 ```
@@ -1610,18 +1612,18 @@ Where $\lambda$ is the variance of the error terms in the model, namely, $U_t ~ 
     - $\lambda$ is a constant equal to one.
 
 2. **Extension I**:
-    - Lambda is ~ $\mathcal{IG2}$ (s, nu)
+    - Lambda is ~ $\mathcal{IG2}(s, \nu)$
     - s is estimated from the posterior distribution.
     - nu is taken as a constant.
 
 3. **Extension II**:
-    - Lambda is ~ $\mathcal{IG2}$ (s, nu)
+    - Lambda is ~ $\mathcal{IG2}(s, \nu)$
     - s is taken as a constant.
     - nu is sampled from the data.
 
 4. **Extension III**:
     - Both s and nu are integrated from the previous two extensions.
-    - Lambda is ~ $\mathcal{IG2}$ (s, nu).
+    - Lambda is ~ $\mathcal{IG2}(s, \nu)$
 
 
 ### Model Extension I: Solving the Identification Problem Using a Non-Normality Approach
@@ -1683,10 +1685,10 @@ $$
 
 #### Combining with the Prior
 
-Assuming the prior $p(B^+; B_0)$ as given or formulated according to specific assumptions (such as independence, Gaussian priors for coefficients, etc.), the full posterior kernel combining this likelihood with the prior can be approached as:
+Assuming the prior $p(B_0; B_p)$ as given or formulated according to specific assumptions (such as independence, Gaussian priors for coefficients, etc.), the full posterior kernel combining this likelihood with the prior can be approached as:
 
 $$
-p(B_+; B_0 \mid Y; X) \propto p(Y \mid X, B_+, B_0) \times p(B_+; B_0)
+p(B_0; B_p \mid Y; X) \propto p(Y \mid X, B_0, B_p) \times p(B_0; B_p)
 $$
 
 This expression must often be evaluated or sampled using computational Bayesian techniques, such as Markov Chain Monte Carlo (MCMC), especially given the integrative step required for $\lambda$.
@@ -1713,6 +1715,7 @@ $$
 \underline{S} = ( s * I_N + \sum_{t=1}^T (B_0 Y_t - B_p X_t)^T (B_0 Y_t - B_p X_t))
 $$ 
 
+We introduce the posterior scale for $\lambda$ indirectly, through the kappa3 parameter of the Minnesota prior. 
 
 #### Posterior for $\bar{\nu}$
 
@@ -2112,15 +2115,15 @@ V_matrices <- create_V_matrices()
 
 
 
-```{r calculating the standard deviation for the Extension I B0 & Bp matrices, echo=FALSE, eval=TRUE}
+```{r calculating the standard deviation for the Extension I B0 & Bp matrices, echo=FALSE, eval=FALSE}
 
 calculate_and_print_B0sd(B0_posterior2)
 
-calculate_and_print_Bpsd(Bp_posterior2)
+#calculate_and_print_Bpsd(Bp_posterior2)
 
 ```
 
-```{r plots for the Extension I model, echo=FALSE, eval=TRUE}
+```{r plots for the Extension I model, echo=FALSE, eval=FALSE}
 
 plot_lagged_effects(B0_posterior2, Bp_posterior2)
 
@@ -2132,8 +2135,8 @@ plot_lagged_effects(B0_posterior2, Bp_posterior2)
 print("Extension I Model Normalized B0 matrix")
 print(B0_posterior2[ , , S])
 
-print("Extension I Model B plus matrix")
-print(Bp_posterior2[ , , S])
+#print("Extension I Model B plus matrix")
+#print(Bp_posterior2[ , , S])
 
 ```
 
@@ -2228,10 +2231,6 @@ mu <- colMeans(y)  # Mean for each variable
 Sigma <- cov(y)  # Compute covariance matrix of transposed y
 
 
-# Check the dimensions of the resulting matrix
-print(dim(Sigma))
-
-
 # Adjust the proposal_sd based on the data variance
 variable_sd <- apply(y, 2, sd)  # Standard deviation for each column (variable)
 proposal_sd_adjusted <- mean(variable_sd) / 10  # Adjusted proposal standard deviation
@@ -2255,7 +2254,7 @@ hist(nu_samples, main = "Posterior Distribution of Degrees of Freedom", xlab = "
 hist_data <- hist(nu_samples, breaks = 30, plot = FALSE)
 # Find the bin with the maximum count
 selected_nu_mode <- hist_data$mids[which.max(hist_data$counts)]
-print(selected_nu_mode)
+
 
 ```
 
@@ -2544,24 +2543,24 @@ Bp_posterior3 <- results$Bp_posterior
 print("Extension II Model Normalized B0 matrix")
 print(B0_posterior3[,,S])
 
-print("Extension II Model B plus matrix")
-print(Bp_posterior3[,,S])
+#print("Extension II Model B plus matrix")
+#print(Bp_posterior3[,,S])
 
 ```
 
-```{r calculating the standard deviation for the Extension II model B0 matrix, echo=FALSE, eval=TRUE}
+```{r calculating the standard deviation for the Extension II model B0 matrix, echo=FALSE, eval=FALSE}
 
 calculate_and_print_B0sd(B0_posterior3)
 
 ```
 
-```{r calculating the standard deviation for the Extension II model Bp matrix, echo=FALSE, eval=TRUE}
+```{r calculating the standard deviation for the Extension II model Bp matrix, echo=FALSE, eval=FALSE}
 
 calculate_and_print_Bpsd(Bp_posterior3)
 
 ```
 
-```{r plot lagged Bp for the Extension II model, echo=FALSE, eval=TRUE}
+```{r plot lagged Bp for the Extension II model, echo=FALSE, eval=FALSE}
 
 plot_lagged_effects(B0_posterior3, Bp_posterior3)
 
@@ -2576,8 +2575,8 @@ Bp_significance <- calculate_significance(Bp_posterior3)
 # Print significance matrices
 print("Significance for B0 Matrix:")
 print(B0_significance)
-print("Significance for Bp Matrix:")
-print(Bp_significance)
+#print("Significance for Bp Matrix:")
+#print(Bp_significance)
 
 
 ```
@@ -2658,18 +2657,11 @@ mu <- colMeans(y)  # Mean for each variable
 Sigma <- cov(y)  # Compute covariance matrix of transposed y
 
 
-# Check the dimensions of the resulting matrix
-print(dim(Sigma))
-
-
 # Adjust the proposal_sd based on the data variance
 variable_sd <- apply(y, 2, sd)  # Standard deviation for each column (variable)
 proposal_sd_adjusted <- mean(variable_sd) / 10  # Adjusted proposal standard deviation
 
 initial_nu <- 5 # To ensure the fourth moment exists. 
-
-print("initial_nu")
-print(initial_nu)
 
 iterations <- 2000
 
@@ -2682,10 +2674,10 @@ hist(nu_samples, main = "Posterior Distribution of Degrees of Freedom", xlab = "
 
 # Choose the mode nu from the histogram
 # Create histogram of the samples
-hist_data <- hist(nu_samples, breaks = 30, plot = FALSE)
+#hist_data <- hist(nu_samples, breaks = 30, plot = FALSE)
 # Find the bin with the maximum count
 selected_nu_mode <- hist_data$mids[which.max(hist_data$counts)]
-print(selected_nu_mode)
+
 
 ```
 
@@ -3011,24 +3003,24 @@ Bp_posterior4 <- results$Bp_posterior
 print("Extension III Model Normalized B0 matrix")
 print(B0_posterior4[,,S])
 
-print("Extension III Model B plus matrix")
-print(Bp_posterior4[,,S])
+#print("Extension III Model B plus matrix")
+#print(Bp_posterior4[,,S])
 
 ```
 
-```{r calculating the standard deviation for the Extension III model B0 matrix, echo=FALSE, eval=TRUE}
+```{r calculating the standard deviation for the Extension III model B0 matrix, echo=FALSE, eval=FALSE}
 
 calculate_and_print_B0sd(B0_posterior4)
 
 ```
 
-```{r calculating the standard deviation for the Extension III model Bp matrix, echo=FALSE, eval=TRUE}
+```{r calculating the standard deviation for the Extension III model Bp matrix, echo=FALSE, eval=FALSE}
 
 calculate_and_print_Bpsd(Bp_posterior4)
 
 ```
 
-```{r plot lagged Bp for the Extension III model, echo=FALSE, eval=TRUE}
+```{r plot lagged Bp for the Extension III model, echo=FALSE, eval=FALSE}
 
 plot_lagged_effects(B0_posterior4, Bp_posterior4)
 
@@ -3043,8 +3035,8 @@ Bp_significance <- calculate_significance(Bp_posterior4)
 # Print significance matrices
 print("Significance for B0 Matrix:")
 print(B0_significance)
-print("Significance for Bp Matrix:")
-print(Bp_significance)
+#print("Significance for Bp Matrix:")
+#print(Bp_significance)
 
 
 ```
