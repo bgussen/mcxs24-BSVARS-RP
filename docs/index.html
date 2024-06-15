@@ -755,20 +755,20 @@ p(B_+, B_0 \mid Y, X) \propto \mathcal{L}(Y \mid B_+, B_0, X) \cdot p(B_+, B_0)
 </ul></li>
 <li><strong>Extension I</strong>:
 <ul>
-<li>Lambda is ~ <span class="math inline">\(\mathcal{IG2}\)</span> (s, nu)</li>
+<li>Lambda is ~ <span class="math inline">\(\mathcal{IG2}(s, \nu)\)</span></li>
 <li>s is estimated from the posterior distribution.</li>
 <li>nu is taken as a constant.</li>
 </ul></li>
 <li><strong>Extension II</strong>:
 <ul>
-<li>Lambda is ~ <span class="math inline">\(\mathcal{IG2}\)</span> (s, nu)</li>
+<li>Lambda is ~ <span class="math inline">\(\mathcal{IG2}(s, \nu)\)</span></li>
 <li>s is taken as a constant.</li>
 <li>nu is sampled from the data.</li>
 </ul></li>
 <li><strong>Extension III</strong>:
 <ul>
 <li>Both s and nu are integrated from the previous two extensions.</li>
-<li>Lambda is ~ <span class="math inline">\(\mathcal{IG2}\)</span> (s, nu).</li>
+<li>Lambda is ~ <span class="math inline">\(\mathcal{IG2}(s, \nu)\)</span></li>
 </ul></li>
 </ol>
 </section>
@@ -815,9 +815,9 @@ p(\lambda \mid Y, B_0, B_p, X) \propto \lambda^{-\left( \frac{T}{2} + \frac{\nu}
 </section>
 <section id="combining-with-the-prior" class="level4">
 <h4 class="anchored" data-anchor-id="combining-with-the-prior">Combining with the Prior</h4>
-<p>Assuming the prior <span class="math inline">\(p(B^+; B_0)\)</span> as given or formulated according to specific assumptions (such as independence, Gaussian priors for coefficients, etc.), the full posterior kernel combining this likelihood with the prior can be approached as:</p>
+<p>Assuming the prior <span class="math inline">\(p(B_0; B_p)\)</span> as given or formulated according to specific assumptions (such as independence, Gaussian priors for coefficients, etc.), the full posterior kernel combining this likelihood with the prior can be approached as:</p>
 <p><span class="math display">\[
-p(B_+; B_0 \mid Y; X) \propto p(Y \mid X, B_+, B_0) \times p(B_+; B_0)
+p(B_0; B_p \mid Y; X) \propto p(Y \mid X, B_0, B_p) \times p(B_0; B_p)
 \]</span></p>
 <p>This expression must often be evaluated or sampled using computational Bayesian techniques, such as Markov Chain Monte Carlo (MCMC), especially given the integrative step required for <span class="math inline">\(\lambda\)</span>.</p>
 <p>The resulting poserior distribution is also a Normal-Generalized-Normal distribution.</p>
@@ -875,16 +875,6 @@ A \sim MN_{K \times N}(M, Q, P)
 <section id="conclusion" class="level4">
 <h4 class="anchored" data-anchor-id="conclusion">Conclusion</h4>
 <p>The parameters <span class="math inline">\(s\)</span> and <span class="math inline">\(\nu\)</span> from the prior distribution of <span class="math inline">\(\lambda\)</span> affect the posterior distributions for <span class="math inline">\(B_0\)</span> and <span class="math inline">\(B_p\)</span> through the variance scaling in the likelihood, influencing <span class="math inline">\(\bar{S}\)</span>. This approach correctly shows that <span class="math inline">\(\lambda\)</span> does not explicitly appear in the posterior formulas for <span class="math inline">\(\bar{\Omega}\)</span> and <span class="math inline">\(\bar{B}\)</span>, but <span class="math inline">\(\lambda\)</span> impacts the overall posterior distribution implicitly. This rigorous derivation demonstrates the correct Bayesian inference for a hierarchical model, incorporating the effects of <span class="math inline">\(\lambda\)</span> through its posterior distribution.</p>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>Standard deviation of the model B0:
-         [,1]       [,2]      [,3]       [,4]
-[1,] 1.900456 0.00000000 0.0000000 0.00000000
-[2,] 3.372614 0.08570392 0.0000000 0.00000000
-[3,] 2.724767 0.12855166 0.2875522 0.00000000
-[4,] 2.671602 0.12549010 0.4278913 0.07194884</code></pre>
-</div>
-</div>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Extension I Model Normalized B0 matrix"</code></pre>
