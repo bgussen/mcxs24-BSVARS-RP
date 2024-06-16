@@ -52,10 +52,10 @@ library(tidyr)    # For data manipulation
 
 #Define global variables
 
-  S_burnin <- 200       # number of discarded iterations from the Gibbs sampler
-  S <- 800              # number of iterations used to calculate B0 and Bp
-  p <- 12               # number of lags in the Baysian SVAR model 
-  N <- 4                # number of variables in the Bayesian SVAR model
+  S_burnin <- 200      # number of discarded iterations from the Gibbs sampler
+  S <- 800             # number of iterations used to calculate B0 and Bp
+  p <- 12              # number of lags in the Baysian SVAR model 
+  N <- 4               # number of variables in the Bayesian SVAR model
   K <-  1+N*p
 
 ```
@@ -1622,7 +1622,7 @@ Where $\lambda$ is the variance of the error terms in the model, namely, $U_t ~ 
     - nu is sampled from the data.
 
 4. **Extension III**:
-    - Both s and nu are integrated from the previous two extensions.
+    - Both s and nu are estimated simultaneously as in the previous two extensions.
     - Lambda is ~ $\mathcal{IG2}(s, \nu)$
 
 
