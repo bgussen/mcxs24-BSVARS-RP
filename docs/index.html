@@ -650,21 +650,21 @@ p(B_+, B_0 \mid Y, X) \propto \mathcal{L}(Y \mid B_+, B_0, X) \cdot p(B_+, B_0)
 <pre><code>[1] "Random Walk Testing Normalized B0 matrix"</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>            [,1]        [,2]       [,3]     [,4]
-[1,]  1.13930018  0.00000000 0.00000000 0.000000
-[2,] -0.02777325  1.12348228 0.00000000 0.000000
-[3,] -0.03510703 -0.09150157 1.24625642 0.000000
-[4,] -0.02278792 -0.12071540 0.07338822 1.240493</code></pre>
+<pre><code>            [,1]        [,2]        [,3]     [,4]
+[1,]  1.23551092 0.000000000  0.00000000 0.000000
+[2,] -0.01400557 1.202268785  0.00000000 0.000000
+[3,]  0.15927695 0.036851912  1.20351437 0.000000
+[4,]  0.04826060 0.005035643 -0.01277004 1.147067</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Random Walk Testing Bp matrix"</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>             [,1]        [,2]         [,3]        [,4]         [,5]
-[1,]  0.011942002  1.12444513 -0.005149575 -0.00676039  0.003033157
-[2,]  0.001365404 -0.01594288  1.119551307 -0.01204702 -0.002848132
-[3,]  0.020145943 -0.04300681 -0.093219686  1.24282225 -0.005744686
-[4,] -0.035490639 -0.01433571 -0.129343105  0.08514140  1.241639037</code></pre>
+<pre><code>             [,1]        [,2]       [,3]         [,4]         [,5]
+[1,] -0.010352246  1.25073759 0.01082354 -0.005396458  0.004409712
+[2,]  0.110012910 -0.01235143 1.20028536  0.001960385 -0.004621904
+[3,]  0.005180497  0.16445673 0.03677214  1.200275294 -0.002608770
+[4,] -0.035551950  0.04843218 0.01587946 -0.019635373  1.140590055</code></pre>
 </div>
 </div>
 <p>Using only one lag for illustrative purposes, there is a clear convergence of the B0 towards an identity matrix. Bp has two parts, the intercept is approachign zero, while the rest of the matrix is approaching an identity matrix. We have enough evidence to see that the algorithm is able to estimate the random walk process.</p>
@@ -678,10 +678,10 @@ p(B_+, B_0 \mid Y, X) \propto \mathcal{L}(Y \mid B_+, B_0, X) \cdot p(B_+, B_0)
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>           [,1]      [,2]     [,3]     [,4]
-[1,] 32.4626100 0.0000000 0.000000 0.000000
-[2,] -2.4607391 1.4353697 0.000000 0.000000
-[3,]  6.8733642 0.3267877 4.897150 0.000000
-[4,]  0.4260119 0.0613159 1.184948 1.265036</code></pre>
+[1,] 27.7662318 0.0000000 0.000000 0.000000
+[2,] -1.1302995 1.3902566 0.000000 0.000000
+[3,]  0.3401315 0.3020964 4.873703 0.000000
+[4,] -1.1498989 0.1890082 1.105062 1.277283</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -692,8 +692,18 @@ p(B_+, B_0 \mid Y, X) \propto \mathcal{L}(Y \mid B_+, B_0, X) \cdot p(B_+, B_0)
 <pre><code>     [,1]  [,2]  [,3]  [,4] 
 [1,] "***" "NA"  "NA"  "NA" 
 [2,] ""    "***" "NA"  "NA" 
-[3,] "***" "***" "***" "NA" 
+[3,] ""    "**"  "***" "NA" 
 [4,] ""    ""    "***" "***"</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Significance for Bp Matrix (first ten columns):"</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2]  [,3]  [,4]  [,5]  [,6] [,7] [,8] [,9]  [,10]
+[1,] ""   "***" ""    ""    ""    ""   ""   ""   ""    ""   
+[2,] ""   ""    "***" ""    ""    "*"  ""   ""   ""    ""   
+[3,] ""   ""    "***" "***" "***" ""   ""   "**" ""    ""   
+[4,] "**" ""    ""    "***" "***" ""   ""   ""   "***" ""   </code></pre>
 </div>
 </div>
 <div class="cell">
@@ -880,11 +890,11 @@ A \sim MN_{K \times N}(M, Q, P)
 <pre><code>[1] "Extension I Model Normalized B0 matrix"</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>          [,1]        [,2]     [,3]     [,4]
-[1,] 33.054809  0.00000000 0.000000 0.000000
-[2,] -4.040027  1.42208845 0.000000 0.000000
-[3,]  7.843060  0.05558731 4.455513 0.000000
-[4,] -5.906600 -0.08000760 1.091295 1.289847</code></pre>
+<pre><code>            [,1]       [,2]     [,3]     [,4]
+[1,] 32.68275588 0.00000000 0.000000 0.000000
+[2,]  0.06982884 1.57917722 0.000000 0.000000
+[3,]  1.95790643 0.35702604 5.287087 0.000000
+[4,] -6.31726516 0.01353131 1.999476 1.434095</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -895,8 +905,18 @@ A \sim MN_{K \times N}(M, Q, P)
 <pre><code>     [,1]  [,2]  [,3]  [,4] 
 [1,] "***" "NA"  "NA"  "NA" 
 [2,] ""    "***" "NA"  "NA" 
-[3,] "***" ""    "***" "NA" 
+[3,] ""    "***" "***" "NA" 
 [4,] "**"  ""    "***" "***"</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Significance for Bp Matrix (first ten columns):"</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2]  [,3]  [,4]  [,5]  [,6] [,7] [,8] [,9]  [,10]
+[1,] ""   "***" ""    ""    ""    ""   ""   ""   ""    ""   
+[2,] ""   ""    "***" ""    ""    "*"  ""   ""   ""    ""   
+[3,] ""   ""    "***" "***" "***" ""   ""   "**" ""    ""   
+[4,] "**" ""    ""    "***" "***" ""   ""   ""   "***" ""   </code></pre>
 </div>
 </div>
 <div class="cell">
@@ -922,7 +942,7 @@ A \sim MN_{K \times N}(M, Q, P)
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  3.133   3.528   3.639   3.646   3.749   4.857 </code></pre>
+  3.117   3.526   3.623   3.635   3.738   4.948 </code></pre>
 </div>
 <div class="cell-output-display">
 <div>
@@ -937,11 +957,11 @@ A \sim MN_{K \times N}(M, Q, P)
 <pre><code>[1] "Extension II Model Normalized B0 matrix"</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>           [,1]         [,2]     [,3]     [,4]
-[1,] 22.7151067 0.0000000000 0.000000 0.000000
-[2,] -4.2885413 1.4442161177 0.000000 0.000000
-[3,]  1.6344494 0.3597668662 5.127365 0.000000
-[4,] -0.4059037 0.0001024829 1.765989 1.312784</code></pre>
+<pre><code>          [,1]       [,2]     [,3]     [,4]
+[1,] 22.496218 0.00000000 0.000000 0.000000
+[2,]  1.780771 1.39529933 0.000000 0.000000
+[3,]  4.475429 0.53534219 4.869592 0.000000
+[4,] -2.249046 0.05392476 1.779538 1.277026</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -951,9 +971,19 @@ A \sim MN_{K \times N}(M, Q, P)
 <div class="cell-output cell-output-stdout">
 <pre><code>     [,1]  [,2]  [,3]  [,4] 
 [1,] "***" "NA"  "NA"  "NA" 
-[2,] "**"  "***" "NA"  "NA" 
-[3,] ""    "***" "***" "NA" 
+[2,] ""    "***" "NA"  "NA" 
+[3,] "**"  "***" "***" "NA" 
 [4,] ""    ""    "***" "***"</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Significance for Bp Matrix (first ten columns):"</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1]  [,2]  [,3]  [,4]  [,5]  [,6] [,7] [,8] [,9] [,10]
+[1,] ""    "***" ""    ""    ""    ""   ""   ""   ""   ""   
+[2,] "***" ""    "***" ""    "*"   ""   ""   ""   ""   ""   
+[3,] ""    "***" "***" "***" "***" ""   ""   ""   ""   ""   
+[4,] ""    ""    ""    "***" "***" ""   "**" "*"  ""   ""   </code></pre>
 </div>
 </div>
 <div class="cell">
@@ -972,7 +1002,7 @@ A \sim MN_{K \times N}(M, Q, P)
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  3.142   3.526   3.640   3.647   3.767   5.000 </code></pre>
+  3.172   3.531   3.644   3.652   3.748   4.858 </code></pre>
 </div>
 <div class="cell-output-display">
 <div>
@@ -987,11 +1017,11 @@ A \sim MN_{K \times N}(M, Q, P)
 <pre><code>[1] "Extension III Model Normalized B0 matrix"</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>          [,1]         [,2]     [,3]     [,4]
-[1,] 30.084098  0.000000000 0.000000 0.000000
-[2,] -6.179360  1.535959442 0.000000 0.000000
-[3,]  3.676325  0.409024035 4.397218 0.000000
-[4,] -4.183265 -0.005209946 1.201027 1.321282</code></pre>
+<pre><code>          [,1]      [,2]     [,3]     [,4]
+[1,] 34.721353 0.0000000 0.000000 0.000000
+[2,]  4.805231 1.5161023 0.000000 0.000000
+[3,]  7.107679 0.5359840 4.664240 0.000000
+[4,] -5.611984 0.2425969 1.679391 1.331147</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -1001,9 +1031,19 @@ A \sim MN_{K \times N}(M, Q, P)
 <div class="cell-output cell-output-stdout">
 <pre><code>     [,1]  [,2]  [,3]  [,4] 
 [1,] "***" "NA"  "NA"  "NA" 
-[2,] "*"   "***" "NA"  "NA" 
-[3,] ""    "***" "***" "NA" 
-[4,] ""    ""    "***" "***"</code></pre>
+[2,] ""    "***" "NA"  "NA" 
+[3,] "**"  "***" "***" "NA" 
+[4,] "**"  "*"   "***" "***"</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Significance for Bp Matrix (first ten columns):"</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2]  [,3]  [,4]  [,5]  [,6] [,7] [,8] [,9]  [,10]
+[1,] ""   "***" ""    ""    ""    ""   ""   ""   ""    ""   
+[2,] "**" ""    "***" ""    "*"   "*"  ""   ""   "***" ""   
+[3,] ""   "***" "***" "***" "***" ""   ""   "*"  ""    ""   
+[4,] "*"  "**"  ""    "***" "***" "**" ""   ""   ""    ""   </code></pre>
 </div>
 </div>
 <div class="cell">
@@ -1025,9 +1065,10 @@ A \sim MN_{K \times N}(M, Q, P)
 <p>On the other hand, the first version of the expanded model, namely Extension I, which accounts for a random posterior scale for <span class="math inline">\(\lambda = \mathcal{IG2(s, \nu)}\)</span>, suggests that a weakening Dixie would result in <span class="math inline">\(\textbf{stagnation}\)</span> in Australia: 1 per cent decrease in the USD Index would result is roughly 23 per cent increase in inflation, roughly 3 per cent increase in unemployment, and roughly 0.2 per cent decrease in the GDP growth rate.</p>
 <p>In the second extension model, the Extension II version, <span class="math inline">\(\lambda\)</span>’s scale is held constant, while the shape parameter for <span class="math inline">\(\lambda = \mathcal{IG2(s, \nu)}\)</span>, namely <span class="math inline">\(\nu\)</span>, is estimated from the data itself, from matrix <span class="math inline">\(Y\)</span>. Here, the model calibrates the <span class="math inline">\(\textbf{stagnation}\)</span> story told in Extension I. It suggests that a 1 per cent decrease in the USD Index would result is roughly 0.8 per cent increase in inflation, roughly 1.1 per cent increase in unemployment, and roughly 0.6 per cent decrease in the GDP growth rate.</p>
 <p>In the third extension model, the Extension III version, <span class="math inline">\(\lambda\)</span>’s scale and shape are both estimated. The scale is estimated from the posterior for <span class="math inline">\(\lambda\)</span>, while the shape parameter for <span class="math inline">\(\lambda = \mathcal{IG2(s, \nu)}\)</span>, namely <span class="math inline">\(\nu\)</span>, is estimated from the data itself, from matrix <span class="math inline">\(Y\)</span>. Here, the model calibrates the <span class="math inline">\(\textbf{stagnation}\)</span> story told in Extension II. It suggests that a 1 per cent decrease in the USD Index would result is roughly 0.3 per cent increase in inflation, roughly 0.7 per cent increase in unemployment, and roughly 0.2 per cent decrease in the GDP growth rate.</p>
+<p>Also note that there is a statistically significant increase in inflation, although that does not occur until roughly four months after the negative shock. This can be seen in the significance matrix for Bp.</p>
 <p>Of course, all of the above analysis relates to a one-off 1% drop in the Dixie. One could extrapolate and suggest that a larger and sustained drop in the Dixie would be likely to aplify the expected stagnation in the Australian economy. This result is topical given the current pressures on the US dollar, especially through the introduction of a new BRICS currency. The question for government, and especially those in charge of fiscal and monetary policies, is this: What can Australia do today to mitigate the envisaged possibility of stagflation?</p>
 <p>Professor Tomasz Woźniak suggested revising the model to ensure that we can obtain statistically significant results. In particular, the proposition was to replate the unemployment rate with the RBA interest rate. This discussion was prior to the extension fo the basic model. As can be seen from the above results, Extenions I to III provide significant elasticities, while the IRF plots suggest statistically significant responses. Notwithstanding, there is room for improvement by adding a fifth variable, namely the interest rate. However, given the time constraints on finalizing this report, we decided to leave this third extension for further resreach.</p>
-<p>Finally, we need to explain that the extension models are able to produce IRF plots with a non-restricted B0 matrix. However, the ability to simiulate enough iterations of the model is restricted by the processor available for completing this assignment. We attempted a simpulation of 50,000 iterations but the simulation was still running even after nine hours. In our experience, the Gibbs sampler used for the model takes much longer to converge once the restriction on the B0 matrix are lifted. The same issue also arises when attempting to simulate the random walk using an unrestricted B0.</p>
+<p>Finally, we believe that the extension models are able to produce IRF plots with a non-restricted B0 matrix. However, the ability to simiulate enough iterations of the model is restricted by the processor available for completing this assignment. We attempted a simpulation of 50,000 iterations but the simulation was still running even after four hours. In our experience, the Gibbs sampler used for the model takes much longer to converge once the restriction on the B0 matrix are lifted. The same issue also arises when attempting to simulate the random walk using an unrestricted B0.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -1045,24 +1086,24 @@ A \sim MN_{K \times N}(M, Q, P)
 <tbody>
 <tr class="odd">
 <td style="text-align: center;">Inflation</td>
-<td style="text-align: center;">-0.5833084</td>
-<td style="text-align: center;">-0.3519998</td>
-<td style="text-align: center;">-0.3367616</td>
-<td style="text-align: center;">-0.2485629</td>
+<td style="text-align: center;">-1.229990</td>
+<td style="text-align: center;">22.614972</td>
+<td style="text-align: center;">0.7835367</td>
+<td style="text-align: center;">0.3155108</td>
 </tr>
 <tr class="even">
 <td style="text-align: center;">Unemployment</td>
-<td style="text-align: center;">0.7124823</td>
-<td style="text-align: center;">0.5680835</td>
-<td style="text-align: center;">3.1370595</td>
-<td style="text-align: center;">1.1960908</td>
+<td style="text-align: center;">14.328879</td>
+<td style="text-align: center;">2.700378</td>
+<td style="text-align: center;">1.0880727</td>
+<td style="text-align: center;">0.6562255</td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;">GDP Growth</td>
-<td style="text-align: center;">2.9694841</td>
-<td style="text-align: center;">-0.2183738</td>
-<td style="text-align: center;">-3.2342269</td>
-<td style="text-align: center;">-0.3158495</td>
+<td style="text-align: center;">-1.110779</td>
+<td style="text-align: center;">-0.227012</td>
+<td style="text-align: center;">-0.5678081</td>
+<td style="text-align: center;">-0.2371972</td>
 </tr>
 </tbody>
 </table>
